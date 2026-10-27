@@ -1,0 +1,13 @@
+{
+  "extraKnownMarketplaces": {
+    "ptbr-writer": {
+      "source": {
+        "source": "github",
+        "repo": "h0ffmann/ptbr-writer"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "ptbr-writer@ptbr-writer": true
+  }
+}
