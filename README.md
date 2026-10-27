@@ -1,3 +1,22 @@
+<div align="center">
+
+<table>
+<tr>
+<td align="center"><img alt="ztk: a head in one line whose brain is a zettelkasten, by @h0ffmann" src="docs/drawings/ztk.svg" width="320"/></td>
+<td align="center"><a href="https://www.desmos.com/calculator/4vxpt3qrjp"><img alt="Brain, a Desmos graph" src="https://saved-work.desmos.com/calc_thumbs/production/4vxpt3qrjp.png" width="320"/></a></td>
+</tr>
+<tr>
+<td align="center"><sub><i>ztk</i>, Matheus Hoffmann (<a href="https://github.com/h0ffmann">@h0ffmann</a>), 2026</sub></td>
+<td align="center"><sub><a href="https://www.desmos.com/calculator/4vxpt3qrjp"><i>Brain</i></a>, a Desmos graph; author not shown ⚠</sub></td>
+</tr>
+<tr>
+<td align="center"><sub>Desmos source: <a href="docs/drawings/ztk.desmos.json"><code>ztk.desmos.json</code></a></sub></td>
+<td align="center"><sub>Desmos source: <a href="https://www.desmos.com/calculator/4vxpt3qrjp"><code>desmos.com/calculator/4vxpt3qrjp</code></a></sub></td>
+</tr>
+</table>
+
+</div>
+
 # zettelkasten
 
 2nd brain from the future. `ztk` is the product: a [Loco](https://loco.rs) app with a
@@ -41,3 +60,9 @@ SQLite file. Pending migrations run automatically.
 cargo loco start      # API on http://localhost:5150
 cargo test
 ```
+
+## Drawing
+
+The drawing at the top is rendered from its Desmos expressions by `cargo run -p ztk-drawings --bin
+ztk-art`: see [`docs/drawings/README.md`](docs/drawings/README.md). The graph beside it loads its
+picture from Desmos; this repository does not copy it.
