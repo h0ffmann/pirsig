@@ -1,17 +1,19 @@
 //! Inbound channels that bring sources into the brain as PARA resources:
-//! `ztk.web.rss` (feeds) and `ztk.sci.arxiv` (papers).
+//! `ztk.web.rss` (feeds), `ztk.sci.arxiv` (papers) and `ztk.dev.github`
+//! (repositories).
 //!
 //! Inbound never needs permission (it only adds private material), so these
 //! write straight into the brain. Fetching and parsing are split: the parsers
 //! are pure and tested on fixtures, `fetch` is the only network call.
 pub mod arxiv;
+pub mod github;
 pub mod rss;
 
 use std::time::Duration;
 
 use loco_rs::{Error, Result};
 
-const USER_AGENT: &str = concat!(
+pub(crate) const USER_AGENT: &str = concat!(
     "ztk/",
     env!("CARGO_PKG_VERSION"),
     " (+https://github.com/h0ffmann/zettelkasten)"
@@ -67,6 +69,14 @@ pub fn plain_text(html: &str) -> String {
         .replace("&quot;", "\"")
         .replace("&#39;", "'")
         .replace("&apos;", "'")
+        .replace("&ensp;", " ")
+        .replace("&emsp;", " ")
+        .replace("&middot;", "·")
+        .replace("&bull;", "•")
+        .replace("&mdash;", "—")
+        .replace("&reg;", "®")
+        .replace("&copy;", "©")
+        .replace("&trade;", "™")
         .replace("&amp;", "&");
     out.split_whitespace().collect::<Vec<_>>().join(" ")
 }

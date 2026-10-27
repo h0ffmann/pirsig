@@ -31,6 +31,7 @@ explicit steps.
 | a project to use a note | `ztk project --pull ID --note ZID -w why` |
 | a paper | `ztk arxiv add 2212.12794 --note`; `ztk arxiv search "query"` |
 | a feed | `ztk rss add URL -a AREA`, then `ztk rss pull` |
+| their GitHub repos | `GH_TOKEN=$(gh auth token) ztk bootstrap gh --dry-run`, then without `--dry-run`; `--private minimal` only if they ask for private repos |
 | Obsidian | `ztk obsidian export ./vault`, `ztk obsidian import ./vault --dry-run` |
 | to know what needs attention | `ztk ready` |
 | a mind that works as a rhizome | the `hippo` skill (`ztk hippo`) |

@@ -1,5 +1,5 @@
-//! arXiv and RSS ingest, without the network: papers and feed items go
-//! straight to `store`, as `fetch` would hand them over.
+//! arXiv, RSS and GitHub ingest, without the network: papers, feed items and
+//! repositories go straight to `store`, as `fetch` would hand them over.
 use loco_rs::{testing::prelude::*, TestServer};
 use sea_orm::prelude::Date;
 use serde_json::{json, Value};
@@ -8,9 +8,14 @@ use zettelkasten::{
     app::App,
     ingest::{
         arxiv::{self, Filing, Paper},
+        github::{self, Repo},
         rss,
     },
     models::feeds,
+};
+use ztk_github::{
+    index::{plan, RepoFacts},
+    scope::{Private, Scope},
 };
 
 async fn area(request: &TestServer, name: &str) -> i64 {
@@ -197,6 +202,120 @@ async fn rss_entries_become_resources_and_notes_go_out() {
         assert!(feed_rs::parser::parse(xml.as_bytes()).is_ok(), "valid RSS");
         let res = request.get("/api/slipbox/feed.xml?kind=fleeting").await;
         assert_eq!(res.status_code(), 400);
+    })
+    .await;
+}
+
+fn repo(name: &str, description: Option<&str>, upstream: Option<&str>, private: bool) -> RepoFacts {
+    RepoFacts {
+        owner: "h0ffmann".into(),
+        name: name.into(),
+        url: format!("https://github.com/h0ffmann/{name}"),
+        private,
+        fork: upstream.is_some(),
+        parent: upstream.map(Into::into),
+        description: description.map(Into::into),
+        topics: vec![],
+        language: None,
+        stars: 0,
+        prs: 0,
+        merged_prs: 0,
+        pushed_at: Some("2026-03-04T00:00:00Z".into()),
+    }
+}
+
+#[tokio::test]
+#[serial]
+async fn github_repos_become_notes_indexed_by_category() {
+    request::<App, _, _>(|request, ctx| async move {
+        let ocean = area(&request, "Oceanography").await;
+        // a repo added by hand before the import: claimed, not duplicated
+        request
+            .post("/api/resources")
+            .json(&json!({ "title": "WW3 by hand", "url": "https://github.com/h0ffmann/WW3" }))
+            .await;
+
+        let facts = vec![
+            repo("WW3", Some("WAVEWATCH III, a wave model"), Some("NOAA-EMC/WW3"), false),
+            repo("ww3-gpu", Some("secret plans"), None, true),
+            repo("rust-gpu", Some("Rust for GPU shaders"), Some("Rust-GPU/rust-gpu"), false),
+        ];
+        let scope = Scope {
+            own_private: Private::Minimal,
+            ..Scope::for_user("h0ffmann")
+        };
+        let repos: Vec<Repo> = plan(&scope, &facts).into_iter().map(Repo::from).collect();
+        assert_eq!(plan(&Scope::for_user("h0ffmann"), &facts).len(), 2, "private: skipped by default");
+        let done = github::store(&ctx.db, repos.clone(), &github::Filing::default())
+            .await
+            .unwrap();
+        assert_eq!(done.len(), 3);
+        assert_eq!(
+            done.iter().map(|d| d.repo.as_str()).collect::<Vec<_>>(),
+            ["h0ffmann/WW3", "h0ffmann/rust-gpu", "h0ffmann/ww3-gpu"],
+            "plan sorts by key"
+        );
+        assert!(!done[0].created, "matched by URL");
+        assert_eq!(done[0].resource_id, 1);
+        assert_eq!(
+            done.iter().map(|d| d.category).collect::<Vec<_>>(),
+            ["ocean-waves", "gpu", "ocean-waves"]
+        );
+        assert_eq!(done[2].area.as_deref(), Some("Oceanography"));
+        assert_eq!(done[1].area, None, "no Software area yet: left unfiled");
+        assert!(done.iter().all(|d| d.note.is_some()), "every repo gets a note");
+
+        let r: Value = request.get("/api/resources/1").await.json();
+        assert_eq!(r["external_id"], "gh:h0ffmann/WW3");
+        let r: Value = request
+            .get(&format!("/api/resources/{}", done[2].resource_id))
+            .await
+            .json();
+        assert_eq!(r["kind"], "repo");
+        assert_eq!(r["area_id"], ocean);
+
+        let zid = done[2].note.as_deref().unwrap();
+        let note: Value = request.get(&format!("/api/notes/{zid}")).await.json();
+        assert_eq!(note["kind"], "literature");
+        assert_eq!(note["title"], "Repo: ww3-gpu");
+        assert_eq!(note["resource_id"], done[2].resource_id);
+        assert!(!note["body"].as_str().unwrap().contains("secret"), "minimal depth");
+        assert_eq!(
+            note["tags"],
+            json!(["github", "own", "private", "repo/ocean-waves"])
+        );
+        let hub_zid = note["backlinks"][0]["zid"].as_str().unwrap().to_string();
+        let hub: Value = request.get(&format!("/api/notes/{hub_zid}")).await.json();
+        assert_eq!(hub["kind"], "hub");
+        assert_eq!(hub["title"], "Repos: ocean and wave modelling");
+        let (ww3, gpu) = (done[0].note.as_deref().unwrap(), zid);
+        assert_eq!(
+            hub["body"],
+            format!(
+                "Every GitHub repository in this category.\n\n## Own repositories\n\n- [[{gpu}]] ww3-gpu (private)\n\n## Forks\n\n- [[{ww3}]] WW3\n"
+            )
+        );
+        let root: Value = request
+            .get(&format!("/api/notes/{}", hub["backlinks"][0]["zid"].as_str().unwrap()))
+            .await
+            .json();
+        assert_eq!(root["title"], github::ROOT_HUB);
+        assert_eq!(root["links"].as_array().unwrap().len(), 2, "one per category");
+
+        // again, with an area for the rest: nothing new, the unfiled one filed
+        let software = area(&request, "Software").await;
+        let again = github::store(&ctx.db, repos, &github::Filing::default())
+            .await
+            .unwrap();
+        assert!(again.iter().all(|d| !d.created && d.note.is_none()));
+        assert_eq!(again[1].area.as_deref(), Some("Software"));
+        let all: Value = request.get("/api/resources").await.json();
+        assert_eq!(all["total_items"], 3);
+        let r: Value = request
+            .get(&format!("/api/resources/{}", done[1].resource_id))
+            .await
+            .json();
+        assert_eq!(r["area_id"], software);
     })
     .await;
 }

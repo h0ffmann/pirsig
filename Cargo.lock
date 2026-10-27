@@ -6409,6 +6409,7 @@ dependencies = [
  "url",
  "uuid",
  "validator",
+ "ztk-github",
 ]
 
 [[package]]
