@@ -1,0 +1,16 @@
+{
+  "name": "ztk",
+  "version": "0.1.0",
+  "description": "Work in a ztk brain: capture and link notes, file PARA, ingest arXiv and RSS, check the Zettelkasten method, and grow a Hippo's rhizome",
+  "author": {
+    "name": "h0ffmann"
+  },
+  "repository": "https://github.com/h0ffmann/zettelkasten",
+  "keywords": [
+    "zettelkasten",
+    "para",
+    "second brain",
+    "pkm",
+    "neurodivergent"
+  ]
+}

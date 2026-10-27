@@ -26,6 +26,7 @@ set up yet). Rules the database can hold are *enforced*: breaking one is an erro
 | **Obsidian in/out** (`ztk.pkm.obsidian`) | ready | export replaces only files ztk wrote; links rewritten to file stems and back; import matches notes by zid (else title) and PARA by name; `--dry-run` rolls back | `[[links]]` with no note behind them | `tests/requests/vault.rs` |
 | **RSS in** (`ztk.web.rss`) | ready | feed URLs are http(s) and unique; entries matched by guid, so pulls never duplicate; arXiv entries share the paper's identity | feeds not pulled in 7 days, feeds filed nowhere | `tests/requests/ingest.rs` |
 | **RSS out** | ready | permanent notes by default; fleeting notes (the inbox) never go out | whether anything is publishable | `tests/requests/ingest.rs` |
+| **Hippo rhizome** | ready | traits are `adhd`, `autistic`, `neurotic` or `obsessive`; each note is woven in on save (two links, each with a reason); no `--after`; a deleted note's neighbours are relinked | rhizomes in pieces, fixations with no notes | `tests/requests/hippos.rs` |
 | **arXiv in** (`ztk.sci.arxiv`) | ready | any id shape; one resource per paper (a new version updates it); unique BibTeX citekeys; filed into the one area its categories point to, else reported | papers not filed, papers with no literature note | `tests/requests/ingest.rs`, `src/ingest/arxiv.rs` |
 
 Not covered yet: Obsidian's key/value properties as ztk *tags* (see
@@ -65,6 +66,22 @@ always the better move.
 - **PARA and the slipbox meet by link, never by folder.** A literature note points at its
   resource. A project pulls notes in (`ztk project --pull ID --note ZID -w why`). Archiving
   or deleting the project drops the link and never the note.
+
+## Hippo rhizome
+
+A Hippo is a self-described identity (traits plus fixations), never a diagnosis. Its notes
+follow the rhizome principles of Deleuze and Guattari (*A Thousand Plateaus*, 1980), as far as
+software can hold them:
+
+| Principle | In ztk |
+|---|---|
+| connection: any point connects to any other | each note is linked on save to the notes it shares a fixation (strongest), a tag or a title word with, else to the last note captured, until it has two links |
+| no root, no trunk | `--after` is refused; the map has no top, only entry points |
+| asignifying rupture: broken anywhere, it grows back | deleting a note links its neighbours in a chain; `ztk hippo --weave` bridges any pieces |
+| multiplicity, plateaus | each fixation is a plateau; `ztk hippo --map` lists its notes, and where you left off |
+
+The automatic links carry a `rhizome:` reason, so they can be told from the person's own,
+which always win. The traits change how Claude helps (the `hippo` skill), not what ztk stores.
 
 ## Channels
 
