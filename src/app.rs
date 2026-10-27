@@ -52,6 +52,7 @@ impl Hooks for App {
             .add_route(controllers::feeds::routes())
             .add_route(controllers::figures::routes())
             .add_route(controllers::slipbox::routes())
+            .add_route(controllers::slipbox::readiness_routes())
             .add_route(controllers::notes::routes())
             .add_route(controllers::resources::routes())
             .add_route(controllers::tasks::routes())

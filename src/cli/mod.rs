@@ -27,6 +27,7 @@ pub mod note;
 pub mod obsidian;
 pub mod para;
 pub mod project;
+pub mod ready;
 pub mod resource;
 pub mod rss;
 pub mod slipbox;
@@ -72,6 +73,8 @@ pub enum Command {
     Rss(rss::Args),
     /// arXiv papers in as resources, with citekeys and filing (ztk.sci.arxiv).
     Arxiv(arxiv::Args),
+    /// Methodology readiness: PARA, Zettelkasten, Obsidian, RSS and arXiv checks.
+    Ready(ready::Args),
 }
 
 /// Run a parsed command against the database of the current environment
@@ -96,6 +99,7 @@ pub async fn run(cli: Cli) -> Result<()> {
         Command::Obsidian(args) => obsidian::run(&ctx, &out, args).await,
         Command::Rss(args) => rss::run(&ctx, &out, args).await,
         Command::Arxiv(args) => arxiv::run(&ctx, &out, args).await,
+        Command::Ready(args) => ready::run(&ctx, &out, args).await,
     }
 }
 

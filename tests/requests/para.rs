@@ -437,3 +437,65 @@ async fn projects_pull_notes_in_without_owning_them() {
     })
     .await;
 }
+
+#[tokio::test]
+#[serial]
+async fn readiness_reports_each_method() {
+    request::<App, _, _>(|request, _ctx| async move {
+        let empty: Value = request.get("/api/readiness").await.json();
+        let names: Vec<&str> = empty["sections"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|s| s["name"].as_str().unwrap())
+            .collect();
+        assert_eq!(
+            names,
+            [
+                "PARA",
+                "Zettelkasten",
+                "Obsidian in/out",
+                "RSS in/out",
+                "arXiv in"
+            ]
+        );
+        assert_eq!(empty["sections"][0]["checks"][0]["status"], "missing");
+        assert!(empty["sections"][0]["checks"][0]["fix"].is_string());
+
+        let area = post_id(&request, "/api/areas", json!({ "name": "Weather" })).await;
+        let project = post_id(
+            &request,
+            "/api/projects",
+            json!({ "name": "Buoy bench", "area_id": area, "status": "done" }),
+        )
+        .await;
+        request
+            .post("/api/notes")
+            .json(&json!({ "title": "Lonely claim", "kind": "permanent" }))
+            .await;
+        let r: Value = request.get("/api/readiness").await.json();
+        let para = &r["sections"][0];
+        assert_eq!(para["checks"][0]["status"], "ready");
+        let done = para["checks"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|c| c["name"] == "done projects archived")
+            .unwrap();
+        assert_eq!(done["status"], "partial");
+        assert!(done["detail"]
+            .as_str()
+            .unwrap()
+            .contains(&format!("#{project} Buoy bench")));
+        let zk = &r["sections"][1];
+        let orphans = zk["checks"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|c| c["name"] == "no orphan permanent notes")
+            .unwrap();
+        assert_eq!(orphans["status"], "partial");
+        assert!(r["ready"].as_u64().unwrap() < r["total"].as_u64().unwrap());
+    })
+    .await;
+}

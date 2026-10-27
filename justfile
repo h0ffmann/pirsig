@@ -56,6 +56,10 @@ install:
 dev:
     cargo loco start
 
+# Methodology readiness: PARA, Zettelkasten, Obsidian, RSS, arXiv
+ready:
+    {{ztk}} ready
+
 # Format, lint and test: what CI runs
 check: fmt-check lint test
 

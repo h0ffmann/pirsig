@@ -10,6 +10,7 @@ use crate::{
     dtos::notes::{GraphDto, NoteDetail, NoteDto, StatsDto, TreeEntry},
     ingest::rss,
     models::notes::Entity,
+    readiness::{self, Readiness},
 };
 
 #[debug_handler]
@@ -71,6 +72,16 @@ async fn feed(State(ctx): State<AppContext>, Query(params): Query<FeedParams>) -
         xml,
     )
         .into_response())
+}
+
+#[debug_handler]
+async fn ready(State(ctx): State<AppContext>) -> Result<Json<Readiness>> {
+    Ok(Json(readiness::report(&ctx.db).await?))
+}
+
+/// `GET /api/readiness`: the methodology checks (`ztk ready`).
+pub fn readiness_routes() -> Routes {
+    Routes::new().prefix("/api").add("/readiness", get(ready))
 }
 
 pub fn routes() -> Routes {
