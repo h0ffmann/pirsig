@@ -1,0 +1,16 @@
+[package]
+name = "ztk-desktop"
+description = "ztk as a desktop app (Tauri 2): bootstrap only"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+# not a member of the ztk workspace: Tauri needs a system webview to build, and
+# `just check` should not (see ../README.md)
+[workspace]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }

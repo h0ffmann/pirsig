@@ -1,0 +1,14 @@
+.painter-desmos-block svg,
+.painter-archify-block {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+.painter-note {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+}
+.painter-error {
+  color: var(--text-error);
+  white-space: pre-wrap;
+}

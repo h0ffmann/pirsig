@@ -151,6 +151,48 @@ ztk hippo --weave 1    # join the pieces
 The API is `/api/hippos` (CRUD, `GET /{id}/map`, `POST /{id}/weave`), plus `hippo_id` on
 notes. `ztk ready` checks that each rhizome is in one piece.
 
+## Plasticity: quick exercises
+
+A **plast** is one kind of quick exercise that trains the brain itself. ztk ships six, one
+per domain, each with five levels:
+
+| Plast | Domain | Exercise |
+|---|---|---|
+| `mental-arithmetic` | math | sums, products, percentages, squares, in your head |
+| `sequences` | abstraction | find the rule, give the next term |
+| `argument-forms` | logic | valid, or a classic fallacy? |
+| `intervals` | music | semitones, interval names, the note above or below |
+| `first-lines` | literature | famous lines of the classics: who wrote it, which work |
+| `latin-words` | languages | everyday Latin, both ways |
+
+```sh
+ztk plast go            # five exercises, the most due first (or: just plast)
+ztk plast go -d music   # one domain
+ztk plast               # level, streak and when each is due
+```
+
+Every answer is checked and recorded. A right answer pushes the plast out (1 h, 2 h, … up
+to 64 h), and three in a row raise its level. A wrong answer brings it back now, and two in
+a row lower the level. The API is `/api/plasticity` (`GET /next`, `POST /answer`). For now
+the plasts are the ones ztk ships; your own plasts come later.
+
+## obsidian-painter
+
+An Obsidian plugin in [`obsidian-painter/`](obsidian-painter/README.md), written mostly in Rust
+(`crates/obsidian-painter`, compiled to WebAssembly). It has three features:
+
+- **Desmos:** ```` ```desmos ```` blocks draw offline, from a graph state or from LaTeX lines.
+- **Archify:** ```` ```archify ```` blocks show archify figures in the note. "Compose note as
+  HTML page" joins the note and its figures into one page.
+- **PDF:** "Export note to PDF" writes a paper-quality PDF through pandoc.
+
+`just painter` builds and tests it. A tag `obsidian-painter-v<version>` releases it.
+
+## Desktop (Tauri, bootstrap)
+
+ztk will ship as a desktop app built with Tauri. [`desktop/`](desktop/README.md) holds the
+bootstrap: a window that talks to Rust (`just desktop`).
+
 ## Claude Code plugin
 
 The `ztk` plugin brings three skills to Claude Code: `ztk` (work in the brain), `zk-method`

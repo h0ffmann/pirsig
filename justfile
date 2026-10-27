@@ -60,6 +60,18 @@ dev:
 ready:
     {{ztk}} ready
 
+# A quick Plasticity session: five exercises
+plast:
+    {{ztk}} plast go
+
+# Build the obsidian-painter plugin (Rust core to WebAssembly, then main.js) and test it
+painter:
+    cd obsidian-painter && npm ci && npm run build && npm run check && npm test
+
+# Open the desktop shell (Tauri; bootstrap only)
+desktop:
+    cargo run --manifest-path desktop/src-tauri/Cargo.toml
+
 # Format, lint and test: what CI runs
 check: fmt-check lint test
 

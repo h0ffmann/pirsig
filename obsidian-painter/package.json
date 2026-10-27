@@ -1,0 +1,19 @@
+{
+  "name": "obsidian-painter",
+  "version": "0.1.0",
+  "description": "Desmos, archify and pandoc for Obsidian; the logic is Rust (crates/obsidian-painter) compiled to WebAssembly",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "wasm": "cargo build -p obsidian-painter --target wasm32-unknown-unknown --release && mkdir -p build && cp ../target/wasm32-unknown-unknown/release/obsidian_painter.wasm build/painter.wasm",
+    "build": "npm run wasm && node esbuild.config.mjs",
+    "check": "tsc --noEmit",
+    "test": "node --test test/*.test.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "esbuild": "^0.24.0",
+    "obsidian": "^1.7.2",
+    "typescript": "^5.6.3"
+  }
+}

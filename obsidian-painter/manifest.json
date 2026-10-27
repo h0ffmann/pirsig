@@ -1,0 +1,10 @@
+{
+  "id": "obsidian-painter",
+  "name": "Painter",
+  "version": "0.1.0",
+  "minAppVersion": "1.4.0",
+  "description": "Desmos drawings rendered offline, archify figures in the note and composed into one HTML page, and paper-quality PDFs through pandoc.",
+  "author": "h0ffmann",
+  "authorUrl": "https://github.com/h0ffmann",
+  "isDesktopOnly": true
+}

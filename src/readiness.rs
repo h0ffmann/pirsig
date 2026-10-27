@@ -13,7 +13,7 @@ use sea_orm::{ConnectionTrait, EntityTrait};
 use serde::Serialize;
 
 use crate::models::{
-    areas, feeds, hippos, note_links, notes, project_notes, projects, resources, tasks,
+    areas, feeds, hippos, note_links, notes, plasts, project_notes, projects, resources, tasks,
 };
 
 /// A fleeting note older than this is backlog, not inbox.
@@ -548,6 +548,29 @@ async fn hippo<C: ConnectionTrait>(db: &C) -> ModelResult<Section> {
     ))
 }
 
+/// Plasticity is practice, so the one check is whether it happens.
+async fn plasticity<C: ConnectionTrait>(db: &C) -> ModelResult<Section> {
+    let cutoff = chrono::Utc::now() - chrono::Duration::days(7);
+    let all = plasts::Entity::listing(None, db).await?;
+    let fresh = all
+        .iter()
+        .filter(|p| p.practiced_at.is_some_and(|t| t >= cutoff))
+        .count();
+    Ok(section(
+        "Plasticity",
+        vec![check(
+            "practised this week",
+            fresh > 0,
+            true,
+            format!(
+                "{fresh} of {} plasts practised in the last 7 days",
+                all.len()
+            ),
+            "ztk plast go (five quick exercises)",
+        )],
+    ))
+}
+
 /// Run every check on the brain.
 pub async fn report<C: ConnectionTrait>(db: &C) -> ModelResult<Readiness> {
     let brain = Brain::load(db).await?;
@@ -558,6 +581,7 @@ pub async fn report<C: ConnectionTrait>(db: &C) -> ModelResult<Readiness> {
         brain.rss(),
         brain.arxiv(),
         hippo(db).await?,
+        plasticity(db).await?,
     ];
     let checks = sections.iter().flat_map(|s| &s.checks);
     Ok(Readiness {

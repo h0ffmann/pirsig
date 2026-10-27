@@ -4,5 +4,6 @@ mod hippos;
 mod ingest;
 mod notes;
 mod para;
+mod plasticity;
 mod prepare_data;
 mod vault;

@@ -1,0 +1,23 @@
+# desktop — the Tauri shell compiles. Bootstrap only: no bundle, no release yet.
+# macOS ships the webview Tauri needs; Linux would need webkit2gtk first.
+name: desktop
+
+on:
+  pull_request:
+    paths: ["desktop/**", rust-toolchain.toml, .github/workflows/desktop.yml]
+  push:
+    branches: [main]
+    paths: ["desktop/**", rust-toolchain.toml, .github/workflows/desktop.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: macos-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - run: cargo check --locked --manifest-path desktop/src-tauri/Cargo.toml

@@ -457,7 +457,8 @@ async fn readiness_reports_each_method() {
                 "Obsidian in/out",
                 "RSS in/out",
                 "arXiv in",
-                "Hippo rhizome"
+                "Hippo rhizome",
+                "Plasticity"
             ]
         );
         assert_eq!(empty["sections"][0]["checks"][0]["status"], "missing");

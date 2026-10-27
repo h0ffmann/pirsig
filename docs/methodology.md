@@ -27,6 +27,7 @@ set up yet). Rules the database can hold are *enforced*: breaking one is an erro
 | **RSS in** (`ztk.web.rss`) | ready | feed URLs are http(s) and unique; entries matched by guid, so pulls never duplicate; arXiv entries share the paper's identity | feeds not pulled in 7 days, feeds filed nowhere | `tests/requests/ingest.rs` |
 | **RSS out** | ready | permanent notes by default; fleeting notes (the inbox) never go out | whether anything is publishable | `tests/requests/ingest.rs` |
 | **Hippo rhizome** | ready | traits are `adhd`, `autistic`, `neurotic` or `obsessive`; each note is woven in on save (two links, each with a reason); no `--after`; a deleted note's neighbours are relinked | rhizomes in pieces, fixations with no notes | `tests/requests/hippos.rs` |
+| **Plasticity** | ready | the plasts are ztk's six; levels run 1 to 5; seeds below 2^53; every attempt is recorded | whether any plast was practised this week | `tests/requests/plasticity.rs`, `src/plasticity/` |
 | **arXiv in** (`ztk.sci.arxiv`) | ready | any id shape; one resource per paper (a new version updates it); unique BibTeX citekeys; filed into the one area its categories point to, else reported | papers not filed, papers with no literature note | `tests/requests/ingest.rs`, `src/ingest/arxiv.rs` |
 
 Not covered yet: Obsidian's key/value properties as ztk *tags* (see
