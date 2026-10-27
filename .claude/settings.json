@@ -16,5 +16,19 @@
         "repo": "h0ffmann/marola-devkit"
       }
     }
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|mcp__github__create_pull_request",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/pr-via-bipr.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
   }
 }
