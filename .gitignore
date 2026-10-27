@@ -19,3 +19,6 @@ target/
 
 *.sqlite
 *.sqlite-*
+
+build/
+graphify-out/

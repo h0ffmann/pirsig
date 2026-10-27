@@ -20,6 +20,7 @@ use serde::Serialize;
 use crate::app::App;
 
 pub mod area;
+pub mod figure;
 pub mod link;
 pub mod note;
 pub mod para;
@@ -51,6 +52,10 @@ pub enum Command {
     Resource(resource::Args),
     /// Overview of everything in PARA, as a tree.
     Para(para::Args),
+    /// Export the PARA tree as an archify diagram (JSON IR).
+    Figure(figure::FigureArgs),
+    /// Export the brain as a graphify knowledge graph (graph.json).
+    Graph(figure::GraphArgs),
     /// Notes in the slipbox: capture, edit, search, show with backlinks.
     Note(note::Args),
     /// Link two notes and say why.
@@ -74,6 +79,8 @@ pub async fn run(cli: Cli) -> Result<()> {
         Command::Task(args) => task::run(&ctx, &out, args).await,
         Command::Resource(args) => resource::run(&ctx, &out, args).await,
         Command::Para(args) => para::run(&ctx, &out, args).await,
+        Command::Figure(args) => figure::run_figure(&ctx, &out, args).await,
+        Command::Graph(args) => figure::run_graph(&ctx, &out, args).await,
         Command::Note(args) => note::run(&ctx, &out, args).await,
         Command::Link(args) => link::run(&ctx, &out, args).await,
         Command::Slipbox(args) => slipbox::run(&ctx, &out, args).await,

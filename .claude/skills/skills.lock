@@ -1,0 +1,3 @@
+# skills.lock: other people's skills used from a pinned submodule; nothing of theirs is copied here.
+# name	upstream	commit	path	skill_md_blob	licence
+archify	tt-a1i/archify	208acba8d412335185b2056fedf54b3405df43fb	archify/SKILL.md	fe0448d8f0	Apache-2.0

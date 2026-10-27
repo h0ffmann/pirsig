@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "diagram_type": "tree",
+  "meta": {
+    "title": "A second brain in ztk",
+    "subtitle": "PARA exported by ztk. Links show containment: area, project, task, resource.",
+    "output": "para.html",
+    "quality_profile": "showcase"
+  },
+  "nodes": [
+    {
+      "id": "brain",
+      "label": "A second brain in ztk",
+      "sublabel": "3 areas, 3 projects, 4 tasks, 3 resources"
+    },
+    {
+      "id": "area-1",
+      "label": "Health",
+      "parent": "brain",
+      "sublabel": "body and mind"
+    },
+    {
+      "id": "area-2",
+      "label": "Work",
+      "parent": "brain"
+    },
+    {
+      "id": "area-3",
+      "label": "Second brain",
+      "parent": "brain"
+    },
+    {
+      "id": "project-1",
+      "label": "Run a marathon",
+      "parent": "area-1",
+      "sublabel": "active"
+    },
+    {
+      "id": "task-1",
+      "label": "Buy shoes",
+      "parent": "project-1",
+      "sublabel": "due 2026-11-01"
+    },
+    {
+      "id": "task-2",
+      "label": "Long run, 21 km",
+      "parent": "project-1"
+    },
+    {
+      "id": "project-2",
+      "label": "Q4 roadmap",
+      "parent": "area-2",
+      "sublabel": "planning"
+    },
+    {
+      "id": "project-3",
+      "label": "Ship ztk v0",
+      "parent": "area-3",
+      "sublabel": "active"
+    },
+    {
+      "id": "task-3",
+      "label": "Obsidian sync",
+      "parent": "project-3"
+    },
+    {
+      "id": "task-4",
+      "label": "Archify figures",
+      "parent": "project-3"
+    },
+    {
+      "id": "resource-1",
+      "label": "Couch to 5k",
+      "parent": "project-1",
+      "sublabel": "https://example.com/c25k"
+    },
+    {
+      "id": "resource-2",
+      "label": "PARA method",
+      "parent": "area-3"
+    },
+    {
+      "id": "unfiled",
+      "label": "Unfiled resources",
+      "parent": "brain"
+    },
+    {
+      "id": "resource-3",
+      "label": "Reading list",
+      "parent": "unfiled"
+    }
+  ]
+}
