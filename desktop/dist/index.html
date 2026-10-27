@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>ztk</title>
+  <style>
+    body { font: 16px/1.5 system-ui, sans-serif; margin: 0; display: grid; place-items: center; height: 100vh; background: #111; color: #eee; }
+    main { text-align: center; }
+    h1 { font-weight: 600; letter-spacing: .05em; }
+    p { color: #aaa; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>ztk</h1>
+    <p>Second brain, desktop shell. Bootstrap: the brain itself comes next.</p>
+    <p id="version"></p>
+  </main>
+  <script>
+    window.__TAURI__?.core.invoke('version').then((v) => {
+      document.getElementById('version').textContent = `ztk desktop ${v}`;
+    });
+  </script>
+</body>
+</html>
