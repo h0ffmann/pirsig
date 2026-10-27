@@ -20,9 +20,12 @@ use serde::Serialize;
 use crate::app::App;
 
 pub mod area;
+pub mod link;
+pub mod note;
 pub mod para;
 pub mod project;
 pub mod resource;
+pub mod slipbox;
 pub mod task;
 
 #[derive(Debug, Parser)]
@@ -48,6 +51,13 @@ pub enum Command {
     Resource(resource::Args),
     /// Overview of everything in PARA, as a tree.
     Para(para::Args),
+    /// Notes in the slipbox: capture, edit, search, show with backlinks.
+    Note(note::Args),
+    /// Link two notes and say why.
+    Link(link::Args),
+    /// The slipbox as a whole: inbox, orphans, tree, random, graph, stats, export.
+    #[command(name = "box", alias = "slipbox")]
+    Slipbox(slipbox::Args),
 }
 
 /// Run a parsed command against the database of the current environment
@@ -64,6 +74,9 @@ pub async fn run(cli: Cli) -> Result<()> {
         Command::Task(args) => task::run(&ctx, &out, args).await,
         Command::Resource(args) => resource::run(&ctx, &out, args).await,
         Command::Para(args) => para::run(&ctx, &out, args).await,
+        Command::Note(args) => note::run(&ctx, &out, args).await,
+        Command::Link(args) => link::run(&ctx, &out, args).await,
+        Command::Slipbox(args) => slipbox::run(&ctx, &out, args).await,
     }
 }
 
