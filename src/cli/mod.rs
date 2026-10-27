@@ -21,9 +21,12 @@ use crate::app::App;
 
 pub mod area;
 pub mod figure;
+pub mod link;
+pub mod note;
 pub mod para;
 pub mod project;
 pub mod resource;
+pub mod slipbox;
 pub mod task;
 
 #[derive(Debug, Parser)]
@@ -53,6 +56,13 @@ pub enum Command {
     Figure(figure::FigureArgs),
     /// Export the brain as a graphify knowledge graph (graph.json).
     Graph(figure::GraphArgs),
+    /// Notes in the slipbox: capture, edit, search, show with backlinks.
+    Note(note::Args),
+    /// Link two notes and say why.
+    Link(link::Args),
+    /// The slipbox as a whole: inbox, orphans, tree, random, graph, stats, export.
+    #[command(name = "box", alias = "slipbox")]
+    Slipbox(slipbox::Args),
 }
 
 /// Run a parsed command against the database of the current environment
@@ -71,6 +81,9 @@ pub async fn run(cli: Cli) -> Result<()> {
         Command::Para(args) => para::run(&ctx, &out, args).await,
         Command::Figure(args) => figure::run_figure(&ctx, &out, args).await,
         Command::Graph(args) => figure::run_graph(&ctx, &out, args).await,
+        Command::Note(args) => note::run(&ctx, &out, args).await,
+        Command::Link(args) => link::run(&ctx, &out, args).await,
+        Command::Slipbox(args) => slipbox::run(&ctx, &out, args).await,
     }
 }
 

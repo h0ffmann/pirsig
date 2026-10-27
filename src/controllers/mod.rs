@@ -9,3 +9,6 @@ pub mod tasks;
 pub mod resources;
 
 pub mod figures;
+pub mod notes;
+
+pub mod slipbox;
