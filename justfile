@@ -59,6 +59,9 @@ dev:
 # Format, lint and test: what CI runs
 check: fmt-check lint test
 
+# Alias for `check`: the marola-devkit stop hook asks for `just quality`
+quality: check
+
 test *args:
     cargo test --all-features --all {{args}}
 

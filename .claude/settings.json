@@ -1,13 +1,20 @@
 {
+  "enabledPlugins": {
+    "ptbr-writer@ptbr-writer": true,
+    "marola-devkit@marola-devkit": true
+  },
   "extraKnownMarketplaces": {
     "ptbr-writer": {
       "source": {
         "source": "github",
         "repo": "h0ffmann/ptbr-writer"
       }
+    },
+    "marola-devkit": {
+      "source": {
+        "source": "github",
+        "repo": "h0ffmann/marola-devkit"
+      }
     }
-  },
-  "enabledPlugins": {
-    "ptbr-writer@ptbr-writer": true
   }
 }
