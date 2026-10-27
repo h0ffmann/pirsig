@@ -1,0 +1,6 @@
+# rustup installs this toolchain on first `cargo` run; CI picks it up too.
+# Dependencies (sqlx) need Rust >= 1.94.
+[toolchain]
+channel = "1.97.0"
+profile = "minimal"
+components = ["rustfmt", "clippy"]

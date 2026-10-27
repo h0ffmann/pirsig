@@ -173,6 +173,10 @@ Diagrams in these docs follow the `figure` skill (`.claude/skills/figure`): sour
 
 ## Server
 
+Needs Rust 1.94 or newer. `rust-toolchain.toml` pins the version, so with
+[rustup](https://rustup.rs) the first `cargo` or `just` command installs it; with an older
+standalone toolchain run `rustup update` first.
+
 ```sh
 cargo loco start      # API on http://localhost:5150
 cargo test
