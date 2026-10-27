@@ -23,6 +23,7 @@ pub mod area;
 pub mod figure;
 pub mod link;
 pub mod note;
+pub mod obsidian;
 pub mod para;
 pub mod project;
 pub mod resource;
@@ -63,6 +64,8 @@ pub enum Command {
     /// The slipbox as a whole: inbox, orphans, tree, random, graph, stats, export.
     #[command(name = "box", alias = "slipbox")]
     Slipbox(slipbox::Args),
+    /// Obsidian vault out and in (ztk.pkm.obsidian).
+    Obsidian(obsidian::Args),
 }
 
 /// Run a parsed command against the database of the current environment
@@ -84,6 +87,7 @@ pub async fn run(cli: Cli) -> Result<()> {
         Command::Note(args) => note::run(&ctx, &out, args).await,
         Command::Link(args) => link::run(&ctx, &out, args).await,
         Command::Slipbox(args) => slipbox::run(&ctx, &out, args).await,
+        Command::Obsidian(args) => obsidian::run(&ctx, &out, args).await,
     }
 }
 

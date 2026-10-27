@@ -166,6 +166,10 @@ pub struct CreateNote {
     pub after: Option<String>,
     /// Added to the `#hashtags` found in the body.
     pub tags: Option<Vec<String>>,
+    /// Keep this zid instead of filing the note (importers only; must be free).
+    #[serde(skip)]
+    #[ts(skip)]
+    pub zid: Option<String>,
 }
 
 /// Partial update: only the fields that are present are changed.

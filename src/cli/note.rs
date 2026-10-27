@@ -150,6 +150,7 @@ pub async fn run(ctx: &AppContext, out: &Output, args: Args) -> Result<()> {
             resource_id: args.resource,
             after: args.after.clone(),
             tags,
+            zid: None,
         };
         let parent = args.after.unwrap_or_default();
         let note = found(notes::ActiveModel::create(db, params).await, &parent)?;

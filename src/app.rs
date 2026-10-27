@@ -70,6 +70,8 @@ impl Hooks for App {
         tasks.register(tasks::user_delete::UserDelete);
     }
     async fn truncate(ctx: &AppContext) -> Result<()> {
+        truncate_table(&ctx.db, models::_entities::project_notes::Entity).await?;
+        truncate_table(&ctx.db, models::_entities::feeds::Entity).await?;
         truncate_table(&ctx.db, models::_entities::note_links::Entity).await?;
         truncate_table(&ctx.db, models::_entities::note_tags::Entity).await?;
         truncate_table(&ctx.db, models::_entities::notes::Entity).await?;

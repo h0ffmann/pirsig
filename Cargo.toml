@@ -43,6 +43,7 @@ ts-rs = { version = "12", features = ["chrono-impl", "serde-compat"] }
 include_dir = { version = "0.7" }
 clap = { version = "4.5", features = ["derive", "env"] }
 url = { version = "2.5" }
+serde_yaml = { version = "0.9" }
 
 [[bin]]
 name = "zettelkasten-cli"

@@ -457,7 +457,17 @@ impl ActiveModel {
         params: CreateNote,
     ) -> ModelResult<Model> {
         let txn = db.begin().await?;
-        let zid = if let Some(parent) = params.after.as_deref() {
+        let zid = if let Some(zid) = params.zid {
+            if Entity::find()
+                .filter(Column::Zid.eq(&zid))
+                .one(&txn)
+                .await?
+                .is_some()
+            {
+                return Err(invalid("zid", &format!("zid {zid} is already taken")));
+            }
+            zid
+        } else if let Some(parent) = params.after.as_deref() {
             Model::find(&txn, parent).await?;
             let siblings: Vec<String> = Entity::find()
                 .select_only()
@@ -858,6 +868,17 @@ pub fn wikilinks(body: &str) -> Vec<String> {
 /// Rewrite the target of every wikilink in the prose of `body` for which `f`
 /// returns a new one, keeping its `#heading`/`^block` and `|label`.
 pub fn rewrite_wikilinks(body: &str, f: impl Fn(&str) -> Option<String>) -> String {
+    rewrite_wikilinks_with(body, |target, anchor, label| {
+        f(target).map(|new| format!("{new}{anchor}{label}"))
+    })
+}
+
+/// Like [`rewrite_wikilinks`], but `f` sees `(target, "#anchor", "|label")`
+/// (empty when absent) and returns the whole new inside of the `[[...]]`.
+pub fn rewrite_wikilinks_with(
+    body: &str,
+    f: impl Fn(&str, &str, &str) -> Option<String>,
+) -> String {
     let mut out = String::with_capacity(body.len());
     for (text, code) in prose_runs(body) {
         if code {
@@ -872,9 +893,9 @@ pub fn rewrite_wikilinks(body: &str, f: impl Fn(&str) -> Option<String>) -> Stri
             };
             let (target, anchor, label) = split_wikilink(&after[..end]);
             out.push_str(&rest[..start]);
-            match f(target.trim()) {
+            match f(target.trim(), anchor, label) {
                 Some(new) => {
-                    let _ = write!(out, "[[{new}{anchor}{label}]]");
+                    let _ = write!(out, "[[{new}]]");
                 }
                 None => out.push_str(&rest[start..start + 2 + end + 2]),
             }
