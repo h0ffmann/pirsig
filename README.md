@@ -125,6 +125,48 @@ ztk box tree
 ztk box inbox
 ```
 
+## Hippo: a rhizome for ADHD, autistic, neurotic and obsessive minds
+
+A **Hippo** is a self-described identity: a name, traits (`adhd`, `autistic`, `neurotic`,
+`obsessive`, any mix) and *fixations*, the obsessions and special interests its notes gather
+around. It is the person's own word, never a diagnosis, and it stays in the private brain.
+
+A Hippo's notes form a **rhizome**, not a Folgezettel tree. ztk keeps the rhizome whole
+without any filing work:
+
+- **Every note is woven in when it is saved.** It is linked to the notes it shares a
+  fixation, a tag or a title word with, or else to the last note captured. Every link says
+  why (`rhizome: both circle rogue waves`).
+- **There is no trunk:** `--after` is refused.
+- **A deleted note's neighbours are linked to each other,** so the rhizome never falls
+  apart.
+
+```sh
+ztk hippo -c -n h0 --trait adhd --trait autistic --fixation "rogue waves" --fixation chess
+ztk note -c "the Draupner wave was linear focusing?" -H 1   # woven in on save
+ztk hippo --map 1      # where you left off, each fixation's notes, any pieces
+ztk hippo --weave 1    # join the pieces
+```
+
+The API is `/api/hippos` (CRUD, `GET /{id}/map`, `POST /{id}/weave`), plus `hippo_id` on
+notes. `ztk ready` checks that each rhizome is in one piece.
+
+## Claude Code plugin
+
+The `ztk` plugin brings three skills to Claude Code: `ztk` (work in the brain), `zk-method`
+(check notes against the method) and `hippo` (grow a Hippo's rhizome, adapting to the traits
+the person gave).
+
+```sh
+claude plugin marketplace add h0ffmann/zettelkasten
+claude plugin install ztk@zettelkasten
+```
+
+`scripts/plugin-smoke.sh` installs the plugin from a checkout into an empty config, the way a
+third party would. CI runs it on every change to the plugin. The evals in `plugins/ztk/evals/`
+run only by hand (Actions → plugin), because they cost API credits. The layout follows
+[h0ffmann/ptbr-writer](https://github.com/h0ffmann/ptbr-writer).
+
 ## Integrations and methodology readiness
 
 | Channel | CLI | API |

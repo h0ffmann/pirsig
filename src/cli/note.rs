@@ -53,6 +53,9 @@ pub struct Args {
     /// The resource a literature note was written from (its citation becomes the source).
     #[arg(short, long, value_name = "RESOURCE_ID")]
     resource: Option<i64>,
+    /// Grow the note in this Hippo's rhizome (it is linked in on save).
+    #[arg(short = 'H', long, value_name = "HIPPO_ID")]
+    hippo: Option<i64>,
     /// File the new note as a continuation of this one (`21` → `21a`).
     #[arg(short, long, value_name = "ZID")]
     after: Option<String>,
@@ -148,6 +151,7 @@ pub async fn run(ctx: &AppContext, out: &Output, args: Args) -> Result<()> {
             kind: args.kind,
             source: args.source,
             resource_id: args.resource,
+            hippo_id: args.hippo,
             after: args.after.clone(),
             tags,
             zid: None,
@@ -168,6 +172,7 @@ pub async fn run(ctx: &AppContext, out: &Output, args: Args) -> Result<()> {
             kind: args.kind,
             source: args.source.into(),
             resource_id: args.resource.into(),
+            hippo_id: args.hippo.into(),
             tags,
         };
         let note = found(note.update_with(db, params).await, &zid)?;

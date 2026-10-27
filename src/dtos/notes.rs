@@ -23,6 +23,9 @@ pub struct NoteDto {
     /// The resource a literature note was written from.
     #[ts(type = "number | null")]
     pub resource_id: Option<i64>,
+    /// The Hippo identity whose rhizome the note belongs to.
+    #[ts(type = "number | null")]
+    pub hippo_id: Option<i64>,
     pub tags: Vec<String>,
     #[ts(type = "string")]
     pub created_at: DateTimeWithTimeZone,
@@ -41,6 +44,7 @@ impl NoteDto {
             kind: m.kind,
             source: m.source,
             resource_id: m.resource_id,
+            hippo_id: m.hippo_id,
             tags,
             created_at: m.created_at,
             updated_at: m.updated_at,
@@ -162,6 +166,10 @@ pub struct CreateNote {
     /// `source` when none is given.
     #[ts(type = "number | null")]
     pub resource_id: Option<i64>,
+    /// Grow the note in this Hippo's rhizome: it is linked into the network on
+    /// save, and `after` is refused (a rhizome has no trunk).
+    #[ts(type = "number | null")]
+    pub hippo_id: Option<i64>,
     /// File the note as a continuation of this zid (`21` → `21a`).
     pub after: Option<String>,
     /// Added to the `#hashtags` found in the body.
@@ -186,6 +194,9 @@ pub struct UpdateNote {
     #[serde(default, skip_serializing_if = "Patch::is_keep")]
     #[ts(type = "number | null")]
     pub resource_id: Patch<i64>,
+    #[serde(default, skip_serializing_if = "Patch::is_keep")]
+    #[ts(type = "number | null")]
+    pub hippo_id: Patch<i64>,
     pub tags: Option<Vec<String>>,
 }
 

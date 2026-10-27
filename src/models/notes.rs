@@ -21,7 +21,7 @@ use sea_orm::{
 use serde::Deserialize;
 
 use super::{
-    note_links, note_tags, project_notes, resources,
+    hippos, note_links, note_tags, project_notes, resources,
     rules::{self, invalid},
 };
 use crate::dtos::notes::{CreateNote, StatsDto, TagCount, UpdateNote};
@@ -195,6 +195,14 @@ impl Model {
         if let Some(resource_id) = params.resource_id.into_option() {
             item.resource_id = Set(resource_id);
         }
+        if let Some(hippo_id) = params.hippo_id.into_option() {
+            if let Some(id) = hippo_id {
+                hippos::Model::find(&txn, id)
+                    .await
+                    .map_err(|_| invalid("hippo_id", &format!("hippo #{id} does not exist")))?;
+            }
+            item.hippo_id = Set(hippo_id);
+        }
         sourced(&txn, &mut item).await?;
         item.validate()?;
         let note = item.update(&txn).await?;
@@ -207,6 +215,7 @@ impl Model {
             note.follow_rename(&txn, &old_title).await?;
             note.adopt_dangling_links(&txn).await?;
         }
+        hippos::weave(&txn, &note).await?;
         txn.commit().await?;
         Ok(note)
     }
@@ -214,6 +223,7 @@ impl Model {
     /// Delete the note with its tags and every link to or from it.
     pub async fn remove<C: ConnectionTrait + TransactionTrait>(self, db: &C) -> ModelResult<()> {
         let txn = db.begin().await?;
+        hippos::heal(&txn, &self).await?;
         note_links::Entity::delete_many()
             .filter(
                 Condition::any()
@@ -457,6 +467,17 @@ impl ActiveModel {
         params: CreateNote,
     ) -> ModelResult<Model> {
         let txn = db.begin().await?;
+        if let Some(id) = params.hippo_id {
+            hippos::Model::find(&txn, id)
+                .await
+                .map_err(|_| invalid("hippo_id", &format!("hippo #{id} does not exist")))?;
+            if params.after.is_some() {
+                return Err(invalid(
+                    "after",
+                    "a Hippo's notes form a rhizome, with no trunk: link the note instead of filing it under another",
+                ));
+            }
+        }
         let zid = if let Some(zid) = params.zid {
             if Entity::find()
                 .filter(Column::Zid.eq(&zid))
@@ -496,6 +517,7 @@ impl ActiveModel {
                 .map_or_else(|| DEFAULT_KIND.to_string(), normalize_kind)),
             source: Set(rules::optional(params.source)),
             resource_id: Set(params.resource_id),
+            hippo_id: Set(params.hippo_id),
             ..Default::default()
         };
         sourced(&txn, &mut item).await?;
@@ -504,6 +526,7 @@ impl ActiveModel {
         let note = item.insert(&txn).await?;
         note.sync(&txn, params.tags.unwrap_or_default()).await?;
         note.adopt_dangling_links(&txn).await?;
+        hippos::weave(&txn, &note).await?;
         txn.commit().await?;
         Ok(note)
     }
