@@ -18,6 +18,7 @@ pub struct Model {
     pub kind: String,
     pub source: Option<String>,
     pub resource_id: Option<i64>,
+    pub hippo_id: Option<i64>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

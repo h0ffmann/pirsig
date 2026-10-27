@@ -35,7 +35,7 @@ use crate::{
         tasks::{CreateTask, UpdateTask},
     },
     models::{
-        areas, notes,
+        areas, hippos, notes,
         notes::{rewrite_wikilinks_with, Linked},
         projects, resources, tasks,
     },
@@ -154,6 +154,7 @@ struct Snapshot {
     resources: Vec<resources::Model>,
     tasks: Vec<tasks::Model>,
     notes: Vec<notes::Model>,
+    hippos: HashMap<i64, String>,
     paths: HashMap<(&'static str, i64), String>,
 }
 
@@ -166,6 +167,12 @@ impl Snapshot {
             resources: resources::Entity::find().all(db).await?,
             tasks: tasks::Entity::listing(None, None).all(db).await?,
             notes: notes::Entity::tree(db).await?,
+            hippos: hippos::Entity::find()
+                .all(db)
+                .await?
+                .into_iter()
+                .map(|h| (h.id, h.name))
+                .collect(),
             paths: HashMap::new(),
         };
         snap.areas.retain(|a| keep(&a.archived_at));
@@ -306,6 +313,9 @@ impl Snapshot {
         }
         if let Some(path) = self.path(RESOURCES, n.resource_id) {
             let _ = writeln!(md, "resource: {}", yaml(&format!("[[{path}]]")));
+        }
+        if let Some(name) = n.hippo_id.and_then(|id| self.hippos.get(&id)) {
+            let _ = writeln!(md, "hippo: {}", yaml(name));
         }
         if !tags.is_empty() {
             let tags: Vec<String> = tags.iter().map(|t| yaml(t)).collect();
@@ -660,6 +670,9 @@ struct Importer<'a> {
     /// Obsidian file stem (lowercased) → zid.
     stems: HashMap<String, String>,
     pulls: Vec<(i64, Vec<String>)>,
+    /// (zid, Hippo name): notes join their Hippo last, once their own links
+    /// are back, so the weave only fills real gaps.
+    joins: Vec<(String, String)>,
     archive: Vec<(&'static str, i64)>,
 }
 
@@ -676,6 +689,7 @@ impl<'a> Importer<'a> {
             resources: HashMap::new(),
             stems: HashMap::new(),
             pulls: Vec::new(),
+            joins: Vec::new(),
             archive: Vec::new(),
         }
     }
@@ -716,6 +730,7 @@ impl<'a> Importer<'a> {
             self.note_links(note, f).await?;
         }
         self.pull_notes().await?;
+        self.join_hippos().await?;
         // archive last: nothing new may go into an archived parent
         for (kind, id) in std::mem::take(&mut self.archive).into_iter().rev() {
             let db = self.db;
@@ -1010,6 +1025,7 @@ impl<'a> Importer<'a> {
                 kind: Some(kind),
                 source: source.into(),
                 resource_id: resource_id.into(),
+                hippo_id: Patch::Keep,
                 tags: Some(tags),
             };
             note.update_with(db, params).await?
@@ -1021,6 +1037,7 @@ impl<'a> Importer<'a> {
                 kind: Some(kind),
                 source,
                 resource_id,
+                hippo_id: None,
                 after: None,
                 tags: Some(tags),
                 zid,
@@ -1028,7 +1045,43 @@ impl<'a> Importer<'a> {
             notes::ActiveModel::create(db, params).await?
         };
         self.stems.insert(f.stem.to_lowercase(), note.zid.clone());
+        if let Some(name) = f.get("hippo") {
+            self.joins.push((note.zid.clone(), name));
+        }
         Ok(note)
+    }
+
+    /// Put notes back in their Hippo's rhizome, making the Hippo if the brain
+    /// has none by that name.
+    async fn join_hippos(&mut self) -> ModelResult<()> {
+        let db = self.db;
+        for (zid, name) in std::mem::take(&mut self.joins) {
+            let found = hippos::Entity::find()
+                .filter(hippos::Column::Name.eq(name.as_str()))
+                .one(db)
+                .await?;
+            let hippo = if let Some(h) = found {
+                h
+            } else {
+                self.report.warnings.push(format!(
+                    "Hippo \"{name}\" created; set its traits and fixations with ztk hippo -u"
+                ));
+                let params = crate::dtos::hippos::CreateHippo {
+                    name: name.clone(),
+                    ..Default::default()
+                };
+                hippos::ActiveModel::create(db, params).await?
+            };
+            let params = UpdateNote {
+                hippo_id: Patch::Set(hippo.id),
+                ..Default::default()
+            };
+            notes::Model::find(db, &zid)
+                .await?
+                .update_with(db, params)
+                .await?;
+        }
+        Ok(())
     }
 
     /// The note a vault link points at: a file stem we imported, or a zid.

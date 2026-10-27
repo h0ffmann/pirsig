@@ -1,6 +1,7 @@
 pub mod _entities;
 pub mod areas;
 pub mod feeds;
+pub mod hippos;
 pub mod note_links;
 pub mod note_tags;
 pub mod notes;

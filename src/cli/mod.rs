@@ -22,6 +22,7 @@ use crate::{app::App, dtos::common::Patch};
 pub mod area;
 pub mod arxiv;
 pub mod figure;
+pub mod hippo;
 pub mod link;
 pub mod note;
 pub mod obsidian;
@@ -75,6 +76,8 @@ pub enum Command {
     Arxiv(arxiv::Args),
     /// Methodology readiness: PARA, Zettelkasten, Obsidian, RSS and arXiv checks.
     Ready(ready::Args),
+    /// Hippo identities: a rhizome of notes for ADHD, autistic, neurotic and obsessive minds.
+    Hippo(hippo::Args),
 }
 
 /// Run a parsed command against the database of the current environment
@@ -100,6 +103,7 @@ pub async fn run(cli: Cli) -> Result<()> {
         Command::Rss(args) => rss::run(&ctx, &out, args).await,
         Command::Arxiv(args) => arxiv::run(&ctx, &out, args).await,
         Command::Ready(args) => ready::run(&ctx, &out, args).await,
+        Command::Hippo(args) => hippo::run(&ctx, &out, args).await,
     }
 }
 

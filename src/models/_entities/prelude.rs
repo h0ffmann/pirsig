@@ -2,6 +2,7 @@
 
 pub use super::areas::Entity as Areas;
 pub use super::feeds::Entity as Feeds;
+pub use super::hippos::Entity as Hippos;
 pub use super::note_links::Entity as NoteLinks;
 pub use super::note_tags::Entity as NoteTags;
 pub use super::notes::Entity as Notes;

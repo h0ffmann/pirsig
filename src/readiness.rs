@@ -12,7 +12,9 @@ use loco_rs::model::ModelResult;
 use sea_orm::{ConnectionTrait, EntityTrait};
 use serde::Serialize;
 
-use crate::models::{areas, feeds, note_links, notes, project_notes, projects, resources, tasks};
+use crate::models::{
+    areas, feeds, hippos, note_links, notes, project_notes, projects, resources, tasks,
+};
 
 /// A fleeting note older than this is backlog, not inbox.
 const INBOX_DAYS: i64 = 14;
@@ -493,6 +495,59 @@ impl Brain {
     }
 }
 
+/// Each Hippo's rhizome is whole, and each of its fixations has notes.
+/// Hippo identities are optional: with none, the section is ready.
+async fn hippo<C: ConnectionTrait>(db: &C) -> ModelResult<Section> {
+    let all = hippos::Entity::listing().all(db).await?;
+    if all.is_empty() {
+        return Ok(section(
+            "Hippo rhizome",
+            vec![Check {
+                name: "Hippo identity",
+                status: Status::Ready,
+                detail: "none (optional: ztk hippo -c -n NAME --trait adhd --fixation TOPIC)"
+                    .into(),
+                fix: None,
+            }],
+        ));
+    }
+    let mut broken = Vec::new();
+    let mut empty = Vec::new();
+    for h in &all {
+        let map = h.map(db).await?;
+        if map.components.len() > 1 {
+            broken.push(format!(
+                "#{} {} ({} pieces)",
+                h.id,
+                h.name,
+                map.components.len()
+            ));
+        }
+        for p in map.plateaus.iter().filter(|p| p.notes.is_empty()) {
+            empty.push(format!("{}: {}", h.name, p.fixation));
+        }
+    }
+    Ok(section(
+        "Hippo rhizome",
+        vec![
+            listed(
+                "rhizome is whole",
+                &broken,
+                &format!("{} Hippo(s), every rhizome in one piece", all.len()),
+                "in pieces",
+                "ztk hippo --weave ID",
+            ),
+            listed(
+                "fixations have notes",
+                &empty,
+                "every fixation has notes around it",
+                "fixations with no note yet",
+                "ztk note -c \"a thought\" -H ID --tag FIXATION",
+            ),
+        ],
+    ))
+}
+
 /// Run every check on the brain.
 pub async fn report<C: ConnectionTrait>(db: &C) -> ModelResult<Readiness> {
     let brain = Brain::load(db).await?;
@@ -502,6 +557,7 @@ pub async fn report<C: ConnectionTrait>(db: &C) -> ModelResult<Readiness> {
         brain.obsidian(),
         brain.rss(),
         brain.arxiv(),
+        hippo(db).await?,
     ];
     let checks = sections.iter().flat_map(|s| &s.checks);
     Ok(Readiness {
