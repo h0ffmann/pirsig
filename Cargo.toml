@@ -39,11 +39,16 @@ uuid = { version = "1.6", features = ["v4"] }
 # and a headless app can still emit them for external consumers.
 ts-rs = { version = "12", features = ["chrono-impl", "serde-compat"] }
 include_dir = { version = "0.7" }
+clap = { version = "4.5", features = ["derive", "env"] }
 
 [[bin]]
 name = "zettelkasten-cli"
 path = "src/bin/main.rs"
 required-features = []
+
+[[bin]]
+name = "ztk"
+path = "src/bin/ztk.rs"
 
 [dev-dependencies]
 loco-rs = { workspace = true, features = ["testing"] }

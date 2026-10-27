@@ -1,4 +1,5 @@
 pub mod app;
+pub mod cli;
 pub mod controllers;
 pub mod data;
 pub mod dtos;
