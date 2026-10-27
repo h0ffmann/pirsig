@@ -17,6 +17,9 @@ pub struct Model {
     pub body: Option<String>,
     pub area_id: Option<i64>,
     pub project_id: Option<i64>,
+    pub kind: Option<String>,
+    pub citekey: Option<String>,
+    pub external_id: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

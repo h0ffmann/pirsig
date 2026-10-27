@@ -8,7 +8,10 @@ pub mod tasks;
 
 pub mod resources;
 
+pub mod feeds;
 pub mod figures;
+pub mod hippos;
 pub mod notes;
+pub mod plasticity;
 
 pub mod slipbox;

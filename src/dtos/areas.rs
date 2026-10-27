@@ -1,6 +1,8 @@
 use sea_orm::prelude::DateTimeWithTimeZone;
 use ts_rs::TS;
 
+use crate::dtos::common::Patch;
+
 #[derive(serde::Serialize, serde::Deserialize, TS)]
 pub struct AreaDto {
     #[ts(type = "number")]
@@ -34,9 +36,12 @@ pub struct CreateArea {
     pub description: Option<String>,
 }
 
-/// Partial update: only the fields that are present are changed.
+/// Partial update: only the fields that are present are changed; `null` clears
+/// an optional field.
 #[derive(Debug, Default, serde::Serialize, serde::Deserialize, TS)]
 pub struct UpdateArea {
     pub name: Option<String>,
-    pub description: Option<String>,
+    #[serde(default, skip_serializing_if = "Patch::is_keep")]
+    #[ts(type = "string | null")]
+    pub description: Patch<String>,
 }

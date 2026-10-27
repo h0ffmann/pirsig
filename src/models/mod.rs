@@ -1,9 +1,14 @@
 pub mod _entities;
 pub mod areas;
+pub mod feeds;
+pub mod hippos;
 pub mod note_links;
 pub mod note_tags;
 pub mod notes;
+pub mod plasts;
+pub mod project_notes;
 pub mod projects;
 pub mod resources;
+pub mod rules;
 pub mod tasks;
 pub mod users;

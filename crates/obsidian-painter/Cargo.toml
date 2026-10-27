@@ -1,0 +1,14 @@
+[package]
+name = "obsidian-painter"
+description = "The Rust core of the obsidian-painter Obsidian plugin: Desmos and archify figures, HTML composition, pandoc PDF"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+# cdylib: the WebAssembly module the plugin loads; rlib: native tests
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1" }

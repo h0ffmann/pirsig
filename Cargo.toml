@@ -1,10 +1,13 @@
 [workspace]
-members = ["crates/ztk-drawings", "crates/ztk-github"]
+members = ["crates/obsidian-painter", "crates/ztk-drawings", "crates/ztk-github"]
+# the Tauri shell builds on its own (it needs a webview); see desktop/README.md
+exclude = ["desktop/src-tauri"]
 
 [package]
 name = "zettelkasten"
 version = "0.1.0"
 edition = "2021"
+rust-version = "1.94"
 publish = false
 default-run = "zettelkasten-cli"
 
@@ -41,6 +44,11 @@ uuid = { version = "1.6", features = ["v4"] }
 ts-rs = { version = "12", features = ["chrono-impl", "serde-compat"] }
 include_dir = { version = "0.7" }
 clap = { version = "4.5", features = ["derive", "env"] }
+url = { version = "2.5" }
+serde_yaml = { version = "0.9" }
+# ingest: RSS/Atom feeds and the arXiv API (Atom)
+feed-rs = { version = "2" }
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls"] }
 
 [[bin]]
 name = "zettelkasten-cli"
@@ -56,3 +64,7 @@ loco-rs = { workspace = true, features = ["testing"] }
 serial_test = { version = "3.1.1" }
 rstest = { version = "0.25" }
 insta = { version = "1.34", features = ["redactions", "yaml", "filters"] }
+
+# the Obsidian plugin ships this crate as WebAssembly: small beats fast
+[profile.release.package.obsidian-painter]
+opt-level = "s"

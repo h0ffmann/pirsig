@@ -69,7 +69,21 @@ inbound designs.
 | **R**esources | reference material, optionally tied to an area/project | `/api/resources` | `ztk resource` |
 | **A**rchives | `archived_at` on areas, projects, resources | `POST /api/<kind>/{id}/archive` / `unarchive`, `?archived=true` | `--archive ID`, `--unarchive ID`, `--archived` |
 
-Tasks (`/api/tasks`, `ztk task`) are next actions inside a project.
+Tasks (`/api/tasks`, `ztk task`) are next actions inside a project. The rules are the
+same through the CLI and the API:
+
+- Names are never blank, and area names are unique. A project's `status` is `active`
+  (the default), `waiting`, `someday` or `done`, and `--due` gives it its end date.
+- Nothing active lives in the archive. Archiving an area archives its projects and
+  resources, and nothing new goes into an archived area or project.
+- Deleting an area or project that still has children needs `--force` (`?force=true`).
+- A partial update clears an optional field with `null` in JSON, `""` for a text flag,
+  or `--no-due`, `--no-area` or `--no-project` in the CLI.
+- A resource can carry a `kind` (`paper`, `article`, `book`, ...) and a unique `citekey`
+  that literature notes cite.
+- A project pulls notes in by link, without owning them:
+  `ztk project --pull 2 --note 1a -w "the training plan"`
+  (`/api/projects/{id}/notes`).
 
 ## Slipbox (notes, smart notes, Zettelkasten)
 
@@ -78,10 +92,12 @@ Notes live in a slipbox with Luhmann-style ids (`zid`): `1` starts a train of th
 addressed by zid.
 
 - **Kinds** (after *How to Take Smart Notes*): `fleeting` (default, the inbox),
-  `literature` (with a `source`), `permanent` (your own words), `hub` (structure note).
+  `literature` (must cite a `source`, or the `--resource` it was written from),
+  `permanent` (your own words), `hub` (structure note).
 - **Links**: `[[1a]]` or `[[Some title]]` in a body becomes a link on save, including
-  links written before the target existed. Hand-made links (`ztk link`) carry a reason
-  and survive edits.
+  links written before the target existed. Obsidian's `[[note#heading]]` works, links
+  inside code do not count, and renaming a note rewrites `[[Old title]]` in the notes
+  that cite it. Hand-made links (`ztk link`) carry a reason and survive edits.
 - **Labels and tags**: a *label* is a value (`#pkm`), a *tag* is a key/value pair
   (`status=active`); see [labels and tags](docs/design/labels-and-tags.md). Notes take
   labels today, as `#hashtags` in the body plus `--tag` (still named tag; renamed to
@@ -95,7 +111,7 @@ addressed by zid.
 | Markdown | `GET /api/notes/{zid}/markdown` | `ztk note -s ZID --md` |
 | links | `POST /api/notes/{zid}/links` `{target, context}`, `DELETE /api/notes/{zid}/links/{target}` | `ztk link FROM TO -w why`, `-d` |
 | views | `GET /api/slipbox/{inbox,orphans,random,tree,graph,stats}` | `ztk box [inbox\|orphans\|random\|tree\|graph\|tags\|stats]` |
-| export | | `ztk box export ./vault` |
+| export | | `ztk box export ./vault` (an Obsidian vault, see below) |
 
 ```sh
 ztk note -c "Atomic notes"                      # quick capture (fleeting)
@@ -109,11 +125,110 @@ ztk box tree
 ztk box inbox
 ```
 
+## Hippo: a rhizome for ADHD, autistic, neurotic and obsessive minds
+
+A **Hippo** is a self-described identity: a name, traits (`adhd`, `autistic`, `neurotic`,
+`obsessive`, any mix) and *fixations*, the obsessions and special interests its notes gather
+around. It is the person's own word, never a diagnosis, and it stays in the private brain.
+
+A Hippo's notes form a **rhizome**, not a Folgezettel tree. ztk keeps the rhizome whole
+without any filing work:
+
+- **Every note is woven in when it is saved.** It is linked to the notes it shares a
+  fixation, a tag or a title word with, or else to the last note captured. Every link says
+  why (`rhizome: both circle rogue waves`).
+- **There is no trunk:** `--after` is refused.
+- **A deleted note's neighbours are linked to each other,** so the rhizome never falls
+  apart.
+
+```sh
+ztk hippo -c -n h0 --trait adhd --trait autistic --fixation "rogue waves" --fixation chess
+ztk note -c "the Draupner wave was linear focusing?" -H 1   # woven in on save
+ztk hippo --map 1      # where you left off, each fixation's notes, any pieces
+ztk hippo --weave 1    # join the pieces
+```
+
+The API is `/api/hippos` (CRUD, `GET /{id}/map`, `POST /{id}/weave`), plus `hippo_id` on
+notes. `ztk ready` checks that each rhizome is in one piece.
+
+## Plasticity: quick exercises
+
+A **plast** is one kind of quick exercise that trains the brain itself. ztk ships six, one
+per domain, each with five levels:
+
+| Plast | Domain | Exercise |
+|---|---|---|
+| `mental-arithmetic` | math | sums, products, percentages, squares, in your head |
+| `sequences` | abstraction | find the rule, give the next term |
+| `argument-forms` | logic | valid, or a classic fallacy? |
+| `intervals` | music | semitones, interval names, the note above or below |
+| `first-lines` | literature | famous lines of the classics: who wrote it, which work |
+| `latin-words` | languages | everyday Latin, both ways |
+
+```sh
+ztk plast go            # five exercises, the most due first (or: just plast)
+ztk plast go -d music   # one domain
+ztk plast               # level, streak and when each is due
+```
+
+Every answer is checked and recorded. A right answer pushes the plast out (1 h, 2 h, … up
+to 64 h), and three in a row raise its level. A wrong answer brings it back now, and two in
+a row lower the level. The API is `/api/plasticity` (`GET /next`, `POST /answer`). For now
+the plasts are the ones ztk ships; your own plasts come later.
+
+## obsidian-painter
+
+An Obsidian plugin in [`obsidian-painter/`](obsidian-painter/README.md), written mostly in Rust
+(`crates/obsidian-painter`, compiled to WebAssembly). It has three features:
+
+- **Desmos:** ```` ```desmos ```` blocks draw offline, from a graph state or from LaTeX lines.
+- **Archify:** ```` ```archify ```` blocks show archify figures in the note. "Compose note as
+  HTML page" joins the note and its figures into one page.
+- **PDF:** "Export note to PDF" writes a paper-quality PDF through pandoc.
+
+`just painter` builds and tests it. A tag `obsidian-painter-v<version>` releases it.
+
+## Desktop (Tauri, bootstrap)
+
+ztk will ship as a desktop app built with Tauri. [`desktop/`](desktop/README.md) holds the
+bootstrap: a window that talks to Rust (`just desktop`).
+
+## Claude Code plugin
+
+The `ztk` plugin brings three skills to Claude Code: `ztk` (work in the brain), `zk-method`
+(check notes against the method) and `hippo` (grow a Hippo's rhizome, adapting to the traits
+the person gave).
+
+```sh
+claude plugin marketplace add h0ffmann/zettelkasten
+claude plugin install ztk@zettelkasten
+```
+
+`scripts/plugin-smoke.sh` installs the plugin from a checkout into an empty config, the way a
+third party would. CI runs it on every change to the plugin. The evals in `plugins/ztk/evals/`
+run only by hand (Actions → plugin), because they cost API credits. The layout follows
+[h0ffmann/ptbr-writer](https://github.com/h0ffmann/ptbr-writer).
+
+## Integrations and methodology readiness
+
+| Channel | CLI | API |
+|---|---|---|
+| Obsidian vault out and in | `ztk obsidian export ./vault [--archived]`, `ztk obsidian import ./vault [--dry-run]` | |
+| RSS/Atom feeds in, as resources | `ztk rss add URL -a AREA`, `ztk rss pull`, `ztk rss` | `/api/feeds`, `POST /api/feeds/{id}/pull` |
+| The slipbox out, as RSS | `ztk rss out -o feed.xml` | `GET /api/slipbox/feed.xml` |
+| arXiv papers in: cited, filed, deduplicated | `ztk arxiv add ID... [--note]`, `ztk arxiv search QUERY` | `POST /api/ingest/arxiv`, `GET /api/ingest/arxiv/search` |
+| Methodology readiness | `ztk ready` | `GET /api/readiness` |
+
+`ztk ready` checks the brain against PARA, the Zettelkasten method and the three
+channels, and says what to run for each gap. [docs/methodology.md](docs/methodology.md)
+has the readiness matrix: what is enforced, what is only reported, and where each rule is
+tested.
+
 ## justfile
 
 [`just`](https://github.com/casey/just) keeps the commands short: `just n "An idea"`,
 `just after 1 "Next"`, `just show 1a`, `just edit 1a`, `just find rust`,
-`just box inbox`, `just export`, `just dev`, `just check` (fmt + clippy + tests, as CI).
+`just box inbox`, `just export`, `just ready`, `just dev`, `just check` (fmt + clippy + tests, as CI).
 Run `just` to list them all.
 
 ## CLI
@@ -123,7 +238,7 @@ cargo install --path . --bin ztk   # or: cargo run --bin ztk -- <cmd>
 
 ztk area -c -n Health                       # create
 ztk area -u 1 --description "body & mind"   # update (only the given fields)
-ztk project -c -n "Run a marathon" -a 1 --status active
+ztk project -c -n "Run a marathon" -a 1 --due 2027-04-18
 ztk task -c -t "Buy shoes" -p 1 --due 2026-11-01
 ztk task --done 1
 ztk resource -c -t "Couch to 5k" --url https://example.com -a 1
@@ -172,6 +287,10 @@ Diagrams in these docs follow the `figure` skill (`.claude/skills/figure`): sour
 `just figure-check` says whether a PNG is stale.
 
 ## Server
+
+Needs Rust 1.94 or newer. `rust-toolchain.toml` pins the version, so with
+[rustup](https://rustup.rs) the first `cargo` or `just` command installs it; with an older
+standalone toolchain run `rustup update` first.
 
 ```sh
 cargo loco start      # API on http://localhost:5150

@@ -197,8 +197,11 @@ ids, front matter, no dead links, every note linked from the index; the `zk-meth
 ## What this asks of ztk
 
 - **Notes, links, backlinks and tags** are in ztk now (`ztk note`, `ztk link`, `ztk box`).
-  Still missing: a **status** on notes (`unverified` → `verified` → `approved`), and a Markdown
-  **import** that reads front matter, so `load.py` is not needed.
+  Still missing: a **status** on notes (`unverified` → `verified` → `approved`). The Markdown
+  **import** exists now: `ztk obsidian import examples/slipbox/notes` loads the same 30 notes
+  and 93 links as `load.py`, resolving the `[[<id>-<slug>]]` links by file name. The only
+  thing it leaves out is `status`, which is a key/value tag (not built yet) and which
+  `load.py` turns into a `status/<status>` label.
 - **A git inbound importer** that reads a repository's README (and `notes/`, when it has one)
   into literature notes, pinned at a commit, with the repository as a PARA resource.
 - **Labels** for the lights (the first tag of each note), as the BYOL design proposes.

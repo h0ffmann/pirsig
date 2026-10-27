@@ -10,6 +10,11 @@ mod m20261027_021525_resources;
 mod m20261027_030000_notes;
 mod m20261027_030100_note_links;
 mod m20261027_030200_note_tags;
+mod m20261027_040000_para_methodology;
+mod m20261027_040100_project_notes;
+mod m20261027_040200_feeds;
+mod m20261027_050000_hippos;
+mod m20261027_060000_plasticity;
 pub struct Migrator;
 
 #[async_trait::async_trait]
@@ -24,6 +29,11 @@ impl MigratorTrait for Migrator {
             Box::new(m20261027_030000_notes::Migration),
             Box::new(m20261027_030100_note_links::Migration),
             Box::new(m20261027_030200_note_tags::Migration),
+            Box::new(m20261027_040000_para_methodology::Migration),
+            Box::new(m20261027_040100_project_notes::Migration),
+            Box::new(m20261027_040200_feeds::Migration),
+            Box::new(m20261027_050000_hippos::Migration),
+            Box::new(m20261027_060000_plasticity::Migration),
             // inject-above (do not remove this comment)
         ]
     }
