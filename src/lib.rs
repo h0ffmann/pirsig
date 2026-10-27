@@ -8,6 +8,7 @@ pub mod ingest;
 pub mod initializers;
 pub mod mailers;
 pub mod models;
+pub mod plasticity;
 pub mod readiness;
 pub mod tasks;
 pub mod vault;

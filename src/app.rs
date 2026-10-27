@@ -52,6 +52,7 @@ impl Hooks for App {
             .add_route(controllers::feeds::routes())
             .add_route(controllers::figures::routes())
             .add_route(controllers::hippos::routes())
+            .add_route(controllers::plasticity::routes())
             .add_route(controllers::slipbox::routes())
             .add_route(controllers::slipbox::readiness_routes())
             .add_route(controllers::notes::routes())
@@ -76,6 +77,8 @@ impl Hooks for App {
         truncate_table(&ctx.db, models::_entities::project_notes::Entity).await?;
         truncate_table(&ctx.db, models::_entities::feeds::Entity).await?;
         truncate_table(&ctx.db, models::_entities::hippos::Entity).await?;
+        truncate_table(&ctx.db, models::_entities::plast_attempts::Entity).await?;
+        truncate_table(&ctx.db, models::_entities::plasts::Entity).await?;
         truncate_table(&ctx.db, models::_entities::note_links::Entity).await?;
         truncate_table(&ctx.db, models::_entities::note_tags::Entity).await?;
         truncate_table(&ctx.db, models::_entities::notes::Entity).await?;

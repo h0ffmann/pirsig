@@ -6,6 +6,8 @@ pub use super::hippos::Entity as Hippos;
 pub use super::note_links::Entity as NoteLinks;
 pub use super::note_tags::Entity as NoteTags;
 pub use super::notes::Entity as Notes;
+pub use super::plast_attempts::Entity as PlastAttempts;
+pub use super::plasts::Entity as Plasts;
 pub use super::project_notes::Entity as ProjectNotes;
 pub use super::projects::Entity as Projects;
 pub use super::resources::Entity as Resources;

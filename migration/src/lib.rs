@@ -14,6 +14,7 @@ mod m20261027_040000_para_methodology;
 mod m20261027_040100_project_notes;
 mod m20261027_040200_feeds;
 mod m20261027_050000_hippos;
+mod m20261027_060000_plasticity;
 pub struct Migrator;
 
 #[async_trait::async_trait]
@@ -32,6 +33,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20261027_040100_project_notes::Migration),
             Box::new(m20261027_040200_feeds::Migration),
             Box::new(m20261027_050000_hippos::Migration),
+            Box::new(m20261027_060000_plasticity::Migration),
             // inject-above (do not remove this comment)
         ]
     }

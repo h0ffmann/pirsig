@@ -8,6 +8,8 @@ pub mod hippos;
 pub mod note_links;
 pub mod note_tags;
 pub mod notes;
+pub mod plast_attempts;
+pub mod plasts;
 pub mod project_notes;
 pub mod projects;
 pub mod resources;

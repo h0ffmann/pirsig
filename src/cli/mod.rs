@@ -27,6 +27,7 @@ pub mod link;
 pub mod note;
 pub mod obsidian;
 pub mod para;
+pub mod plast;
 pub mod project;
 pub mod ready;
 pub mod resource;
@@ -78,6 +79,8 @@ pub enum Command {
     Ready(ready::Args),
     /// Hippo identities: a rhizome of notes for ADHD, autistic, neurotic and obsessive minds.
     Hippo(hippo::Args),
+    /// Plasticity: quick exercises in math, abstraction, logic, music, literature, languages.
+    Plast(plast::Args),
 }
 
 /// Run a parsed command against the database of the current environment
@@ -104,6 +107,7 @@ pub async fn run(cli: Cli) -> Result<()> {
         Command::Arxiv(args) => arxiv::run(&ctx, &out, args).await,
         Command::Ready(args) => ready::run(&ctx, &out, args).await,
         Command::Hippo(args) => hippo::run(&ctx, &out, args).await,
+        Command::Plast(args) => plast::run(&ctx, &out, args).await,
     }
 }
 
