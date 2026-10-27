@@ -21,7 +21,7 @@ private repository that tracks this one as `upstream`:
 
 ```sh
 # 1. create an empty PRIVATE repo, e.g. github.com/<you>/brain (no README)
-git clone https://github.com/h0ffmann/zettelkasten.git brain
+git clone https://github.com/ouroboric-dev/zettelkasten.git brain
 cd brain
 git remote rename origin upstream
 git remote add origin git@github.com:<you>/brain.git
@@ -42,7 +42,7 @@ What lives where:
 | `.ztk/publish.state.json` | yes | what has been published, see below |
 
 Contributing back stays easy: code changes go on a branch, are pushed to a public fork
-of `h0ffmann/zettelkasten`, and never touch `brain/`. A pre-push hook (`ztk doctor
+of `ouroboric-dev/zettelkasten`, and never touch `brain/`. A pre-push hook (`ztk doctor
 --hooks`) refuses to push `brain/` to any remote that is public.
 
 ## `ztk publish`: plan, then apply

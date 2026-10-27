@@ -29,7 +29,7 @@ copy** of this repo, so nothing you write ends up on the web just because it is 
 
 ```sh
 # create an empty private repo first, e.g. github.com/<you>/brain
-git clone https://github.com/h0ffmann/zettelkasten.git brain && cd brain
+git clone https://github.com/ouroboric-dev/zettelkasten.git brain && cd brain
 git remote rename origin upstream
 git remote add origin git@github.com:<you>/brain.git
 git push -u origin main
@@ -127,3 +127,8 @@ cargo test
 The drawing at the top is rendered from its Desmos expressions by `cargo run -p ztk-drawings --bin
 ztk-art`: see [`docs/drawings/README.md`](docs/drawings/README.md). The graph beside it loads its
 picture from Desmos; this repository does not copy it.
+
+## Use cases
+
+[`docs/use-cases.md`](docs/use-cases.md) builds a brain out of one person's GitHub repositories:
+a PARA seed script and a sample slip box in [`examples/slipbox/`](examples/slipbox/).
