@@ -29,7 +29,7 @@ copy** of this repo, so nothing you write ends up on the web just because it is 
 
 ```sh
 # create an empty private repo first, e.g. github.com/<you>/brain
-git clone https://github.com/h0ffmann/zettelkasten.git brain && cd brain
+git clone https://github.com/ouroboric-dev/zettelkasten.git brain && cd brain
 git remote rename origin upstream
 git remote add origin git@github.com:<you>/brain.git
 git push -u origin main
