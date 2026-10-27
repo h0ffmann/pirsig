@@ -1,5 +1,8 @@
 pub mod _entities;
 pub mod areas;
+pub mod note_links;
+pub mod note_tags;
+pub mod notes;
 pub mod projects;
 pub mod resources;
 pub mod tasks;
