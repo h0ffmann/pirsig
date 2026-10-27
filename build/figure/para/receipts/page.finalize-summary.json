@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "tree",
+  "quality": "showcase",
+  "specification": {
+    "path": "/home/claude/zettelkasten/docs/archify/para.json",
+    "sha256": "d2771cf24f7b4a1aced612b05a659d3898ba7f0f5716caf9d3bf18f863c04e43",
+    "bytes": 1920
+  },
+  "artifact": {
+    "path": "/home/claude/zettelkasten/build/figure/para/page.html",
+    "sha256": "4946e929e92603b59d20b8224c9948fc5114792544b5b42a5cdfcd3e6a594616",
+    "bytes": 829536
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/home/claude/zettelkasten/build/figure/para/receipts/page.finalize.json",
+    "summaryReceipt": "/home/claude/zettelkasten/build/figure/para/receipts/page.finalize-summary.json",
+    "browserCheckReceipt": "/home/claude/zettelkasten/build/figure/para/receipts/page.browser-check.json"
+  },
+  "visualReview": "not-requested",
+  "durationMs": 3826,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

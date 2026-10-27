@@ -18,4 +18,5 @@ target/
 *.pdb
 
 *.sqlite
-*.sqlite-*
+*.sqlite-*build/
+graphify-out/

@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "workflow",
+  "quality": "showcase",
+  "specification": {
+    "path": "/home/claude/zettelkasten/docs/archify/how-ztk-works.json",
+    "sha256": "2eaec1fa111f843ae8f32f65668aeb15feebf0b1d906fdddfb0078d063814cff",
+    "bytes": 2929
+  },
+  "artifact": {
+    "path": "/home/claude/zettelkasten/build/figure/how-ztk-works/page.html",
+    "sha256": "53e3e9faf75dccecd129681c34498255355729c99af717053e80cd8be01913c2",
+    "bytes": 817059
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/home/claude/zettelkasten/build/figure/how-ztk-works/receipts/page.finalize.json",
+    "summaryReceipt": "/home/claude/zettelkasten/build/figure/how-ztk-works/receipts/page.finalize-summary.json",
+    "browserCheckReceipt": "/home/claude/zettelkasten/build/figure/how-ztk-works/receipts/page.browser-check.json"
+  },
+  "visualReview": "not-requested",
+  "durationMs": 3703,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

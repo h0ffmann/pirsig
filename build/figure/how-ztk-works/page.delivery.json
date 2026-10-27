@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "049a4a03-9c86-42c7-ba05-a3370a9cd25d",
+  "status": "current",
+  "command": "deliver",
+  "type": "workflow",
+  "input": "/home/claude/zettelkasten/docs/archify/how-ztk-works.json",
+  "output": "/home/claude/zettelkasten/build/figure/how-ztk-works/page.html",
+  "specification": {
+    "sha256": "2eaec1fa111f843ae8f32f65668aeb15feebf0b1d906fdddfb0078d063814cff",
+    "bytes": 2929
+  },
+  "artifact": {
+    "sha256": "53e3e9faf75dccecd129681c34498255355729c99af717053e80cd8be01913c2",
+    "bytes": 817059
+  }
+}
