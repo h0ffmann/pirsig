@@ -1,0 +1,70 @@
+# obsidian-painter — check the Obsidian plugin on every change, release it on a tag.
+# check: the Rust core's tests, the WebAssembly build, the TypeScript shim's types, the bundle,
+#   and the node tests that drive the bundled core; the plugin zip is kept as an artifact.
+# release: on a tag obsidian-painter-v<version> (the version must be manifest.json's), publish
+#   main.js, manifest.json and styles.css (what Obsidian and BRAT install) and the zip.
+name: obsidian-painter
+
+on:
+  pull_request:
+    paths: ["crates/obsidian-painter/**", "obsidian-painter/**", "docs/drawings/ztk.desmos.json", rust-toolchain.toml, .github/workflows/obsidian-painter.yml]
+  push:
+    branches: [main]
+    paths: ["crates/obsidian-painter/**", "obsidian-painter/**", "docs/drawings/ztk.desmos.json", rust-toolchain.toml, .github/workflows/obsidian-painter.yml]
+    tags: ["obsidian-painter-v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: obsidian-painter
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24.22.1
+      # rustup reads rust-toolchain.toml: the pinned Rust and its wasm32 target
+      - run: cargo clippy -p obsidian-painter --all-targets -- -D warnings -W clippy::pedantic
+      - run: cargo test -p obsidian-painter
+      - run: npm ci
+      - run: npm run build
+      - run: npm run check
+      - run: npm test
+      - run: zip -j obsidian-painter.zip main.js manifest.json styles.css
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: obsidian-painter
+          path: |
+            obsidian-painter/main.js
+            obsidian-painter/manifest.json
+            obsidian-painter/styles.css
+            obsidian-painter/obsidian-painter.zip
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/obsidian-painter-v')
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: obsidian-painter
+      - name: The tag names the manifest's version
+        run: |
+          want="obsidian-painter-v$(jq -r .version manifest.json)"
+          [ "$GITHUB_REF_NAME" = "$want" ] || { echo "::error::tag $GITHUB_REF_NAME, manifest says $want"; exit 1; }
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \
+            --title "obsidian-painter $(jq -r .version manifest.json)" --generate-notes \
+            main.js manifest.json styles.css obsidian-painter.zip

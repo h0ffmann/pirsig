@@ -4,3 +4,5 @@
 channel = "1.97.0"
 profile = "minimal"
 components = ["rustfmt", "clippy"]
+# obsidian-painter compiles to WebAssembly
+targets = ["wasm32-unknown-unknown"]
