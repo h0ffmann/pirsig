@@ -41,3 +41,8 @@ SQLite file. Pending migrations run automatically.
 cargo loco start      # API on http://localhost:5150
 cargo test
 ```
+
+## Use cases
+
+[`docs/use-cases.md`](docs/use-cases.md) builds a brain out of one person's GitHub repositories:
+a PARA seed script and a sample slip box in [`examples/slipbox/`](examples/slipbox/).
