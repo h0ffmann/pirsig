@@ -17,15 +17,19 @@ use loco_rs::{
 use migration::Migrator;
 use serde::Serialize;
 
-use crate::app::App;
+use crate::{app::App, dtos::common::Patch};
 
 pub mod area;
+pub mod arxiv;
 pub mod figure;
 pub mod link;
 pub mod note;
+pub mod obsidian;
 pub mod para;
 pub mod project;
+pub mod ready;
 pub mod resource;
+pub mod rss;
 pub mod slipbox;
 pub mod task;
 
@@ -63,6 +67,14 @@ pub enum Command {
     /// The slipbox as a whole: inbox, orphans, tree, random, graph, stats, export.
     #[command(name = "box", alias = "slipbox")]
     Slipbox(slipbox::Args),
+    /// Obsidian vault out and in (ztk.pkm.obsidian).
+    Obsidian(obsidian::Args),
+    /// RSS/Atom feeds in as resources, and the slipbox out as a feed (ztk.web.rss).
+    Rss(rss::Args),
+    /// arXiv papers in as resources, with citekeys and filing (ztk.sci.arxiv).
+    Arxiv(arxiv::Args),
+    /// Methodology readiness: PARA, Zettelkasten, Obsidian, RSS and arXiv checks.
+    Ready(ready::Args),
 }
 
 /// Run a parsed command against the database of the current environment
@@ -84,6 +96,10 @@ pub async fn run(cli: Cli) -> Result<()> {
         Command::Note(args) => note::run(&ctx, &out, args).await,
         Command::Link(args) => link::run(&ctx, &out, args).await,
         Command::Slipbox(args) => slipbox::run(&ctx, &out, args).await,
+        Command::Obsidian(args) => obsidian::run(&ctx, &out, args).await,
+        Command::Rss(args) => rss::run(&ctx, &out, args).await,
+        Command::Arxiv(args) => arxiv::run(&ctx, &out, args).await,
+        Command::Ready(args) => ready::run(&ctx, &out, args).await,
     }
 }
 
@@ -133,12 +149,40 @@ impl Output {
     }
 }
 
-/// Turn the model layer's bare "not found" into a message that names the thing.
+/// Turn the model layer's bare "not found" into a message that names the thing,
+/// and validation errors into `field: reason` lines.
 pub(crate) fn named<T>(res: std::result::Result<T, ModelError>, what: &str, id: i64) -> Result<T> {
     res.map_err(|err| match err {
         ModelError::EntityNotFound => Error::Message(format!("{what} #{id} not found")),
-        err => err.into(),
+        err => explain(err),
     })
+}
+
+/// A model error as people read it: validation errors become `field: reason` lines.
+pub(crate) fn explain(err: ModelError) -> Error {
+    match err {
+        ModelError::Validation(v) => Error::Message(
+            v.errors
+                .iter()
+                .flat_map(|(field, errs)| {
+                    errs.iter().map(move |e| {
+                        format!("{field}: {}", e.message.as_deref().unwrap_or(&e.code))
+                    })
+                })
+                .collect::<Vec<_>>()
+                .join("\n"),
+        ),
+        err => err.into(),
+    }
+}
+
+/// `--due DATE` sets it, `--no-due` clears it, neither leaves it alone.
+pub(crate) fn patch<T>(value: Option<T>, clear: bool) -> Patch<T> {
+    if clear {
+        Patch::Clear
+    } else {
+        value.into()
+    }
 }
 
 pub(crate) fn required<T>(value: Option<T>, flag: &str) -> Result<T> {

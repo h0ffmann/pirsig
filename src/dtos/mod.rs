@@ -8,4 +8,5 @@ pub mod tasks;
 
 pub mod resources;
 
+pub mod feeds;
 pub mod notes;

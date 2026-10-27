@@ -42,6 +42,11 @@ uuid = { version = "1.6", features = ["v4"] }
 ts-rs = { version = "12", features = ["chrono-impl", "serde-compat"] }
 include_dir = { version = "0.7" }
 clap = { version = "4.5", features = ["derive", "env"] }
+url = { version = "2.5" }
+serde_yaml = { version = "0.9" }
+# ingest: RSS/Atom feeds and the arXiv API (Atom)
+feed-rs = { version = "2" }
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls"] }
 
 [[bin]]
 name = "zettelkasten-cli"

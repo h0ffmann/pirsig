@@ -2,7 +2,7 @@ use clap::ArgGroup;
 use loco_rs::{app::AppContext, Result};
 use sea_orm::prelude::Date;
 
-use super::{named, required, Output};
+use super::{named, patch, required, Output};
 use crate::{
     dtos::tasks::{CreateTask, TaskDto, UpdateTask},
     models::tasks,
@@ -34,12 +34,15 @@ pub struct Args {
     /// Task title.
     #[arg(short, long)]
     title: Option<String>,
-    /// Free-form notes.
+    /// Free-form notes; `""` clears them.
     #[arg(long)]
     notes: Option<String>,
     /// Due date, YYYY-MM-DD.
     #[arg(long, value_name = "DATE")]
     due: Option<Date>,
+    /// Clear the due date.
+    #[arg(long, conflicts_with = "due")]
+    no_due: bool,
     /// Project id: the task's parent, or the list filter.
     #[arg(short, long, value_name = "PROJECT_ID")]
     project: Option<i64>,
@@ -77,9 +80,9 @@ pub async fn run(ctx: &AppContext, out: &Output, args: Args) -> Result<()> {
     } else if let Some(id) = args.update {
         let params = UpdateTask {
             title: args.title,
-            notes: args.notes,
+            notes: args.notes.into(),
             done: None,
-            due_on: args.due,
+            due_on: patch(args.due, args.no_due),
             project_id: args.project,
         };
         let item = named(tasks::Model::find(db, id).await, "task", id)?;
@@ -105,7 +108,8 @@ pub async fn run(ctx: &AppContext, out: &Output, args: Args) -> Result<()> {
             ..Default::default()
         };
         let item = named(tasks::Model::find(db, id).await, "task", id)?;
-        out.one(&TaskDto::from(item.update_with(db, params).await?), line);
+        let item = named(item.update_with(db, params).await, "task", id)?;
+        out.one(&TaskDto::from(item), line);
     } else {
         let done = args.open.then_some(false);
         let items = tasks::Entity::listing(args.project, done).all(db).await?;

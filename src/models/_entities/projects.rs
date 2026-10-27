@@ -16,6 +16,7 @@ pub struct Model {
     pub description: Option<String>,
     pub status: Option<String>,
     pub area_id: i64,
+    pub due_on: Option<Date>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -28,6 +29,10 @@ pub enum Relation {
         on_delete = "Cascade"
     )]
     Areas,
+    #[sea_orm(has_many = "super::feeds::Entity")]
+    Feeds,
+    #[sea_orm(has_many = "super::project_notes::Entity")]
+    ProjectNotes,
     #[sea_orm(has_many = "super::resources::Entity")]
     Resources,
     #[sea_orm(has_many = "super::tasks::Entity")]
@@ -37,6 +42,18 @@ pub enum Relation {
 impl Related<super::areas::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Areas.def()
+    }
+}
+
+impl Related<super::feeds::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Feeds.def()
+    }
+}
+
+impl Related<super::project_notes::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::ProjectNotes.def()
     }
 }
 

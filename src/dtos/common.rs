@@ -46,3 +46,54 @@ pub struct ApiError {
     #[ts(type = "unknown")]
     pub details: Option<serde_json::Value>,
 }
+
+/// One field of a partial update: left out (`Keep`), `null` (`Clear`) or a
+/// value (`Set`). Plain `Option<T>` cannot tell the first two apart.
+///
+/// Mark the field `#[serde(default, skip_serializing_if = "Patch::is_keep")]`.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub enum Patch<T> {
+    #[default]
+    Keep,
+    Clear,
+    Set(T),
+}
+
+impl<T> Patch<T> {
+    #[must_use]
+    pub const fn is_keep(&self) -> bool {
+        matches!(self, Self::Keep)
+    }
+
+    /// `None` to keep, `Some(None)` to clear, `Some(Some(v))` to set.
+    pub fn into_option(self) -> Option<Option<T>> {
+        match self {
+            Self::Keep => None,
+            Self::Clear => Some(None),
+            Self::Set(v) => Some(Some(v)),
+        }
+    }
+}
+
+/// A CLI flag: given means set, absent means keep.
+impl<T> From<Option<T>> for Patch<T> {
+    fn from(value: Option<T>) -> Self {
+        value.map_or(Self::Keep, Self::Set)
+    }
+}
+
+impl<'de, T: serde::Deserialize<'de>> serde::Deserialize<'de> for Patch<T> {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        <Option<T> as serde::Deserialize>::deserialize(deserializer)
+            .map(|v| v.map_or(Self::Clear, Self::Set))
+    }
+}
+
+impl<T: serde::Serialize> serde::Serialize for Patch<T> {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        match self {
+            Self::Set(v) => v.serialize(serializer),
+            Self::Keep | Self::Clear => serializer.serialize_none(),
+        }
+    }
+}

@@ -1,15 +1,17 @@
 use std::path::PathBuf;
 
 use clap::Subcommand;
-use loco_rs::{app::AppContext, Error, Result};
+use loco_rs::{app::AppContext, Result};
 
 use super::{
     note::{detail, line},
+    obsidian::exported,
     Output,
 };
 use crate::{
     dtos::notes::{GraphDto, NoteDetail, NoteDto, StatsDto, TreeEntry},
     models::notes,
+    vault,
 };
 
 /// `ztk box` (stats), `ztk box inbox`, `ztk box tree`, `ztk box random`, `ztk box export ./vault`.
@@ -35,7 +37,7 @@ enum View {
     Tags,
     /// Counts: notes, links, inbox, orphans, kinds, tags.
     Stats,
-    /// Write every note as Markdown (`<zid> <title>.md`) into a folder.
+    /// Write the brain as an Obsidian vault (same as `ztk obsidian export`).
     Export {
         /// Destination folder; created if missing.
         dir: PathBuf,
@@ -107,32 +109,9 @@ pub async fn run(ctx: &AppContext, out: &Output, args: Args) -> Result<()> {
         }
         View::Stats => out.one(&notes::Entity::stats(db).await?, stats_line),
         View::Export { dir } => {
-            let io = |e: std::io::Error| Error::Message(format!("{}: {e}", dir.display()));
-            std::fs::create_dir_all(&dir).map_err(io)?;
-            let all = notes::Entity::tree(db).await?;
-            for note in &all {
-                let md = note.to_markdown(&note.tags(db).await?, &note.links(db).await?);
-                std::fs::write(dir.join(file_name(note)), md).map_err(io)?;
-            }
-            if out.json {
-                println!(
-                    "{}",
-                    serde_json::json!({ "exported": all.len(), "dir": dir })
-                );
-            } else {
-                println!("exported {} notes to {}", all.len(), dir.display());
-            }
+            let report = vault::export(db, &dir, false).await?;
+            out.one(&report, |r| exported(r, &dir));
         }
     }
     Ok(())
-}
-
-/// `21a Some title.md`, with characters that trouble file systems dropped.
-fn file_name(note: &notes::Model) -> String {
-    let title: String = note
-        .title
-        .chars()
-        .filter(|c| !matches!(c, '/' | '\\' | ':' | '*' | '?' | '"' | '<' | '>' | '|'))
-        .collect();
-    format!("{} {}.md", note.zid, title.trim())
 }

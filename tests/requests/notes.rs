@@ -181,3 +181,150 @@ async fn slipbox_views() {
     })
     .await;
 }
+
+#[tokio::test]
+#[serial]
+async fn underscores_and_percents_are_literal() {
+    request::<App, _, _>(|request, _ctx| async move {
+        create(
+            &request,
+            json!({ "title": "x", "body": "uses [[snake_case names]]" }),
+        )
+        .await;
+        create(&request, json!({ "title": "other", "body": "snakeXcase" })).await;
+        // the target arrives after the link: its title has an underscore
+        let target = create(&request, json!({ "title": "snake_case names" })).await;
+        assert_eq!(
+            zids(&target["backlinks"]),
+            ["1"],
+            "late link with `_` adopted"
+        );
+
+        let page: Value = request.get("/api/notes?q=snake_case").await.json();
+        let found: Vec<&str> = page["items"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|n| n["zid"].as_str().unwrap())
+            .collect();
+        assert_eq!(found, ["3", "1"], "`_` is not a wildcard");
+        let page: Value = request.get("/api/notes?q=50%25").await.json();
+        assert_eq!(page["total_items"], 0);
+    })
+    .await;
+}
+
+#[tokio::test]
+#[serial]
+async fn code_is_not_links_or_tags_and_anchors_resolve() {
+    request::<App, _, _>(|request, _ctx| async move {
+        create(&request, json!({ "title": "Target" })).await;
+        let note = create(
+            &request,
+            json!({
+                "title": "Mixed",
+                "body": "See [[Target#Why]] #real\n\n```\n#include [[Nope]]\n```\n`#nottag` https://x.org/#frag",
+            }),
+        )
+        .await;
+        assert_eq!(zids(&note["links"]), ["1"]);
+        assert_eq!(note["tags"], json!(["real"]));
+        // a note created later named like the link in code stays unlinked
+        let nope = create(&request, json!({ "title": "Nope" })).await;
+        assert_eq!(nope["backlinks"], json!([]));
+    })
+    .await;
+}
+
+#[tokio::test]
+#[serial]
+async fn links_by_title_survive_a_rename() {
+    request::<App, _, _>(|request, _ctx| async move {
+        create(&request, json!({ "title": "Old name" })).await;
+        create(
+            &request,
+            json!({ "title": "Citer", "body": "see [[Old name]] and [[old name|it]]" }),
+        )
+        .await;
+        request
+            .patch("/api/notes/1")
+            .json(&json!({ "title": "New name" }))
+            .await;
+        let citer: Value = request.get("/api/notes/2").await.json();
+        assert_eq!(citer["body"], "see [[New name]] and [[New name|it]]");
+        // saving the citer again keeps the link: its body still resolves
+        request
+            .patch("/api/notes/2")
+            .json(&json!({ "body": format!("{} again", citer["body"].as_str().unwrap()) }))
+            .await;
+        let citer: Value = request.get("/api/notes/2").await.json();
+        assert_eq!(zids(&citer["links"]), ["1"]);
+    })
+    .await;
+}
+
+#[tokio::test]
+#[serial]
+async fn literature_notes_say_where_they_come_from() {
+    request::<App, _, _>(|request, _ctx| async move {
+        let res = request
+            .post("/api/notes")
+            .json(&json!({ "title": "Attention is all you need", "kind": "literature" }))
+            .await;
+        assert_eq!(res.status_code(), 400, "literature without a source");
+        let res = request
+            .post("/api/notes")
+            .json(&json!({ "title": "Blank", "kind": "permanent" }))
+            .await;
+        assert_eq!(res.status_code(), 201);
+        let res = request.post("/api/notes").json(&json!({ "title": "  " })).await;
+        assert_eq!(res.status_code(), 400, "blank title");
+
+        let resource = request
+            .post("/api/resources")
+            .json(&json!({ "title": "Attention", "kind": "paper", "citekey": "vaswani2017attention" }))
+            .await
+            .json::<Value>()["id"]
+            .clone();
+        let note = create(
+            &request,
+            json!({ "title": "Self-attention replaces recurrence", "kind": "literature", "resource_id": resource }),
+        )
+        .await;
+        assert_eq!(note["source"], "@vaswani2017attention");
+        assert_eq!(note["resource_id"], resource);
+
+        // a structure note from another slip-box is a hub here
+        let hub = create(&request, json!({ "title": "Index", "kind": "Structure" })).await;
+        assert_eq!(hub["kind"], "hub");
+
+        // clearing the source of a literature note is refused; of a permanent one, fine
+        let res = request
+            .patch(&format!("/api/notes/{}", note["zid"].as_str().unwrap()))
+            .json(&json!({ "source": null, "resource_id": null }))
+            .await;
+        assert_eq!(res.status_code(), 400);
+        let res = request
+            .patch("/api/notes/1")
+            .json(&json!({ "source": "a talk" }))
+            .await;
+        assert_eq!(res.json::<Value>()["source"], "a talk");
+        let res = request
+            .patch("/api/notes/1")
+            .json(&json!({ "source": null }))
+            .await;
+        assert!(res.json::<Value>()["source"].is_null());
+
+        // deleting the resource keeps the note and its source
+        request
+            .delete(&format!("/api/resources/{resource}"))
+            .await;
+        let note: Value = request
+            .get(&format!("/api/notes/{}", note["zid"].as_str().unwrap()))
+            .await
+            .json();
+        assert!(note["resource_id"].is_null());
+        assert_eq!(note["source"], "@vaswani2017attention");
+    })
+    .await;
+}
