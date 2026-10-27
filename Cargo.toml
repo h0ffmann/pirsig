@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/ztk-drawings"]
+members = ["crates/ztk-drawings", "crates/ztk-github"]
 
 [package]
 name = "zettelkasten"
