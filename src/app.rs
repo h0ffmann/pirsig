@@ -49,6 +49,8 @@ impl Hooks for App {
 
     fn routes(_ctx: &AppContext) -> AppRoutes {
         AppRoutes::with_default_routes() // controller routes below
+            .add_route(controllers::slipbox::routes())
+            .add_route(controllers::notes::routes())
             .add_route(controllers::resources::routes())
             .add_route(controllers::tasks::routes())
             .add_route(controllers::projects::routes())
@@ -67,6 +69,9 @@ impl Hooks for App {
         tasks.register(tasks::user_delete::UserDelete);
     }
     async fn truncate(ctx: &AppContext) -> Result<()> {
+        truncate_table(&ctx.db, models::_entities::note_links::Entity).await?;
+        truncate_table(&ctx.db, models::_entities::note_tags::Entity).await?;
+        truncate_table(&ctx.db, models::_entities::notes::Entity).await?;
         truncate_table(&ctx.db, models::_entities::tasks::Entity).await?;
         truncate_table(&ctx.db, models::_entities::resources::Entity).await?;
         truncate_table(&ctx.db, models::_entities::projects::Entity).await?;

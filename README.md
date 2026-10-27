@@ -14,6 +14,48 @@ REST API and a terminal CLI that share one model layer.
 
 Tasks (`/api/tasks`, `ztk task`) are next actions inside a project.
 
+## Slipbox (notes, smart notes, Zettelkasten)
+
+Notes live in a slipbox with Luhmann-style ids (`zid`): `1` starts a train of thought,
+`1a` continues it, `1a1` branches off `1a`, `2` starts the next one. Everything is
+addressed by zid.
+
+- **Kinds** (after *How to Take Smart Notes*): `fleeting` (default, the inbox),
+  `literature` (with a `source`), `permanent` (your own words), `hub` (structure note).
+- **Links**: `[[1a]]` or `[[Some title]]` in a body becomes a link on save, including
+  links written before the target existed. Hand-made links (`ztk link`) carry a reason
+  and survive edits.
+- **Tags**: `#hashtags` in the body plus explicit tags.
+- **Views**: backlinks, inbox, orphans (unconnected notes), random (serendipity), tree
+  (Folgezettel order), graph (JSON nodes/edges), stats, Markdown export with front matter.
+
+| | API | CLI |
+|---|---|---|
+| notes | `GET/POST /api/notes` (`?q=&kind=&tag=`), `GET/PUT/PATCH/DELETE /api/notes/{zid}` | `ztk note` |
+| Markdown | `GET /api/notes/{zid}/markdown` | `ztk note -s ZID --md` |
+| links | `POST /api/notes/{zid}/links` `{target, context}`, `DELETE /api/notes/{zid}/links/{target}` | `ztk link FROM TO -w why`, `-d` |
+| views | `GET /api/slipbox/{inbox,orphans,random,tree,graph,stats}` | `ztk box [inbox\|orphans\|random\|tree\|graph\|tags\|stats]` |
+| export | | `ztk box export ./vault` |
+
+```sh
+ztk note -c "Atomic notes"                      # quick capture (fleeting)
+ztk note -c -t "Links beat folders" -a 1 -k permanent -e   # continue 1 as 1a, write in $EDITOR
+echo "See [[1]] #pkm" | ztk note -c "Piped"     # body from stdin
+ztk note -s 1a                                  # note + links + backlinks
+ztk note -u 1a -e                               # edit body in $EDITOR
+ztk note rust                                   # search; also -k KIND, --tag TAG
+ztk link 1a 2 -w "contradicts"
+ztk box tree
+ztk box inbox
+```
+
+## justfile
+
+[`just`](https://github.com/casey/just) keeps the commands short: `just n "An idea"`,
+`just after 1 "Next"`, `just show 1a`, `just edit 1a`, `just find rust`,
+`just box inbox`, `just export`, `just dev`, `just check` (fmt + clippy + tests, as CI).
+Run `just` to list them all.
+
 ## CLI
 
 ```sh

@@ -7,6 +7,9 @@ mod m20261027_020951_areas;
 mod m20261027_021130_projects;
 mod m20261027_021308_tasks;
 mod m20261027_021525_resources;
+mod m20261027_030000_notes;
+mod m20261027_030100_note_links;
+mod m20261027_030200_note_tags;
 pub struct Migrator;
 
 #[async_trait::async_trait]
@@ -18,6 +21,9 @@ impl MigratorTrait for Migrator {
             Box::new(m20261027_021130_projects::Migration),
             Box::new(m20261027_021308_tasks::Migration),
             Box::new(m20261027_021525_resources::Migration),
+            Box::new(m20261027_030000_notes::Migration),
+            Box::new(m20261027_030100_note_links::Migration),
+            Box::new(m20261027_030200_note_tags::Migration),
             // inject-above (do not remove this comment)
         ]
     }
