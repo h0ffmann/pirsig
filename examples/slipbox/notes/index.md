@@ -1,4 +1,14 @@
-# Index
+---
+id: "202610270331"
+title: "Index: h0ffmann's repositories"
+type: hub
+status: verified
+source: "the notes it links"
+tags: [index]
+created: 2026-10-27
+---
+
+# Index: h0ffmann's repositories
 
 Every note of this sample slip box. The first tag of each note is its light
 ([[202610270317-four-lights]]); permanent notes are the ties between the others.

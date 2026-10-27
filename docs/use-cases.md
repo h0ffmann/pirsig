@@ -8,8 +8,9 @@ between the ideas become notes of their own. The worked result is in
 ([h0ffmann/h0ffmann, `NOTES.md`](https://github.com/h0ffmann/h0ffmann/blob/main/NOTES.md)).
 
 The slip box was written by hand from the READMEs, read on 2026-10-27. Importing repositories
-automatically (git as an inbound source) is designed separately; these notes show what that
-importer should produce.
+automatically (git as an inbound source) is designed in
+[`docs/design/git-inbound.md`](design/git-inbound.md); these notes show what that importer should
+produce.
 
 Only public repositories are used. Private ones (ww3-gpu, nagori) appear only through what public
 pages already say about them.
@@ -152,19 +153,32 @@ tool ([paper fabric](../examples/slipbox/notes/202610270302-paper-fabric-checks-
 Each note's `source` names the repository and the file; with an importer it should also pin the
 commit, so the note can be checked against what it read.
 
-### 3. Find the threads between repositories
+### 3. Load the slip box into ztk and walk the graph (works today)
+
+```sh
+DATABASE_URL="sqlite://$PWD/slipbox.sqlite?mode=rwc" ZTK=target/debug/ztk python3 examples/slipbox/load.py
+ztk box stats        # 30 notes, 93 links: 1 hub, 21 literature, 8 permanent; 0 orphans
+ztk note -s 21       # "Verify before you claim", with its links and backlinks
+ztk box graph        # nodes and edges as JSON
+```
+
+`load.py` turns each file into a `ztk note` with its kind, source and tags, rewrites the
+`[[<id>-<slug>]]` links to `[[Title]]` (which ztk resolves on save), and files the index as the hub
+note. ztk notes have no status yet, so the status rides along as a `status/<status>` tag.
+
+### 4. Find the threads between repositories
 
 The permanent notes are the point of the exercise: a question no single README answers, like
 "where else do I insist on verification?". With notes and backlinks in ztk, that question is a
-backlink query on [verify before you claim](../examples/slipbox/notes/202610270320-verify-before-you-claim.md).
+backlink query (`ztk note -s`) on [verify before you claim](../examples/slipbox/notes/202610270320-verify-before-you-claim.md).
 
-### 4. Trace where a convention came from
+### 5. Trace where a convention came from
 
 "Why does gcp-agentic-architect mark claims `(v)`?" Follow the links: gcp-agentic-architect →
 [discipline flows from the root](../examples/slipbox/notes/202610270321-discipline-flows-from-the-root.md)
 → ww3-gpu. The same walk explains marola-research's rules and the profile's slip box.
 
-### 5. Keep forks as prior art, not as your work
+### 6. Keep forks as prior art, not as your work
 
 A fork is somebody else's idea that you keep near you. In the PARA map a fork is a resource with
 "(fork)" in its title, tied to the project it informs: basic-memory, ai-memory and onyx inform
@@ -172,17 +186,19 @@ ztk v0; WW3 informs the ww3-gpu port. In the slip box a fork gets a literature n
 ([three forks are prior art](../examples/slipbox/notes/202610270330-forks-as-prior-art.md)), never a
 permanent one: the claim in it is the other project's.
 
-### 6. Review before you trust
+### 7. Review before you trust
 
 Every note carries a `status`. The slip box starts with 21 literature notes at `verified` (the
 README was read and says it), 7 permanent notes at `partial` and one at `open-question`. A review
 pass moves a note to `approved` or deletes it. `cargo test --test mod slipbox` checks the format:
-ids, front matter, no dead links, every note linked from the index.
+ids, front matter, no dead links, every note linked from the index; the `zk-method` skill's lint
+(`python3 .claude/skills/zk-method/scripts/zk_lint.py examples/slipbox/notes`) reports no findings.
 
 ## What this asks of ztk
 
-- **Notes** with the front matter above (`id`, `type`, `status`, `source`, `tags`), and
-  `[[<id>-<slug>]]` links with backlinks.
+- **Notes, links, backlinks and tags** are in ztk now (`ztk note`, `ztk link`, `ztk box`).
+  Still missing: a **status** on notes (`unverified` → `verified` → `approved`), and a Markdown
+  **import** that reads front matter, so `load.py` is not needed.
 - **A git inbound importer** that reads a repository's README (and `notes/`, when it has one)
   into literature notes, pinned at a commit, with the repository as a PARA resource.
 - **Labels** for the lights (the first tag of each note), as the BYOL design proposes.
