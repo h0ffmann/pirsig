@@ -1,11 +1,10 @@
 use clap::ArgGroup;
-use loco_rs::{app::AppContext, Error, Result};
-use sea_orm::{ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter};
+use loco_rs::{app::AppContext, Result};
 
 use super::{archived_tag, named, required, Output};
 use crate::{
     dtos::areas::{AreaDto, CreateArea, UpdateArea},
-    models::{areas, projects},
+    models::areas,
 };
 
 /// `ztk area -c -n Health`, `ztk area -u 1 -n Fitness`, `ztk area -d 1`, `ztk area` (list).
@@ -34,7 +33,7 @@ pub struct Args {
     /// Area name.
     #[arg(short, long)]
     name: Option<String>,
-    /// Longer description.
+    /// Longer description; `""` clears it.
     #[arg(long)]
     description: Option<String>,
     /// When listing, show archived areas instead.
@@ -66,27 +65,19 @@ pub async fn run(ctx: &AppContext, out: &Output, args: Args) -> Result<()> {
             name: required(args.name, "--name")?,
             description: args.description,
         };
-        let item = areas::ActiveModel::create(db, params).await?;
+        let item = named(areas::ActiveModel::create(db, params).await, "area", 0)?;
         out.one(&AreaDto::from(item), line);
     } else if let Some(id) = args.update {
         let params = UpdateArea {
             name: args.name,
-            description: args.description,
+            description: args.description.into(),
         };
         let item = named(areas::Model::find(db, id).await, "area", id)?;
-        out.one(&AreaDto::from(item.update_with(db, params).await?), line);
+        let item = named(item.update_with(db, params).await, "area", id)?;
+        out.one(&AreaDto::from(item), line);
     } else if let Some(id) = args.delete {
         let item = named(areas::Model::find(db, id).await, "area", id)?;
-        let children = projects::Entity::find()
-            .filter(projects::Column::AreaId.eq(id))
-            .count(db)
-            .await?;
-        if children > 0 && !args.force {
-            return Err(Error::Message(format!(
-                "area #{id} has {children} project(s); archive it, or pass --force to delete them too"
-            )));
-        }
-        item.remove(db).await?;
+        named(item.remove(db, args.force).await, "area", id)?;
         out.deleted("area", id);
     } else if let Some(id) = args.show {
         out.one(

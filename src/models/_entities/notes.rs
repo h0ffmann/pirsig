@@ -17,12 +17,21 @@ pub struct Model {
     pub body: String,
     pub kind: String,
     pub source: Option<String>,
+    pub resource_id: Option<i64>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
+    #[sea_orm(has_many = "super::project_notes::Entity")]
+    ProjectNotes,
     #[sea_orm(has_many = "super::note_tags::Entity")]
     NoteTags,
+}
+
+impl Related<super::project_notes::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::ProjectNotes.def()
+    }
 }
 
 impl Related<super::note_tags::Entity> for Entity {

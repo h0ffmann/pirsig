@@ -17,7 +17,7 @@ use loco_rs::{
 use migration::Migrator;
 use serde::Serialize;
 
-use crate::app::App;
+use crate::{app::App, dtos::common::Patch};
 
 pub mod area;
 pub mod figure;
@@ -133,12 +133,40 @@ impl Output {
     }
 }
 
-/// Turn the model layer's bare "not found" into a message that names the thing.
+/// Turn the model layer's bare "not found" into a message that names the thing,
+/// and validation errors into `field: reason` lines.
 pub(crate) fn named<T>(res: std::result::Result<T, ModelError>, what: &str, id: i64) -> Result<T> {
     res.map_err(|err| match err {
         ModelError::EntityNotFound => Error::Message(format!("{what} #{id} not found")),
-        err => err.into(),
+        err => explain(err),
     })
+}
+
+/// A model error as people read it: validation errors become `field: reason` lines.
+pub(crate) fn explain(err: ModelError) -> Error {
+    match err {
+        ModelError::Validation(v) => Error::Message(
+            v.errors
+                .iter()
+                .flat_map(|(field, errs)| {
+                    errs.iter().map(move |e| {
+                        format!("{field}: {}", e.message.as_deref().unwrap_or(&e.code))
+                    })
+                })
+                .collect::<Vec<_>>()
+                .join("\n"),
+        ),
+        err => err.into(),
+    }
+}
+
+/// `--due DATE` sets it, `--no-due` clears it, neither leaves it alone.
+pub(crate) fn patch<T>(value: Option<T>, clear: bool) -> Patch<T> {
+    if clear {
+        Patch::Clear
+    } else {
+        value.into()
+    }
 }
 
 pub(crate) fn required<T>(value: Option<T>, flag: &str) -> Result<T> {

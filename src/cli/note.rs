@@ -8,7 +8,7 @@ use clap::ArgGroup;
 use loco_rs::{app::AppContext, model::ModelError, Error, Result};
 use sea_orm::QuerySelect;
 
-use super::Output;
+use super::{explain, Output};
 use crate::{
     dtos::notes::{CreateNote, LinkDto, NoteDetail, NoteDto, UpdateNote},
     models::notes,
@@ -47,9 +47,12 @@ pub struct Args {
     /// fleeting (default), literature, permanent or hub.
     #[arg(short, long)]
     kind: Option<String>,
-    /// Where a literature note comes from (book, URL, ...).
+    /// Where a literature note comes from (book, URL, @citekey); `""` clears it.
     #[arg(long)]
     source: Option<String>,
+    /// The resource a literature note was written from (its citation becomes the source).
+    #[arg(short, long, value_name = "RESOURCE_ID")]
+    resource: Option<i64>,
     /// File the new note as a continuation of this one (`21` → `21a`).
     #[arg(short, long, value_name = "ZID")]
     after: Option<String>,
@@ -122,18 +125,7 @@ pub(crate) fn detail(d: &NoteDetail) -> String {
 pub(crate) fn found<T>(res: std::result::Result<T, ModelError>, zid: &str) -> Result<T> {
     res.map_err(|err| match err {
         ModelError::EntityNotFound => Error::Message(format!("note {zid} not found")),
-        ModelError::Validation(v) => Error::Message(
-            v.errors
-                .iter()
-                .flat_map(|(field, errs)| {
-                    errs.iter().map(move |e| {
-                        format!("{field}: {}", e.message.as_deref().unwrap_or(&e.code))
-                    })
-                })
-                .collect::<Vec<_>>()
-                .join("\n"),
-        ),
-        err => err.into(),
+        err => explain(err),
     })
 }
 
@@ -155,6 +147,7 @@ pub async fn run(ctx: &AppContext, out: &Output, args: Args) -> Result<()> {
             body,
             kind: args.kind,
             source: args.source,
+            resource_id: args.resource,
             after: args.after.clone(),
             tags,
         };
@@ -172,7 +165,8 @@ pub async fn run(ctx: &AppContext, out: &Output, args: Args) -> Result<()> {
             title: args.title,
             body,
             kind: args.kind,
-            source: args.source,
+            source: args.source.into(),
+            resource_id: args.resource.into(),
             tags,
         };
         let note = found(note.update_with(db, params).await, &zid)?;

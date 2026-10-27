@@ -1,16 +1,22 @@
+use std::fmt::Write;
+
 use clap::ArgGroup;
 use loco_rs::{app::AppContext, Error, Result};
-use sea_orm::{ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter};
+use sea_orm::prelude::Date;
+use serde::Serialize;
 
-use super::{archived_tag, named, required, Output};
+use super::{archived_tag, explain, named, note::found, patch, required, Output};
 use crate::{
-    dtos::projects::{CreateProject, ProjectDto, UpdateProject},
-    models::{projects, tasks},
+    dtos::projects::{CreateProject, ProjectDto, ProjectNoteDto, UpdateProject},
+    models::{notes, projects},
 };
 
-/// `ztk project -c -n "Run a marathon" -a 1`, `ztk project -u 2 --status done`, `ztk project -d 2`.
+/// `ztk project -c -n "Run a marathon" -a 1 --due 2027-04-18`, `ztk project -u 2 --status done`,
+/// `ztk project --pull 2 --note 1a -w "the training plan"`, `ztk project -d 2`.
+// clap flags are bools by nature
+#[allow(clippy::struct_excessive_bools)]
 #[derive(Debug, clap::Args)]
-#[command(group(ArgGroup::new("action").args(["create", "update", "delete", "show", "archive", "unarchive"])))]
+#[command(group(ArgGroup::new("action").args(["create", "update", "delete", "show", "archive", "unarchive", "pull", "drop"])))]
 pub struct Args {
     /// Create a project (needs --name and --area).
     #[arg(short, long)]
@@ -18,10 +24,10 @@ pub struct Args {
     /// Update the project with this id.
     #[arg(short, long, value_name = "ID")]
     update: Option<i64>,
-    /// Delete the project with this id (and its tasks).
+    /// Delete the project with this id (and, with --force, its tasks).
     #[arg(short, long, value_name = "ID")]
     delete: Option<i64>,
-    /// Show one project.
+    /// Show one project with the notes it pulls in.
     #[arg(short, long, value_name = "ID")]
     show: Option<i64>,
     /// Move the project to the archive.
@@ -30,19 +36,37 @@ pub struct Args {
     /// Bring the project back from the archive.
     #[arg(long, value_name = "ID")]
     unarchive: Option<i64>,
+    /// Pull a note (--note) into this project, saying why (--why).
+    #[arg(long, value_name = "ID")]
+    pull: Option<i64>,
+    /// Drop a note (--note) from this project; the note stays in the slipbox.
+    #[arg(long, value_name = "ID")]
+    drop: Option<i64>,
 
     /// Project name.
     #[arg(short, long)]
     name: Option<String>,
-    /// Longer description.
+    /// Longer description; `""` clears it.
     #[arg(long)]
     description: Option<String>,
-    /// Free-form status, e.g. active, waiting, done.
+    /// active (default), waiting, someday or done.
     #[arg(long)]
     status: Option<String>,
+    /// Deadline, YYYY-MM-DD.
+    #[arg(long, value_name = "DATE")]
+    due: Option<Date>,
+    /// Clear the deadline.
+    #[arg(long, conflicts_with = "due")]
+    no_due: bool,
     /// Area id: the project's parent, or the list filter.
     #[arg(short, long, value_name = "AREA_ID")]
     area: Option<i64>,
+    /// The note to pull in or drop (zid).
+    #[arg(long, value_name = "ZID")]
+    note: Option<String>,
+    /// Why the note belongs to the project.
+    #[arg(short, long)]
+    why: Option<String>,
     /// When listing, show archived projects instead.
     #[arg(long)]
     archived: bool,
@@ -57,13 +81,51 @@ fn line(p: &ProjectDto) -> String {
         .as_deref()
         .map(|s| format!(" ({s})"))
         .unwrap_or_default();
+    let due = p.due_on.map(|d| format!(" due {d}")).unwrap_or_default();
     format!(
-        "#{} {}{status} [area #{}]{}",
+        "#{} {}{status}{due} [area #{}]{}",
         p.id,
         p.name,
         p.area_id,
         archived_tag(p.archived_at.is_some())
     )
+}
+
+/// A project with the notes it pulls in.
+#[derive(Serialize)]
+struct ProjectDetail {
+    #[serde(flatten)]
+    project: ProjectDto,
+    notes: Vec<ProjectNoteDto>,
+}
+
+fn detail(d: &ProjectDetail) -> String {
+    let mut s = line(&d.project);
+    if let Some(desc) = &d.project.description {
+        let _ = write!(s, "\n{desc}");
+    }
+    for n in &d.notes {
+        let why = n
+            .context
+            .as_deref()
+            .map(|c| format!(": {c}"))
+            .unwrap_or_default();
+        let _ = write!(s, "\n  ~ {} {}{why}", n.zid, n.title);
+    }
+    s
+}
+
+async fn show(ctx: &AppContext, project: projects::Model) -> Result<ProjectDetail> {
+    let notes = project
+        .notes(&ctx.db)
+        .await?
+        .into_iter()
+        .map(Into::into)
+        .collect();
+    Ok(ProjectDetail {
+        project: project.into(),
+        notes,
+    })
 }
 
 pub async fn run(ctx: &AppContext, out: &Output, args: Args) -> Result<()> {
@@ -75,6 +137,7 @@ pub async fn run(ctx: &AppContext, out: &Output, args: Args) -> Result<()> {
             description: args.description,
             status: args.status,
             area_id,
+            due_on: args.due,
         };
         let item = named(
             projects::ActiveModel::create(db, params).await,
@@ -85,9 +148,10 @@ pub async fn run(ctx: &AppContext, out: &Output, args: Args) -> Result<()> {
     } else if let Some(id) = args.update {
         let params = UpdateProject {
             name: args.name,
-            description: args.description,
+            description: args.description.into(),
             status: args.status,
             area_id: args.area,
+            due_on: patch(args.due, args.no_due),
         };
         let item = named(projects::Model::find(db, id).await, "project", id)?;
         let item = named(
@@ -98,26 +162,34 @@ pub async fn run(ctx: &AppContext, out: &Output, args: Args) -> Result<()> {
         out.one(&ProjectDto::from(item), line);
     } else if let Some(id) = args.delete {
         let item = named(projects::Model::find(db, id).await, "project", id)?;
-        let children = tasks::Entity::find()
-            .filter(tasks::Column::ProjectId.eq(id))
-            .count(db)
-            .await?;
-        if children > 0 && !args.force {
-            return Err(Error::Message(format!(
-                "project #{id} has {children} task(s); archive it, or pass --force to delete them too"
-            )));
-        }
-        item.remove(db).await?;
+        named(item.remove(db, args.force).await, "project", id)?;
         out.deleted("project", id);
     } else if let Some(id) = args.show {
-        out.one(
-            &ProjectDto::from(named(projects::Model::find(db, id).await, "project", id)?),
-            line,
-        );
+        let item = named(projects::Model::find(db, id).await, "project", id)?;
+        out.one(&show(ctx, item).await?, detail);
     } else if let Some(id) = args.archive.or(args.unarchive) {
         let item = named(projects::Model::find(db, id).await, "project", id)?;
-        let item = item.set_archived(db, args.archive.is_some()).await?;
+        let item = named(
+            item.set_archived(db, args.archive.is_some()).await,
+            "project",
+            id,
+        )?;
         out.one(&ProjectDto::from(item), line);
+    } else if let Some(id) = args.pull.or(args.drop) {
+        let project = named(projects::Model::find(db, id).await, "project", id)?;
+        let zid = required(args.note, "--note")?;
+        let note = found(notes::Model::find(db, &zid).await, &zid)?;
+        if args.pull.is_some() {
+            project
+                .link_note(db, &note, args.why)
+                .await
+                .map_err(explain)?;
+        } else if !project.unlink_note(db, &note).await? {
+            return Err(Error::Message(format!(
+                "note {zid} is not in project #{id}"
+            )));
+        }
+        out.one(&show(ctx, project).await?, detail);
     } else {
         let items = projects::Entity::listing(args.area, args.archived)
             .all(db)

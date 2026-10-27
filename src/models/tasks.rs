@@ -4,7 +4,7 @@ pub use super::_entities::tasks::{ActiveModel, Column, Entity, Model};
 use loco_rs::model::{ModelError, ModelResult};
 use sea_orm::{entity::prelude::*, ActiveValue::Set, IntoActiveModel, QueryOrder};
 
-use super::projects;
+use super::{projects, rules};
 use crate::dtos::tasks::{CreateTask, UpdateTask};
 pub type Tasks = Entity;
 
@@ -24,6 +24,18 @@ impl ActiveModelBehavior for ActiveModel {
     }
 }
 
+/// The project a task goes into: it must exist and not be archived.
+async fn open_project<C: ConnectionTrait>(db: &C, project_id: i64) -> ModelResult<()> {
+    let project = projects::Model::find(db, project_id).await?;
+    if project.archived_at.is_some() {
+        return Err(rules::invalid(
+            "project_id",
+            &format!("project #{project_id} is archived; unarchive it first"),
+        ));
+    }
+    Ok(())
+}
+
 // implement your read-oriented logic here
 impl Model {
     /// Load a task or fail with [`ModelError::EntityNotFound`].
@@ -41,19 +53,19 @@ impl Model {
     ) -> ModelResult<Self> {
         let mut item = self.into_active_model();
         if let Some(title) = params.title {
-            item.title = Set(title);
+            item.title = Set(rules::text("title", &title)?);
         }
-        if params.notes.is_some() {
-            item.notes = Set(params.notes);
+        if let Some(notes) = params.notes.into_option() {
+            item.notes = Set(rules::optional(notes));
         }
         if let Some(done) = params.done {
             item.done = Set(done);
         }
-        if params.due_on.is_some() {
-            item.due_on = Set(params.due_on);
+        if let Some(due_on) = params.due_on.into_option() {
+            item.due_on = Set(due_on);
         }
         if let Some(project_id) = params.project_id {
-            projects::Model::find(db, project_id).await?;
+            open_project(db, project_id).await?;
             item.project_id = Set(project_id);
         }
         Ok(item.update(db).await?)
@@ -68,10 +80,10 @@ impl Model {
 // implement your write-oriented logic here
 impl ActiveModel {
     pub async fn create<C: ConnectionTrait>(db: &C, params: CreateTask) -> ModelResult<Model> {
-        projects::Model::find(db, params.project_id).await?;
+        open_project(db, params.project_id).await?;
         let item = Self {
-            title: Set(params.title),
-            notes: Set(params.notes),
+            title: Set(rules::text("title", &params.title)?),
+            notes: Set(rules::optional(params.notes)),
             done: Set(params.done),
             due_on: Set(params.due_on),
             project_id: Set(params.project_id),

@@ -49,9 +49,23 @@ async fn update(
     Ok(Json(item.update_with(&ctx.db, params).await?.into()))
 }
 
+/// `?force=true` deletes an area that still has projects, and them with it.
+#[derive(Debug, Deserialize)]
+pub struct DeleteParams {
+    #[serde(default)]
+    pub force: bool,
+}
+
 #[debug_handler]
-async fn remove(State(ctx): State<AppContext>, Path(id): Path<i64>) -> Result<Response> {
-    Model::find(&ctx.db, id).await?.remove(&ctx.db).await?;
+async fn remove(
+    State(ctx): State<AppContext>,
+    Path(id): Path<i64>,
+    Query(params): Query<DeleteParams>,
+) -> Result<Response> {
+    Model::find(&ctx.db, id)
+        .await?
+        .remove(&ctx.db, params.force)
+        .await?;
     Ok(StatusCode::NO_CONTENT.into_response())
 }
 

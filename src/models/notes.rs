@@ -10,18 +10,20 @@ pub use super::_entities::notes::{ActiveModel, Column, Entity, Model};
 use loco_rs::{
     model::{ModelError, ModelResult},
     prelude::{Validatable, Validate},
-    validation::{ModelValidationErrors, ValidationError},
 };
 use sea_orm::{
     entity::prelude::*,
-    sea_query::{ExprTrait, Func, Query, SimpleExpr},
+    sea_query::{ExprTrait, Func, LikeExpr, Query, SimpleExpr},
     ActiveValue::Set,
     Condition, IntoActiveModel, PaginatorTrait, QueryOrder, QuerySelect, TransactionSession,
     TransactionTrait,
 };
 use serde::Deserialize;
 
-use super::{note_links, note_tags};
+use super::{
+    note_links, note_tags, project_notes, resources,
+    rules::{self, invalid},
+};
 use crate::dtos::notes::{CreateNote, StatsDto, TagCount, UpdateNote};
 pub type Notes = Entity;
 
@@ -179,17 +181,21 @@ impl Model {
         let old_title = self.title.clone();
         let mut item = self.into_active_model();
         if let Some(title) = params.title {
-            item.title = Set(title);
+            item.title = Set(rules::text("title", &title)?);
         }
         if let Some(body) = params.body {
             item.body = Set(body);
         }
         if let Some(kind) = params.kind {
-            item.kind = Set(kind);
+            item.kind = Set(normalize_kind(&kind));
         }
-        if params.source.is_some() {
-            item.source = Set(params.source);
+        if let Some(source) = params.source.into_option() {
+            item.source = Set(rules::optional(source));
         }
+        if let Some(resource_id) = params.resource_id.into_option() {
+            item.resource_id = Set(resource_id);
+        }
+        sourced(&txn, &mut item).await?;
         item.validate()?;
         let note = item.update(&txn).await?;
         let tags = match params.tags {
@@ -198,6 +204,7 @@ impl Model {
         };
         note.sync(&txn, tags).await?;
         if note.title != old_title {
+            note.follow_rename(&txn, &old_title).await?;
             note.adopt_dangling_links(&txn).await?;
         }
         txn.commit().await?;
@@ -217,6 +224,10 @@ impl Model {
             .await?;
         note_tags::Entity::delete_many()
             .filter(note_tags::Column::NoteId.eq(self.id))
+            .exec(&txn)
+            .await?;
+        project_notes::Entity::delete_many()
+            .filter(project_notes::Column::NoteId.eq(self.id))
             .exec(&txn)
             .await?;
         self.into_active_model().delete(&txn).await?;
@@ -289,6 +300,7 @@ impl Model {
             let _ = writeln!(out, "source: {}", yaml_str(source));
         }
         if !tags.is_empty() {
+            let tags: Vec<String> = tags.iter().map(|t| yaml_str(t)).collect();
             let _ = writeln!(out, "tags: [{}]", tags.join(", "));
         }
         let _ = writeln!(out, "created: {}", self.created_at.to_rfc3339());
@@ -375,6 +387,25 @@ impl Model {
         Ok(())
     }
 
+    /// After a rename, notes that reached this one by `[[Old title]]` would lose
+    /// the link on their next save. Rewrite those wikilinks to the new title, the
+    /// way Obsidian does, so the link survives.
+    async fn follow_rename<C: ConnectionTrait>(&self, db: &C, old_title: &str) -> ModelResult<()> {
+        let old = old_title.to_lowercase();
+        for linked in self.backlinks(db).await? {
+            let source = linked.note;
+            let body = rewrite_wikilinks(&source.body, |target| {
+                (target.to_lowercase() == old).then(|| self.title.clone())
+            });
+            if body != source.body {
+                let mut item = source.into_active_model();
+                item.body = Set(body);
+                item.update(db).await?;
+            }
+        }
+        Ok(())
+    }
+
     /// Notes written before this one may already say `[[its title]]` or
     /// `[[its zid]]`; connect them now that the target exists.
     async fn adopt_dangling_links<C: ConnectionTrait>(&self, db: &C) -> ModelResult<()> {
@@ -385,7 +416,7 @@ impl Model {
                     .add(Column::Body.contains(format!("[[{}", self.zid)))
                     .add(
                         lower(Column::Body)
-                            .like(format!("%[[{}%", like_escape(&self.title.to_lowercase()))),
+                            .like(contains(&format!("[[{}", self.title.to_lowercase()))),
                     ),
             )
             .all(db)
@@ -445,14 +476,19 @@ impl ActiveModel {
                 .await?;
             next_root_id(all.iter().map(String::as_str))
         };
-        let item = Self {
+        let mut item = Self {
             zid: Set(zid),
-            title: Set(params.title),
+            title: Set(rules::text("title", &params.title)?),
             body: Set(params.body),
-            kind: Set(params.kind.unwrap_or_else(|| DEFAULT_KIND.to_string())),
-            source: Set(params.source),
+            kind: Set(params
+                .kind
+                .as_deref()
+                .map_or_else(|| DEFAULT_KIND.to_string(), normalize_kind)),
+            source: Set(rules::optional(params.source)),
+            resource_id: Set(params.resource_id),
             ..Default::default()
         };
+        sourced(&txn, &mut item).await?;
         // validate up front so a bad kind is a 400, not a database error
         item.validate()?;
         let note = item.insert(&txn).await?;
@@ -484,11 +520,11 @@ impl Entity {
             );
         }
         if let Some(q) = q.map(str::trim).filter(|q| !q.is_empty()) {
-            let pat = format!("%{}%", like_escape(&q.to_lowercase()));
+            let q = q.to_lowercase();
             sel = sel.filter(
                 Condition::any()
-                    .add(lower(Column::Title).like(pat.clone()))
-                    .add(lower(Column::Body).like(pat)),
+                    .add(lower(Column::Title).like(contains(&q)))
+                    .add(lower(Column::Body).like(contains(&q))),
             );
         }
         sel.order_by_desc(Column::Id)
@@ -722,54 +758,188 @@ fn next_letters(s: &str) -> String {
     format!("a{}", String::from_utf8_lossy(&bytes))
 }
 
-/// Targets of `[[target]]` and `[[target|label]]` in `body`, in order, without repeats.
+/// The parts of `body` that are prose, as `(text, is_code)` runs: fenced code
+/// blocks and inline `code` spans are code, where links and tags do not count.
+fn prose_runs(body: &str) -> Vec<(&str, bool)> {
+    let mut runs = Vec::new();
+    let mut fence: Option<&str> = None;
+    let mut start = 0;
+    let mut pos = 0;
+    for line in body.split_inclusive('\n') {
+        let trimmed = line.trim_start();
+        let marker = ["```", "~~~"].into_iter().find(|m| trimmed.starts_with(m));
+        match (fence, marker) {
+            (None, Some(m)) => {
+                runs.extend(inline_runs(&body[start..pos]));
+                start = pos;
+                fence = Some(m);
+            }
+            (Some(open), Some(m)) if open == m => {
+                runs.push((&body[start..pos + line.len()], true));
+                start = pos + line.len();
+                fence = None;
+            }
+            _ => {}
+        }
+        pos += line.len();
+    }
+    if fence.is_some() {
+        runs.push((&body[start..], true));
+    } else {
+        runs.extend(inline_runs(&body[start..]));
+    }
+    runs
+}
+
+/// Split prose at inline `code` spans (a span never crosses a line).
+fn inline_runs(text: &str) -> Vec<(&str, bool)> {
+    let mut runs = Vec::new();
+    let mut rest = text;
+    while let Some(open) = rest.find('`') {
+        let after = &rest[open + 1..];
+        let Some(close) = after.find('`').filter(|&c| !after[..c].contains('\n')) else {
+            break;
+        };
+        runs.push((&rest[..open], false));
+        runs.push((&rest[open..open + close + 2], true));
+        rest = &rest[open + close + 2..];
+    }
+    runs.push((rest, false));
+    runs
+}
+
+/// One `[[...]]` split into its parts: `target`, then `#heading`/`^block`
+/// (kept with its marker), then the `|label` (kept with its bar).
+fn split_wikilink(inner: &str) -> (&str, &str, &str) {
+    let (left, label) = inner
+        .find('|')
+        .map_or((inner, ""), |i| (&inner[..i], &inner[i..]));
+    let (target, anchor) = left
+        .find(['#', '^'])
+        .map_or((left, ""), |i| (&left[..i], &left[i..]));
+    (target, anchor, label)
+}
+
+/// Every wikilink target in the prose of `body`, in order, with repeats.
+fn wikilink_targets(body: &str) -> Vec<String> {
+    let mut out = Vec::new();
+    for (text, code) in prose_runs(body) {
+        if code {
+            continue;
+        }
+        let mut rest = text;
+        while let Some(start) = rest.find("[[") {
+            rest = &rest[start + 2..];
+            let Some(end) = rest.find("]]") else { break };
+            let inner = &rest[..end];
+            if !inner.contains('\n') {
+                out.push(split_wikilink(inner).0.trim().to_string());
+            }
+            rest = &rest[end + 2..];
+        }
+    }
+    out
+}
+
+/// Targets of `[[target]]`, `[[target|label]]` and Obsidian's `[[target#heading]]`
+/// and `[[target^block]]` in `body`, in order, without repeats. Links inside
+/// code are not links.
 #[must_use]
 pub fn wikilinks(body: &str) -> Vec<String> {
     let mut out: Vec<String> = Vec::new();
-    let mut rest = body;
-    while let Some(start) = rest.find("[[") {
-        rest = &rest[start + 2..];
-        let Some(end) = rest.find("]]") else { break };
-        let inner = &rest[..end];
-        let target = inner.split('|').next().unwrap_or("").trim();
-        if !target.is_empty() && !inner.contains('\n') && !out.iter().any(|t| t == target) {
-            out.push(target.to_string());
+    for target in wikilink_targets(body) {
+        if !target.is_empty() && !out.contains(&target) {
+            out.push(target);
         }
-        rest = &rest[end + 2..];
     }
     out
 }
 
-/// `#tags` in `body` (lowercased). `# Heading` and `a#b` are not tags.
+/// Rewrite the target of every wikilink in the prose of `body` for which `f`
+/// returns a new one, keeping its `#heading`/`^block` and `|label`.
+pub fn rewrite_wikilinks(body: &str, f: impl Fn(&str) -> Option<String>) -> String {
+    let mut out = String::with_capacity(body.len());
+    for (text, code) in prose_runs(body) {
+        if code {
+            out.push_str(text);
+            continue;
+        }
+        let mut rest = text;
+        while let Some(start) = rest.find("[[") {
+            let after = &rest[start + 2..];
+            let Some(end) = after.find("]]").filter(|&e| !after[..e].contains('\n')) else {
+                break;
+            };
+            let (target, anchor, label) = split_wikilink(&after[..end]);
+            out.push_str(&rest[..start]);
+            match f(target.trim()) {
+                Some(new) => {
+                    let _ = write!(out, "[[{new}{anchor}{label}]]");
+                }
+                None => out.push_str(&rest[start..start + 2 + end + 2]),
+            }
+            rest = &after[end + 2..];
+        }
+        out.push_str(rest);
+    }
+    out
+}
+
+/// `#tags` in the prose of `body` (lowercased). `# Heading`, `a#b`, URL
+/// fragments and anything inside code are not tags.
 #[must_use]
 pub fn hashtags(body: &str) -> Vec<String> {
     let mut out = Vec::new();
-    let mut prev = ' ';
-    for (i, c) in body.char_indices() {
-        if c == '#' && (prev.is_whitespace() || prev == '(') {
-            let tag: String = body[i + 1..]
-                .chars()
-                .take_while(|c| c.is_alphanumeric() || matches!(c, '-' | '_' | '/'))
-                .collect();
-            if tag.chars().any(char::is_alphabetic) {
-                out.push(normalize_tag(&tag));
-            }
+    for (text, code) in prose_runs(body) {
+        if code {
+            continue;
         }
-        prev = c;
+        let mut prev = ' ';
+        for (i, c) in text.char_indices() {
+            if c == '#' && (prev.is_whitespace() || prev == '(') {
+                let tag: String = text[i + 1..]
+                    .chars()
+                    .take_while(|c| c.is_alphanumeric() || matches!(c, '-' | '_' | '/'))
+                    .collect();
+                let tag = tag.trim_end_matches('/');
+                if tag.chars().any(char::is_alphabetic) {
+                    out.push(normalize_tag(tag));
+                }
+            }
+            prev = c;
+        }
     }
     out
 }
 
-fn invalid(field: &str, message: &str) -> ModelError {
-    let error = ValidationError {
-        code: field.to_string(),
-        message: Some(message.to_string()),
-        params: HashMap::new(),
-    };
-    ModelValidationErrors {
-        errors: [(field.to_string(), vec![error])].into(),
+/// `structure`, `moc` and `index` are what other slip-boxes call a hub.
+fn normalize_kind(kind: &str) -> String {
+    let kind = kind.trim().to_lowercase();
+    match kind.as_str() {
+        "structure" | "moc" | "index" => "hub".to_string(),
+        _ => kind,
     }
-    .into()
+}
+
+/// A literature note says where it comes from: a `source`, or the resource it
+/// was written from (whose citation then becomes the source).
+async fn sourced<C: ConnectionTrait>(db: &C, item: &mut ActiveModel) -> ModelResult<()> {
+    let resource_id = item.resource_id.as_ref().to_owned();
+    if let Some(id) = resource_id {
+        let resource = resources::Model::find(db, id)
+            .await
+            .map_err(|_| invalid("resource_id", &format!("resource #{id} does not exist")))?;
+        if item.source.as_ref().is_none() {
+            item.source = Set(Some(resource.cite()));
+        }
+    }
+    if item.kind.as_ref().as_str() == "literature" && item.source.as_ref().is_none() {
+        return Err(invalid(
+            "source",
+            "a literature note needs a source (book, URL, @citekey) or a resource",
+        ));
+    }
+    Ok(())
 }
 
 fn lower(col: Column) -> SimpleExpr {
@@ -780,8 +950,9 @@ fn normalize_tag(tag: &str) -> String {
     tag.trim().trim_start_matches('#').to_lowercase()
 }
 
-fn like_escape(s: &str) -> String {
-    s.replace(['%', '_'], "")
+/// `LIKE '%s%'` that matches `s` literally, `%` and `_` included.
+fn contains(s: &str) -> LikeExpr {
+    LikeExpr::new(format!("%{}%", rules::like_literal(s))).escape('\\')
 }
 
 fn yaml_str(s: &str) -> String {
@@ -826,5 +997,22 @@ mod tests {
             hashtags("# Heading\n#rust and (#Learning) a#b #1 #pkm/tools"),
             ["rust", "learning", "pkm/tools"]
         );
+    }
+
+    #[test]
+    fn code_and_obsidian_anchors() {
+        let body = "[[A#h]] [[B^x|b]] `[[C]] #c` #d\n```rust\n[[E]] #e\n```\n[[F]] #f/";
+        assert_eq!(wikilinks(body), ["A", "B", "F"]);
+        assert_eq!(hashtags(body), ["d", "f"]);
+        // an unclosed fence runs to the end
+        assert_eq!(wikilinks("[[A]]\n~~~\n[[B]]"), ["A"]);
+    }
+
+    #[test]
+    fn rewrites_targets_keeping_anchor_and_label() {
+        let out = rewrite_wikilinks("[[a]] [[a#h|x]] `[[a]]` [[b]]", |t| {
+            (t == "a").then(|| "z".to_string())
+        });
+        assert_eq!(out, "[[z]] [[z#h|x]] `[[a]]` [[b]]");
     }
 }

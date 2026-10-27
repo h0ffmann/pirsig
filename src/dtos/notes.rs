@@ -2,6 +2,8 @@
 use sea_orm::prelude::DateTimeWithTimeZone;
 use ts_rs::TS;
 
+use crate::dtos::common::Patch;
+
 use loco_rs::model::ModelResult;
 use sea_orm::ConnectionTrait;
 
@@ -18,6 +20,9 @@ pub struct NoteDto {
     /// `fleeting`, `literature`, `permanent` or `hub`.
     pub kind: String,
     pub source: Option<String>,
+    /// The resource a literature note was written from.
+    #[ts(type = "number | null")]
+    pub resource_id: Option<i64>,
     pub tags: Vec<String>,
     #[ts(type = "string")]
     pub created_at: DateTimeWithTimeZone,
@@ -35,6 +40,7 @@ impl NoteDto {
             body: m.body,
             kind: m.kind,
             source: m.source,
+            resource_id: m.resource_id,
             tags,
             created_at: m.created_at,
             updated_at: m.updated_at,
@@ -150,7 +156,12 @@ pub struct CreateNote {
     pub body: String,
     /// Defaults to `fleeting`.
     pub kind: Option<String>,
+    /// Required for `literature`, unless `resource_id` is given.
     pub source: Option<String>,
+    /// The resource a literature note was written from; its citation becomes the
+    /// `source` when none is given.
+    #[ts(type = "number | null")]
+    pub resource_id: Option<i64>,
     /// File the note as a continuation of this zid (`21` → `21a`).
     pub after: Option<String>,
     /// Added to the `#hashtags` found in the body.
@@ -158,13 +169,19 @@ pub struct CreateNote {
 }
 
 /// Partial update: only the fields that are present are changed.
-/// `tags`, when present, replaces the explicit tags (`#hashtags` in the body always count).
+/// `tags`, when present, replaces the explicit tags (`#hashtags` in the body always count);
+/// `null` clears `source` or `resource_id`.
 #[derive(Debug, Default, serde::Serialize, serde::Deserialize, TS)]
 pub struct UpdateNote {
     pub title: Option<String>,
     pub body: Option<String>,
     pub kind: Option<String>,
-    pub source: Option<String>,
+    #[serde(default, skip_serializing_if = "Patch::is_keep")]
+    #[ts(type = "string | null")]
+    pub source: Patch<String>,
+    #[serde(default, skip_serializing_if = "Patch::is_keep")]
+    #[ts(type = "number | null")]
+    pub resource_id: Patch<i64>,
     pub tags: Option<Vec<String>>,
 }
 
