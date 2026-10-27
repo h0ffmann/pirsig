@@ -4,6 +4,7 @@ pub mod controllers;
 pub mod data;
 pub mod dtos;
 pub mod figures;
+pub mod ingest;
 pub mod initializers;
 pub mod mailers;
 pub mod models;

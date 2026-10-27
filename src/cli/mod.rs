@@ -20,6 +20,7 @@ use serde::Serialize;
 use crate::{app::App, dtos::common::Patch};
 
 pub mod area;
+pub mod arxiv;
 pub mod figure;
 pub mod link;
 pub mod note;
@@ -27,6 +28,7 @@ pub mod obsidian;
 pub mod para;
 pub mod project;
 pub mod resource;
+pub mod rss;
 pub mod slipbox;
 pub mod task;
 
@@ -66,6 +68,10 @@ pub enum Command {
     Slipbox(slipbox::Args),
     /// Obsidian vault out and in (ztk.pkm.obsidian).
     Obsidian(obsidian::Args),
+    /// RSS/Atom feeds in as resources, and the slipbox out as a feed (ztk.web.rss).
+    Rss(rss::Args),
+    /// arXiv papers in as resources, with citekeys and filing (ztk.sci.arxiv).
+    Arxiv(arxiv::Args),
 }
 
 /// Run a parsed command against the database of the current environment
@@ -88,6 +94,8 @@ pub async fn run(cli: Cli) -> Result<()> {
         Command::Link(args) => link::run(&ctx, &out, args).await,
         Command::Slipbox(args) => slipbox::run(&ctx, &out, args).await,
         Command::Obsidian(args) => obsidian::run(&ctx, &out, args).await,
+        Command::Rss(args) => rss::run(&ctx, &out, args).await,
+        Command::Arxiv(args) => arxiv::run(&ctx, &out, args).await,
     }
 }
 
