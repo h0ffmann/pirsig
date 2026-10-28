@@ -12,7 +12,11 @@
 //! and, with `--readme`, the README's first paragraph. The same words give
 //! the repo a category: its `repo/<category>` tag and its area. One hub note
 //! per category indexes its repos (own ones, then forks), and a root hub,
-//! "GitHub repositories", indexes the categories. Re-runs add only what is new.
+//! "GitHub repositories", indexes the categories. Each note also lists the
+//! repo's topics (tagged `topic/<topic>`) and every language, and links the
+//! notes of related repos: its family (`marola`, `marola-app`) and the repos
+//! sharing two topics with it. Re-runs add what is new and bring every note
+//! back to what GitHub says now, keeping its category.
 #![allow(clippy::missing_errors_doc)]
 use std::{fmt::Write, time::Duration};
 
@@ -391,15 +395,48 @@ impl Repo {
         )
     }
 
-    /// The note body: what the repo is, its facts, how its README opens.
+    /// Every language, the primary one first; only the primary one at minimal
+    /// depth.
     #[must_use]
-    pub fn body(&self) -> String {
+    pub fn languages(&self) -> Vec<&str> {
         let r = &self.record;
+        let mut out: Vec<&str> = r.language.iter().map(String::as_str).collect();
+        for l in &r.languages {
+            if !out.contains(&l.as_str()) {
+                out.push(l);
+            }
+        }
+        out
+    }
+
+    /// The tags the importer owns on the repo's note: `github`, `own` or
+    /// `fork`, `private`, `repo/<category>` and a `topic/<topic>` per topic.
+    #[must_use]
+    pub fn tags(&self, category: &Category) -> Vec<String> {
+        let mut tags = vec![
+            "github".to_string(),
+            format!("repo/{}", category.tag),
+            if self.fork() { "fork" } else { "own" }.to_string(),
+        ];
+        if self.private() {
+            tags.push("private".into());
+        }
+        tags.extend(self.record.topics.iter().map(|t| format!("topic/{t}")));
+        tags
+    }
+
+    /// The note body: what the repo is, its facts, its topics, how its README
+    /// opens, its category and the related repos' notes (`(zid, name)`).
+    #[must_use]
+    pub fn body(&self, category: &Category, related: &[(String, String)]) -> String {
+        let r = &self.record;
+        let languages = self.languages();
         let mut facts = vec![
-            r.language.as_ref().map_or_else(
-                || "no primary language".to_string(),
-                |l| format!("language {l}"),
-            ),
+            match languages.as_slice() {
+                [] => "no primary language".to_string(),
+                [l] => format!("language {l}"),
+                ls => format!("languages {}", ls.join(", ")),
+            },
             if self.private() { "private" } else { "public" }.to_string(),
         ];
         facts.push(match (&r.fork_of, self.fork()) {
@@ -419,16 +456,104 @@ impl Repo {
             (None, Depth::Metadata) => " (no description on GitHub).".into(),
         };
         let mut body = format!("**{}**{what}\n\n{}.\n", r.title, facts.join("; "));
+        if !r.topics.is_empty() {
+            let _ = write!(body, "\nTopics: {}.\n", inert(&r.topics.join(", ")));
+        }
         if let Some(lead) = self
             .readme
             .as_ref()
             .filter(|l| Some(*l) != r.description.as_ref())
         {
-            let _ = write!(body, "\nREADME opens with: “{}”\n", inert(lead));
+            let _ = write!(body, "\n{README_LEAD}“{}”\n", inert(lead));
         }
-        let _ = write!(body, "\nCategory: {}.\n", self.category().title);
+        let _ = write!(body, "\nCategory: {}.\n", category.title);
+        if !related.is_empty() {
+            let links: Vec<String> = related
+                .iter()
+                .map(|(zid, name)| format!("[[{zid}]] {name}"))
+                .collect();
+            let _ = write!(body, "\nRelated: {}.\n", links.join(", "));
+        }
         body
     }
+}
+
+const README_LEAD: &str = "README opens with: ";
+
+/// The README lead an earlier run wrote into `body`, to keep it when this run
+/// did not read the README.
+fn readme_in(body: &str) -> Option<String> {
+    let line = body.lines().find_map(|l| l.strip_prefix(README_LEAD))?;
+    let lead = line.strip_prefix('“')?.strip_suffix('”')?;
+    Some(lead.replace('`', ""))
+}
+
+/// The repo's name, lowercased: what families are matched on.
+fn stem(repo: &Repo) -> String {
+    repo.name().to_lowercase()
+}
+
+/// How many related repos a note links to.
+const RELATED: usize = 12;
+
+/// For each repo, the indexes of the repos related to it, most related first.
+///
+/// First its family: the repos sharing its root, the shortest repo name that
+/// its own name equals or starts with, followed by `-` or `_` (`marola`,
+/// `marola-app`, `marola-ml`). Then the repos sharing at least two topics with
+/// it. A public repo never links to a private one.
+#[must_use]
+pub fn related(repos: &[Repo]) -> Vec<Vec<usize>> {
+    let names: Vec<String> = repos.iter().map(stem).collect();
+    let root = |name: &str| -> String {
+        names
+            .iter()
+            .filter(|r| {
+                name == r.as_str()
+                    || name
+                        .strip_prefix(r.as_str())
+                        .is_some_and(|rest| rest.starts_with(['-', '_']))
+            })
+            .min_by_key(|r| r.len())
+            .cloned()
+            .unwrap_or_else(|| name.to_string())
+    };
+    let roots: Vec<String> = names.iter().map(|n| root(n)).collect();
+    (0..repos.len())
+        .map(|i| {
+            let mut scored: Vec<(usize, usize)> = (0..repos.len())
+                .filter(|&j| j != i && (repos[i].private() || !repos[j].private()))
+                .filter_map(|j| {
+                    let shared = repos[i]
+                        .record
+                        .topics
+                        .iter()
+                        .filter(|t| repos[j].record.topics.contains(t))
+                        .count();
+                    let family = roots[i] == roots[j];
+                    // family first, whatever the topics say
+                    (family || shared >= 2).then_some((j, shared + if family { 100 } else { 0 }))
+                })
+                .collect();
+            scored.sort_by(|a, b| b.1.cmp(&a.1).then_with(|| names[a.0].cmp(&names[b.0])));
+            scored.into_iter().take(RELATED).map(|(j, _)| j).collect()
+        })
+        .collect()
+}
+
+/// The category named by a `repo/<tag>` tag, so a category chosen earlier
+/// (by hand or by an earlier rule) is kept.
+fn category_tagged(tags: &[String]) -> Option<&'static Category> {
+    tags.iter()
+        .filter_map(|t| t.strip_prefix("repo/"))
+        .find_map(|tag| CATEGORIES.iter().chain([APPS]).find(|c| c.tag == tag))
+}
+
+/// Whether the importer owns `tag` (and rewrites it on every run).
+fn imported_tag(tag: &str) -> bool {
+    matches!(tag, "github" | "own" | "fork" | "private")
+        || tag.starts_with("repo/")
+        || tag.starts_with("topic/")
 }
 
 /// Quoted text with its `[[links]]` and `#tags` in code spans, where they do
@@ -491,6 +616,7 @@ impl From<ApiRepo> for RepoFacts {
                 .filter(|d| !d.is_empty()),
             topics: r.topics,
             language: r.language,
+            languages: Vec::new(),
             stars: r.stargazers_count,
             prs: 0,
             merged_prs: 0,
@@ -515,6 +641,20 @@ pub fn parse_upstream(bytes: &[u8]) -> Result<Option<String>> {
         Error::Message(format!("GitHub answered something that is not a repo: {e}"))
     })?;
     Ok(repo.parent.map(|p| p.full_name))
+}
+
+/// The languages in one repository's `/languages` answer (bytes of code per
+/// language), the most used first.
+pub fn parse_languages(bytes: &[u8]) -> Result<Vec<String>> {
+    let counts: std::collections::HashMap<String, u64> =
+        serde_json::from_slice(bytes).map_err(|e| {
+            Error::Message(format!(
+                "GitHub answered something that is not languages: {e}"
+            ))
+        })?;
+    let mut counts: Vec<(String, u64)> = counts.into_iter().collect();
+    counts.sort_by(|a, b| b.1.cmp(&a.1).then_with(|| a.0.cmp(&b.0)));
+    Ok(counts.into_iter().map(|(l, _)| l).collect())
 }
 
 /// The first real paragraph of a README, as one line of at most 280 characters:
@@ -662,22 +802,33 @@ impl Client {
                 break;
             }
         }
-        // the listing leaves out a fork's upstream; private forks never need it
-        let forks: Vec<usize> = (0..facts.len())
-            .filter(|&i| facts[i].fork && !facts[i].private)
-            .collect();
-        for chunk in forks.chunks(PARALLEL) {
+        // the listing leaves out a fork's upstream and all but the primary
+        // language; neither is looked up for a private repo
+        let public: Vec<usize> = (0..facts.len()).filter(|&i| !facts[i].private).collect();
+        for chunk in public.chunks(PARALLEL) {
             let mut set = tokio::task::JoinSet::new();
             for &i in chunk {
-                let (client, path) = (
+                let (client, path, fork) = (
                     self.clone(),
                     format!("/repos/{}/{}", facts[i].owner, facts[i].name),
+                    facts[i].fork,
                 );
-                set.spawn(async move { (i, client.json(&path).await) });
+                set.spawn(async move {
+                    let upstream = if fork {
+                        client.json(&path).await
+                    } else {
+                        Ok(None)
+                    };
+                    let languages = client.json(&format!("{path}/languages")).await;
+                    (i, upstream, languages)
+                });
             }
-            for (i, res) in set.join_all().await {
-                if let Some(bytes) = res? {
+            for (i, upstream, languages) in set.join_all().await {
+                if let Some(bytes) = upstream? {
                     facts[i].parent = parse_upstream(&bytes)?;
+                }
+                if let Some(bytes) = languages? {
+                    facts[i].languages = parse_languages(&bytes)?;
                 }
             }
         }
@@ -725,15 +876,18 @@ pub struct Filing {
 }
 
 #[derive(Debug, Serialize)]
+#[allow(clippy::struct_excessive_bools)]
 pub struct Indexed {
     pub repo: String,
     pub resource_id: i64,
     pub created: bool,
+    /// Its note was brought up to date.
+    pub updated: bool,
     pub category: &'static str,
     pub depth: Depth,
     /// The area it was filed in, when filed.
     pub area: Option<String>,
-    /// zid of its note, when this run wrote one.
+    /// zid of its note, when this run wrote or updated it.
     pub note: Option<String>,
     pub fork: bool,
     pub private: bool,
@@ -805,27 +959,35 @@ async fn rewrite<C: ConnectionTrait + TransactionTrait>(
 }
 
 /// The repo's resource: the one keyed by its record, else the one with its
-/// URL (claimed, and filed if it was not), else a new one.
+/// URL (a repo added by hand).
+async fn find_resource<C: ConnectionTrait>(
+    db: &C,
+    r: &Record,
+) -> ModelResult<Option<resources::Model>> {
+    match resources::Entity::by_external_id(db, &r.key).await? {
+        Some(found) => Ok(Some(found)),
+        None => Ok(resources::Entity::find()
+            .filter(resources::Column::Url.eq(&r.url))
+            .one(db)
+            .await?),
+    }
+}
+
+/// `found` claimed (keyed by the record), filed if it was not and its body
+/// brought to what the record allows; else a new resource.
 async fn resource<C: ConnectionTrait>(
     db: &C,
     repo: &Repo,
+    found: Option<resources::Model>,
     area: Option<i64>,
 ) -> ModelResult<(resources::Model, bool)> {
     let r = &repo.record;
-    let existing = match resources::Entity::by_external_id(db, &r.key).await? {
-        Some(found) => Some(found),
-        None => {
-            resources::Entity::find()
-                .filter(resources::Column::Url.eq(&r.url))
-                .one(db)
-                .await?
-        }
-    };
-    let Some(found) = existing else {
+    let words = r.description.clone().or_else(|| repo.readme.clone());
+    let Some(found) = found else {
         let params = CreateResource {
             title: r.title.clone(),
             url: Some(r.url.clone()),
-            body: r.description.clone().or_else(|| repo.readme.clone()),
+            body: words,
             area_id: area,
             project_id: None,
             kind: Some("repo".into()),
@@ -834,9 +996,16 @@ async fn resource<C: ConnectionTrait>(
         };
         return Ok((resources::ActiveModel::create(db, params).await?, true));
     };
+    // a minimal record keeps no words at all; a full one keeps what it had
+    // when GitHub has nothing to say
+    let body = match r.depth {
+        Depth::Minimal => None,
+        Depth::Metadata => words.or_else(|| found.body.clone()),
+    };
     let claim = found.external_id.is_none();
     let file = found.area_id.is_none() && found.project_id.is_none() && area.is_some();
-    if !(claim || file) {
+    let reword = found.body != body;
+    if !(claim || file || reword) {
         return Ok((found, false));
     }
     let mut active: resources::ActiveModel = found.into();
@@ -846,95 +1015,167 @@ async fn resource<C: ConnectionTrait>(
     if file {
         active.area_id = Set(area);
     }
+    if reword {
+        active.body = Set(body);
+    }
     Ok((active.update(db).await?, false))
 }
 
-/// File `repos` as resources with a note each, and index them in the hubs
-/// (see the module docs). Running it again only adds what is new.
+/// A repo between the two passes of `store`.
+struct Stored {
+    note: notes::Model,
+    tags: Vec<String>,
+    category: &'static Category,
+    new_note: bool,
+    indexed: Indexed,
+}
+
+/// File `repos` as resources with a note each, and index them in the hubs.
+///
+/// See the module docs. Running it again adds what is new and brings every
+/// note back to what GitHub says now, keeping its category and the tags the
+/// importer does not own.
 pub async fn store<C: ConnectionTrait + TransactionTrait>(
     db: &C,
-    repos: Vec<Repo>,
+    mut repos: Vec<Repo>,
     filing: &Filing,
 ) -> ModelResult<Vec<Indexed>> {
     let active = areas::Entity::listing(false).all(db).await?;
-    let mut out = Vec::new();
-    for repo in repos {
-        let category = repo.category();
+    // first pass: every repo's resource and note, a new note in its hub
+    let mut stored = Vec::new();
+    for repo in &mut repos {
+        let found = find_resource(db, &repo.record).await?;
+        let note = match &found {
+            Some(r) => r.notes(db).await?.into_iter().next(),
+            None => None,
+        };
+        let tags = match &note {
+            Some(n) => n.tags(db).await?,
+            None => Vec::new(),
+        };
+        let category = category_tagged(&tags).unwrap_or_else(|| repo.category());
+        if repo.readme.is_none() && repo.record.may_read_contents() {
+            repo.readme = note.as_ref().and_then(|n| readme_in(&n.body));
+        }
         let area = category
             .areas
             .iter()
             .find_map(|name| active.iter().find(|a| a.name.to_lowercase() == *name))
             .map(|a| a.id)
             .or(filing.area_id);
-        let (resource, created) = resource(db, &repo, area).await?;
+        let (resource, created) = resource(db, repo, found, area).await?;
 
-        let note = if resource.notes(db).await?.is_empty() {
-            let mut tags = vec![
-                "github".to_string(),
-                format!("repo/{}", category.tag),
-                if repo.fork() { "fork" } else { "own" }.to_string(),
-            ];
-            if repo.private() {
-                tags.push("private".into());
-            }
+        let (note, new_note) = if let Some(n) = note {
+            (n, false)
+        } else {
             let params = CreateNote {
                 title: format!("Repo: {}", repo.name()),
-                body: repo.body(),
+                body: repo.body(category, &[]),
                 kind: Some("literature".into()),
                 resource_id: Some(resource.id),
-                tags: Some(tags),
+                tags: Some(repo.tags(category)),
                 ..Default::default()
             };
             let note = notes::ActiveModel::create(db, params).await?;
-
-            let (cat_hub, new_hub) = hub(
-                db,
-                &category.hub(),
-                "Every GitHub repository in this category.",
-                vec!["github".into(), format!("repo/{}", category.tag)],
-            )
-            .await?;
-            let private = if repo.private() { " (private)" } else { "" };
-            let line = format!("- [[{}]] {}{private}", note.zid, repo.name());
-            let body = add_to_hub(&cat_hub.body, &line, repo.fork());
-            let cat_hub = rewrite(db, cat_hub, body).await?;
-            if new_hub {
-                let (root, _) = hub(
-                    db,
-                    ROOT_HUB,
-                    "Entry point to the GitHub repositories, one hub per category.",
-                    vec!["github".into()],
-                )
-                .await?;
-                let body = format!(
-                    "{}\n- [[{}]] {}\n",
-                    root.body.trim_end(),
-                    cat_hub.zid,
-                    cat_hub.title
-                );
-                rewrite(db, root, body).await?;
-            }
-            Some(note.zid)
-        } else {
-            None
+            index(db, repo, category, &note).await?;
+            (note, true)
         };
         let area = match resource.area_id {
             Some(id) => Some(areas::Model::find(db, id).await?.name),
             None => None,
         };
-        out.push(Indexed {
-            repo: repo.record.title.clone(),
-            resource_id: resource.id,
-            created,
-            category: category.tag,
-            depth: repo.record.depth,
-            area,
+        stored.push(Stored {
+            indexed: Indexed {
+                repo: repo.record.title.clone(),
+                resource_id: resource.id,
+                created,
+                updated: false,
+                category: category.tag,
+                depth: repo.record.depth,
+                area,
+                note: new_note.then(|| note.zid.clone()),
+                fork: repo.fork(),
+                private: repo.private(),
+            },
             note,
-            fork: repo.fork(),
-            private: repo.private(),
+            tags,
+            category,
+            new_note,
         });
     }
-    Ok(out)
+
+    // second pass: every note says what GitHub says now, and links its
+    // related repos' notes, which all exist by now
+    let zids: Vec<String> = stored.iter().map(|s| s.note.zid.clone()).collect();
+    for ((repo, s), rel) in repos.iter().zip(&mut stored).zip(related(&repos)) {
+        let links: Vec<(String, String)> = rel
+            .iter()
+            .map(|&j| (zids[j].clone(), repos[j].name().to_string()))
+            .collect();
+        let body = repo.body(s.category, &links);
+        let mut tags: Vec<String> = s
+            .tags
+            .iter()
+            .filter(|t| !imported_tag(t))
+            .cloned()
+            .chain(repo.tags(s.category))
+            .collect();
+        tags.sort();
+        tags.dedup();
+        let mut old = s.tags.clone();
+        old.sort();
+        if body == s.note.body && (s.new_note || tags == old) {
+            continue;
+        }
+        let params = UpdateNote {
+            body: Some(body),
+            tags: Some(tags),
+            ..Default::default()
+        };
+        let note = s.note.clone().update_with(db, params).await?;
+        if !s.new_note {
+            s.indexed.updated = true;
+            s.indexed.note = Some(note.zid);
+        }
+    }
+    Ok(stored.into_iter().map(|s| s.indexed).collect())
+}
+
+/// A new repo note into its category's hub, and a new hub into the root hub.
+async fn index<C: ConnectionTrait + TransactionTrait>(
+    db: &C,
+    repo: &Repo,
+    category: &Category,
+    note: &notes::Model,
+) -> ModelResult<()> {
+    let (cat_hub, new_hub) = hub(
+        db,
+        &category.hub(),
+        "Every GitHub repository in this category.",
+        vec!["github".into(), format!("repo/{}", category.tag)],
+    )
+    .await?;
+    let private = if repo.private() { " (private)" } else { "" };
+    let line = format!("- [[{}]] {}{private}", note.zid, repo.name());
+    let body = add_to_hub(&cat_hub.body, &line, repo.fork());
+    let cat_hub = rewrite(db, cat_hub, body).await?;
+    if new_hub {
+        let (root, _) = hub(
+            db,
+            ROOT_HUB,
+            "Entry point to the GitHub repositories, one hub per category.",
+            vec!["github".into()],
+        )
+        .await?;
+        let body = format!(
+            "{}\n- [[{}]] {}\n",
+            root.body.trim_end(),
+            cat_hub.zid,
+            cat_hub.title
+        );
+        rewrite(db, root, body).await?;
+    }
+    Ok(())
 }
 
 #[cfg(test)]
@@ -957,6 +1198,7 @@ mod tests {
             description: description.map(Into::into),
             topics: vec![],
             language: language.map(Into::into),
+            languages: language.into_iter().map(Into::into).collect(),
             stars: 0,
             prs: 0,
             merged_prs: 0,
@@ -1034,10 +1276,18 @@ mod tests {
         let r = repo(&secret);
         assert_eq!(r.record.depth, Depth::Minimal);
         assert!(!r.record.may_read_contents(), "its README is never read");
-        let body = r.body();
-        assert!(!body.contains("trading"), "{body}");
+        let body = r.body(r.category(), &[]);
+        assert!(
+            !body.contains("trading") && !body.contains("Topics"),
+            "{body}"
+        );
         assert!(body.starts_with("**h0ffmann/bank-secrets** (private, indexed at minimal depth)."));
         assert_eq!(r.category().tag, "finance", "from the name alone");
+        assert_eq!(
+            r.tags(r.category()),
+            ["github", "repo/finance", "own", "private"],
+            "no topic tags"
+        );
     }
 
     #[test]
@@ -1073,17 +1323,30 @@ mod tests {
             Some("NOAA-EMC/WW3")
         );
 
+        let langs = r#"{"Shell":120,"Fortran":90000,"CMake":120}"#;
+        assert_eq!(
+            parse_languages(langs.as_bytes()).unwrap(),
+            ["Fortran", "CMake", "Shell"],
+            "most used first"
+        );
+
         let mut ww3 = found[0].clone();
         ww3.parent = Some("NOAA-EMC/WW3".into());
+        ww3.languages = vec!["C".into(), "Fortran".into()];
         let mut r = repo(&ww3);
         assert_eq!(r.record.key, "gh:h0ffmann/WW3");
         r.readme = Some("A community wave model.".into());
+        let body = r.body(r.category(), &[("7".into(), "ww3-gpu".into())]);
         assert_eq!(
-            r.body(),
-            "**h0ffmann/WW3**: WAVEWATCH III\n\nlanguage Fortran; public; fork of \
+            body,
+            "**h0ffmann/WW3**: WAVEWATCH III\n\nlanguages Fortran, C; public; fork of \
              [NOAA-EMC/WW3](https://github.com/NOAA-EMC/WW3); last push 2026-09-01; 2★.\n\n\
-             README opens with: “A community wave model.”\n\nCategory: ocean and wave modelling.\n"
+             Topics: waves.\n\n\
+             README opens with: “A community wave model.”\n\nCategory: ocean and wave modelling.\n\n\
+             Related: [[7]] ww3-gpu.\n"
         );
+        assert_eq!(readme_in(&body).as_deref(), Some("A community wave model."));
+        assert_eq!(r.tags(r.category())[3..], ["topic/waves"]);
     }
 
     #[test]
@@ -1094,9 +1357,47 @@ mod tests {
         );
         let mut r = repo(&facts("x", Some("see [[Home]] #wiki"), None));
         r.readme = Some("A README that links [[Elsewhere]] and tags #things here.".into());
-        let body = r.body();
+        let body = r.body(r.category(), &[]);
         assert!(crate::models::notes::wikilinks(&body).is_empty(), "{body}");
         assert!(crate::models::notes::hashtags(&body).is_empty(), "{body}");
+    }
+
+    #[test]
+    fn families_and_shared_topics_relate_repos() {
+        let with = |name: &str, topics: &[&str], private: bool| {
+            let mut f = facts(name, Some("x"), None);
+            f.topics = topics.iter().map(|t| (*t).to_string()).collect();
+            f.private = private;
+            repo(&f)
+        };
+        let repos = [
+            with("marola", &[], false),
+            with("marola-app", &[], false),
+            with("Marola_ml", &[], true),
+            with("marolada", &[], false),
+            with("smart-notes", &["zettelkasten", "rust", "notes"], false),
+            with("zettelkasten", &["zettelkasten", "rust"], false),
+            with("garden", &["zettelkasten"], false),
+        ];
+        let rel = related(&repos);
+        assert_eq!(rel[0], [1], "no private repo from a public one");
+        assert_eq!(rel[2], [0, 1], "a private one links its family");
+        assert!(rel[3].is_empty(), "a shared prefix is not a family");
+        assert_eq!(rel[4], [5], "two shared topics");
+        assert!(rel[6].is_empty(), "one is not enough");
+    }
+
+    #[test]
+    fn a_category_chosen_earlier_is_kept() {
+        let tags = |t: &[&str]| t.iter().map(|t| (*t).to_string()).collect::<Vec<_>>();
+        let kept = category_tagged(&tags(&["github", "repo/finance", "own"]));
+        assert_eq!(kept.map(|c| c.tag), Some("finance"));
+        assert_eq!(
+            category_tagged(&tags(&["repo/apps"])).map(|c| c.tag),
+            Some("apps")
+        );
+        assert!(category_tagged(&tags(&["repo/nonsense"])).is_none());
+        assert!(imported_tag("topic/rust") && !imported_tag("idea"));
     }
 
     #[test]

@@ -54,7 +54,11 @@ enum Source {
 }
 
 fn indexed_line(i: &Indexed) -> String {
-    let what = if i.created { "added" } else { "known" };
+    let what = match (i.created, i.updated) {
+        (true, _) => "added",
+        (false, true) => "updated",
+        (false, false) => "known",
+    };
     let mut s = format!("{what} #{} {} repo/{}", i.resource_id, i.repo, i.category);
     if i.fork {
         s.push_str(" fork");

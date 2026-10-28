@@ -36,6 +36,9 @@ pub struct RepoFacts {
     pub description: Option<String>,
     pub topics: Vec<String>,
     pub language: Option<String>,
+    /// Every language GitHub counts in the code, the most used first.
+    #[serde(default)]
+    pub languages: Vec<String>,
     pub stars: u32,
     /// Pull requests authored by the user (all states).
     pub prs: u32,
@@ -72,6 +75,9 @@ pub struct Record {
     pub description: Option<String>,
     pub topics: Vec<String>,
     pub language: Option<String>,
+    /// Every language in the code; empty at minimal depth, which keeps only
+    /// the primary one.
+    pub languages: Vec<String>,
     pub stars: Option<u32>,
     pub prs: u32,
     pub merged_prs: u32,
@@ -106,6 +112,11 @@ impl Record {
                 Vec::new()
             },
             language: facts.language.clone(),
+            languages: if full {
+                facts.languages.clone()
+            } else {
+                Vec::new()
+            },
             stars: full.then_some(facts.stars),
             prs: facts.prs,
             merged_prs: facts.merged_prs,
@@ -175,6 +186,7 @@ mod tests {
             description: Some("what it is".into()),
             topics: vec!["rust".into()],
             language: Some("Rust".into()),
+            languages: vec!["Rust".into(), "Shell".into()],
             stars: 3,
             prs: 0,
             merged_prs: 0,
@@ -290,6 +302,7 @@ mod tests {
         };
         let r = Record::from_facts(&private, Relation::Owner, Depth::Metadata);
         assert_eq!(r.depth, Depth::Minimal);
-        assert!(r.description.is_none());
+        assert!(r.description.is_none() && r.topics.is_empty() && r.languages.is_empty());
+        assert_eq!(r.language.as_deref(), Some("Rust"));
     }
 }
