@@ -18,4 +18,4 @@ The same rule appears in five repositories, each in its own form:
 - gcp-agentic-architect: every claim `(v)` or `⚠` ([[202610270315-gcp-agentic-architect-marks-every-claim]]);
 - the profile's slip box: `status: unverified | partial | verified | approved` ([[202610270316-the-works-hold-each-other]]).
 
-For ztk: a note's status is a first-class field, and a claim is born `unverified`.
+For Pirsig: a note's status is a first-class field, and a claim is born `unverified`.

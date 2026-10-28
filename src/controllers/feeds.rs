@@ -1,4 +1,4 @@
-//! RSS/Atom subscriptions (`ztk.web.rss` in) and arXiv ingest (`ztk.sci.arxiv`).
+//! RSS/Atom subscriptions (`pirsig.web.rss` in) and arXiv ingest (`pirsig.sci.arxiv`).
 #![allow(clippy::unused_async)]
 use axum::http::StatusCode;
 use loco_rs::prelude::*;

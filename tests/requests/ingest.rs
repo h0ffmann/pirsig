@@ -1,6 +1,10 @@
 //! arXiv, RSS and GitHub ingest, without the network: papers, feed items and
 //! repositories go straight to `store`, as `fetch` would hand them over.
 use loco_rs::{testing::prelude::*, TestServer};
+use pirsig_github::{
+    index::{plan, RepoFacts},
+    scope::{Private, Scope},
+};
 use sea_orm::prelude::Date;
 use serde_json::{json, Value};
 use serial_test::serial;
@@ -12,10 +16,6 @@ use zettelkasten::{
         rss,
     },
     models::feeds,
-};
-use ztk_github::{
-    index::{plan, RepoFacts},
-    scope::{Private, Scope},
 };
 
 async fn area(request: &TestServer, name: &str) -> i64 {
@@ -257,7 +257,7 @@ async fn github_repos_become_notes_indexed_by_category() {
             "plan sorts by key"
         );
         assert!(!done[0].created, "matched by URL");
-        assert_eq!(done[0].resource_id, 1);
+        assert_eq!(done[0].resource_id, Some(1));
         assert_eq!(
             done.iter().map(|d| d.category).collect::<Vec<_>>(),
             ["ocean-waves", "gpu", "ocean-waves"]
@@ -269,7 +269,7 @@ async fn github_repos_become_notes_indexed_by_category() {
         let r: Value = request.get("/api/resources/1").await.json();
         assert_eq!(r["external_id"], "gh:h0ffmann/WW3");
         let r: Value = request
-            .get(&format!("/api/resources/{}", done[2].resource_id))
+            .get(&format!("/api/resources/{}", done[2].resource_id.unwrap()))
             .await
             .json();
         assert_eq!(r["kind"], "repo");
@@ -279,7 +279,7 @@ async fn github_repos_become_notes_indexed_by_category() {
         let note: Value = request.get(&format!("/api/notes/{zid}")).await.json();
         assert_eq!(note["kind"], "literature");
         assert_eq!(note["title"], "Repo: ww3-gpu");
-        assert_eq!(note["resource_id"], done[2].resource_id);
+        assert_eq!(note["resource_id"], done[2].resource_id.unwrap());
         assert!(!note["body"].as_str().unwrap().contains("secret"), "minimal depth");
         assert_eq!(
             note["tags"],
@@ -313,7 +313,7 @@ async fn github_repos_become_notes_indexed_by_category() {
         let all: Value = request.get("/api/resources").await.json();
         assert_eq!(all["total_items"], 3);
         let r: Value = request
-            .get(&format!("/api/resources/{}", done[1].resource_id))
+            .get(&format!("/api/resources/{}", done[1].resource_id.unwrap()))
             .await
             .json();
         assert_eq!(r["area_id"], software);
@@ -421,6 +421,65 @@ async fn a_rerun_brings_old_repo_notes_up_to_date() {
             .await
             .unwrap();
         assert!(again.iter().all(|d| !d.created && !d.updated && d.note.is_none()));
+    })
+    .await;
+}
+
+#[tokio::test]
+#[serial]
+async fn forks_and_cold_repos_are_lines_in_index_notes() {
+    request::<App, _, _>(|request, ctx| async move {
+        let mut cold = repo("fpinscala", Some("exercises from the red book"), None, false);
+        cold.pushed_at = Some("2019-05-01T00:00:00Z".into());
+        let mut secret = repo("old-secret", Some("never shown"), None, true);
+        secret.pushed_at = Some("2018-01-01T00:00:00Z".into());
+        let mut recent = repo("zettelkasten", Some("a second brain"), None, false);
+        recent.pushed_at = Some("2026-10-01T00:00:00Z".into());
+        let facts = vec![
+            recent,
+            cold,
+            secret,
+            repo("loco", Some("the Rails of Rust"), Some("loco-rs/loco"), false),
+        ];
+        let scope = Scope {
+            own_private: Private::Minimal,
+            ..Scope::for_user("h0ffmann")
+        };
+        let repos: Vec<Repo> = plan(&scope, &facts).into_iter().map(Repo::from).collect();
+        let filing = github::Filing {
+            area_id: None,
+            tiering: Some(github::Tiering {
+                cold_after_months: 24,
+                index_forks: true,
+                now: chrono::DateTime::parse_from_rfc3339("2026-10-28T00:00:00Z").unwrap().to_utc(),
+            }),
+        };
+        let done = github::store(&ctx.db, repos.clone(), &filing).await.unwrap();
+        let by = |name: &str| done.iter().find(|d| d.repo == format!("h0ffmann/{name}")).unwrap();
+        assert!(by("zettelkasten").note.is_some() && by("zettelkasten").index.is_none());
+        assert_eq!(by("fpinscala").index, Some("GitHub: cold repositories"));
+        assert_eq!(by("loco").index, Some("GitHub: public forks"));
+        assert_eq!(by("old-secret").index, Some("GitHub: private repositories"));
+        assert!(done.iter().filter(|d| d.index.is_some()).all(|d| d.resource_id.is_none() && d.created));
+
+        let all: Value = request.get("/api/resources").await.json();
+        assert_eq!(all["total_items"], 1, "only the featured repo is a resource");
+        let found: Value = request.get("/api/notes?q=GitHub:%20public%20forks").await.json();
+        let forks = &found["items"][0];
+        assert_eq!(forks["kind"], "hub");
+        assert!(forks["body"].as_str().unwrap().contains(
+            "- [loco](https://github.com/h0ffmann/loco): the Rails of Rust · fork of [loco-rs/loco](https://github.com/loco-rs/loco) · last push 2026-03\n"
+        ));
+        let found: Value = request.get("/api/notes?tag=private").await.json();
+        let private = &found["items"][0];
+        assert_eq!(private["title"], "GitHub: private repositories");
+        assert!(!private["body"].as_str().unwrap().contains("never shown"), "minimal depth");
+
+        // again: nothing new, the indexes unchanged
+        let again = github::store(&ctx.db, repos, &filing).await.unwrap();
+        assert!(again.iter().all(|d| !d.created && !d.updated));
+        let found: Value = request.get("/api/notes?q=GitHub:").await.json();
+        assert_eq!(found["total_items"], 4, "three indexes and the root hub");
     })
     .await;
 }

@@ -1,13 +1,14 @@
-# desktop — the Tauri shell compiles. Bootstrap only: no bundle, no release yet.
-# macOS ships the webview Tauri needs; Linux would need webkit2gtk first.
+# desktop — the Tauri app compiles, and its UI works end to end. No bundle, no
+# release yet. macOS ships the webview Tauri needs; Linux would need
+# webkit2gtk first, so the UI is tested there in Playwright's WebKit instead.
 name: desktop
 
 on:
   pull_request:
-    paths: ["desktop/**", rust-toolchain.toml, .github/workflows/desktop.yml]
+    paths: ["desktop/**", "src/**", "config/development.yaml", Cargo.toml, Cargo.lock, rust-toolchain.toml, .github/workflows/desktop.yml]
   push:
     branches: [main]
-    paths: ["desktop/**", rust-toolchain.toml, .github/workflows/desktop.yml]
+    paths: ["desktop/**", "src/**", "config/development.yaml", Cargo.toml, Cargo.lock, rust-toolchain.toml, .github/workflows/desktop.yml]
 
 permissions:
   contents: read
@@ -15,9 +16,33 @@ permissions:
 jobs:
   check:
     runs-on: macos-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           persist-credentials: false
       - run: cargo check --locked --manifest-path desktop/src-tauri/Cargo.toml
+
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24.22.1
+      - run: cargo build --locked --bin zettelkasten-cli
+      - working-directory: desktop
+        run: |
+          npm ci
+          npx playwright install --with-deps webkit
+          npx playwright test
+        env:
+          CI: "true"
+      - if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: playwright-traces
+          path: desktop/test-results

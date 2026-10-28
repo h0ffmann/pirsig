@@ -6,7 +6,7 @@ use loco_rs::{app::AppContext, Result};
 use super::{explain, Output};
 use crate::ingest::arxiv::{self, Filing, Ingested, Paper};
 
-/// `ztk arxiv add 1706.03762 -a 3 --note`, `ztk arxiv search "rogue waves" -n 5`.
+/// `psg arxiv add 1706.03762 -a 3 --note`, `psg arxiv search "rogue waves" -n 5`.
 #[derive(Debug, clap::Args)]
 pub struct Args {
     #[command(subcommand)]

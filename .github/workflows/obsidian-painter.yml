@@ -7,10 +7,10 @@ name: obsidian-painter
 
 on:
   pull_request:
-    paths: ["crates/obsidian-painter/**", "obsidian-painter/**", "docs/drawings/ztk.desmos.json", rust-toolchain.toml, .github/workflows/obsidian-painter.yml]
+    paths: ["crates/obsidian-painter/**", "obsidian-painter/**", "docs/drawings/pirsig.desmos.json", rust-toolchain.toml, .github/workflows/obsidian-painter.yml]
   push:
     branches: [main]
-    paths: ["crates/obsidian-painter/**", "obsidian-painter/**", "docs/drawings/ztk.desmos.json", rust-toolchain.toml, .github/workflows/obsidian-painter.yml]
+    paths: ["crates/obsidian-painter/**", "obsidian-painter/**", "docs/drawings/pirsig.desmos.json", rust-toolchain.toml, .github/workflows/obsidian-painter.yml]
     tags: ["obsidian-painter-v*"]
 
 permissions:

@@ -6,7 +6,7 @@ use serde::Serialize;
 use super::Output;
 use crate::figures::{archify, graphify, Brain, Scope};
 
-/// `ztk figure -o para.tree.json`: the PARA tree as archify JSON IR.
+/// `psg figure -o para.tree.json`: the PARA tree as archify JSON IR.
 ///
 /// Render it with `node <archify>/bin/archify.mjs finalize tree para.tree.json para.html`.
 #[derive(Debug, clap::Args)]
@@ -24,7 +24,7 @@ pub struct FigureArgs {
     scope: ScopeArgs,
 }
 
-/// `ztk graph -o graphify-out/graph.json`: the brain as a graphify knowledge graph.
+/// `psg graph -o graphify-out/graph.json`: the brain as a graphify knowledge graph.
 #[derive(Debug, clap::Args)]
 pub struct GraphArgs {
     /// Write graph.json here instead of stdout (graphify looks in `graphify-out/graph.json`).

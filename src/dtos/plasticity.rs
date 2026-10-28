@@ -8,7 +8,7 @@ pub struct PlastDto {
     pub domain: String,
     pub title: String,
     pub description: Option<String>,
-    /// `ztk` (shipped); `user` is reserved for the person's own plasts.
+    /// `psg` (shipped); `user` is reserved for the person's own plasts.
     pub origin: String,
     /// 1 to 5; rises after three right answers in a row.
     #[ts(type = "number")]

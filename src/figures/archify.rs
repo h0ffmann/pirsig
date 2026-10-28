@@ -142,7 +142,7 @@ pub fn tree(brain: &Brain, opts: &Options) -> Tree {
         diagram_type: "tree",
         meta: Meta {
             title: opts.title.clone(),
-            subtitle: "PARA exported by ztk. Links show containment: area, project, task, \
+            subtitle: "PARA exported by Pirsig. Links show containment: area, project, task, \
                        resource."
                 .to_string(),
             output: opts.output.clone(),

@@ -7,7 +7,7 @@ use crate::{
     models::areas,
 };
 
-/// `ztk area -c -n Health`, `ztk area -u 1 -n Fitness`, `ztk area -d 1`, `ztk area` (list).
+/// `psg area -c -n Health`, `psg area -u 1 -n Fitness`, `psg area -d 1`, `psg area` (list).
 #[derive(Debug, clap::Args)]
 #[command(group(ArgGroup::new("action").args(["create", "update", "delete", "show", "archive", "unarchive"])))]
 pub struct Args {

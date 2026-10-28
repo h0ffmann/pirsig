@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Loads notes/*.md into a ztk slipbox, so the graph can be browsed with `ztk box`.
+"""Loads notes/*.md into a Pirsig slipbox, so the graph can be browsed with `psg box`.
 
-    DATABASE_URL="sqlite://$PWD/slipbox.sqlite?mode=rwc" ZTK=target/debug/ztk \
+    DATABASE_URL="sqlite://$PWD/slipbox.sqlite?mode=rwc" PSG=target/debug/psg \
         python3 examples/slipbox/load.py
 
-Each file becomes one `ztk note` with its kind, source and tags; its `status` becomes a
-`status/<status>` tag, since ztk notes have no status field yet. `[[<id>-<slug>]]` links are
-rewritten to `[[Title]]`, which ztk resolves on save (also when the target comes later).
+Each file becomes one `psg note` with its kind, source and tags; its `status` becomes a
+`status/<status>` tag, since Pirsig notes have no status field yet. `[[<id>-<slug>]]` links are
+rewritten to `[[Title]]`, which Pirsig resolves on save (also when the target comes later).
 `index.md` becomes the hub note. Only the standard library is used.
 """
 
@@ -15,7 +15,7 @@ import pathlib
 import re
 import subprocess
 
-ZTK = os.environ.get("ZTK", "ztk")
+PSG = os.environ.get("PSG", "pirsig")
 NOTES = pathlib.Path(__file__).resolve().parent / "notes"
 LINK = re.compile(r"\[\[([^\]|]+)\]\]")
 
@@ -28,7 +28,7 @@ def parse(path):
         key, _, value = line.partition(": ")
         meta[key] = value.strip().strip('"')
     meta["tags"] = [t.strip() for t in meta.get("tags", "[]").strip("[]").split(",") if t.strip()]
-    # The `# Title` line repeats the title; ztk keeps the title apart.
+    # The `# Title` line repeats the title; Pirsig keeps the title apart.
     body = re.sub(r"\A\s*# .*\n", "", body).strip() + "\n"
     return meta, body
 
@@ -41,7 +41,7 @@ def main():
         return LINK.sub(lambda m: f"[[{titles[m.group(1)]}]]", body)
 
     for meta, body in notes.values():
-        args = [ZTK, "note", "-c", "-t", meta["title"], "-k", meta["type"], "-b", "-"]
+        args = [PSG, "note", "-c", "-t", meta["title"], "-k", meta["type"], "-b", "-"]
         if meta["type"] == "literature":
             args += ["--source", meta["source"]]
         for tag in meta["tags"] + [f"status/{meta['status']}"]:
@@ -50,13 +50,13 @@ def main():
 
     meta, body = parse(NOTES / "index.md")
     subprocess.run(
-        [ZTK, "note", "-c", "-t", meta["title"], "-k", "hub", "-b", "-"],
+        [PSG, "note", "-c", "-t", meta["title"], "-k", "hub", "-b", "-"],
         input=relink(body),
         text=True,
         check=True,
         stdout=subprocess.DEVNULL,
     )
-    subprocess.run([ZTK, "box", "stats"], check=True)
+    subprocess.run([PSG, "box", "stats"], check=True)
 
 
 if __name__ == "__main__":

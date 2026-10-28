@@ -1,16 +1,16 @@
-# plugin — what a third party gets from the ztk Claude Code plugin (after h0ffmann/ptbr-writer).
+# plugin — what a third party gets from the Pirsig Claude Code plugin (after h0ffmann/ptbr-writer).
 # smoke: on a PR or push that touches what the plugin ships, install it from the checkout into an
 #   empty Claude Code config (scripts/plugin-smoke.sh). No login, no tokens, under a minute.
-# eval: only by hand (Actions → plugin → Run workflow). Runs plugins/ztk/evals/ against a model,
+# eval: only by hand (Actions → plugin → Run workflow). Runs plugins/pirsig/evals/ against a model,
 #   with and without the plugin, on ANTHROPIC_API_KEY. --max-cost-usd caps the run.
 name: plugin
 
 on:
   pull_request:
-    paths: ["plugins/**", ".claude-plugin/**", ".claude/skills/ztk/**", ".claude/skills/hippo/**", ".claude/skills/zk-method/**", scripts/plugin-smoke.sh, .github/workflows/plugin.yml]
+    paths: ["plugins/**", ".claude-plugin/**", ".claude/skills/pirsig/**", ".claude/skills/hippo/**", ".claude/skills/zk-method/**", scripts/plugin-smoke.sh, .github/workflows/plugin.yml]
   push:
     branches: [main]
-    paths: ["plugins/**", ".claude-plugin/**", ".claude/skills/ztk/**", ".claude/skills/hippo/**", ".claude/skills/zk-method/**", scripts/plugin-smoke.sh, .github/workflows/plugin.yml]
+    paths: ["plugins/**", ".claude-plugin/**", ".claude/skills/pirsig/**", ".claude/skills/hippo/**", ".claude/skills/zk-method/**", scripts/plugin-smoke.sh, .github/workflows/plugin.yml]
   workflow_dispatch:
     inputs:
       eval:
@@ -67,7 +67,7 @@ jobs:
           CASE: ${{ inputs.case }}
         run: |
           [ -n "$ANTHROPIC_API_KEY" ] || { echo "::error::set the ANTHROPIC_API_KEY secret first"; exit 1; }
-          claude plugin eval plugins/ztk --trust-plugin --no-publish \
+          claude plugin eval plugins/pirsig --trust-plugin --no-publish \
             --runs "$RUNS" --max-cost-usd "$MAX_COST" ${CASE:+--case "$CASE"} \
             --output-dir eval-results --report eval-results/report.html
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

@@ -1,10 +1,9 @@
 //! Hippo identities and their rhizomes.
 //!
-//! A Hippo is a self-described way of thinking: ADHD, autistic, neurotic,
-//! obsessive, or any mix. It is never a diagnosis, and it stays in the private
-//! brain. Its notes do not form a Folgezettel tree. They form a rhizome
+//! A Hippo is a way of thinking: a name, a description and the fixations its
+//! notes gather around. It stays in the private brain. Its notes do not form a Folgezettel tree. They form a rhizome
 //! (Deleuze and Guattari, *A Thousand Plateaus*, 1980): any note can connect to
-//! any other, there is no trunk, and every point is an entry point. ztk keeps
+//! any other, there is no trunk, and every point is an entry point. Pirsig keeps
 //! that true without asking for filing work:
 //!
 //! - **Connection.** Each note is woven in on save: linked to the notes it
@@ -30,11 +29,6 @@ use crate::dtos::hippos::{
     CreateHippo, HippoDto, NodeRef, Plateau, RhizomeMap, UpdateHippo, WeaveReport,
 };
 pub type Hippos = Entity;
-
-/// Self-described traits. ztk adapts nothing clinical to them; the `hippo`
-/// skill uses them to adapt how Claude helps (short steps, literal wording,
-/// reassurance, room for deep dives).
-pub const TRAITS: [&str; 4] = ["adhd", "autistic", "neurotic", "obsessive"];
 
 /// A note is woven in until it has this many links (in or out).
 pub const RHIZOME_MIN: usize = 2;
@@ -69,21 +63,6 @@ pub fn split(s: &str) -> Vec<String> {
         .collect()
 }
 
-fn traits(values: Vec<String>) -> ModelResult<String> {
-    let mut out: Vec<String> = Vec::new();
-    for t in values {
-        let t = t.trim().to_lowercase();
-        if t.is_empty() {
-            continue;
-        }
-        rules::one_of("traits", &t, &TRAITS)?;
-        if !out.contains(&t) {
-            out.push(t);
-        }
-    }
-    Ok(out.join(","))
-}
-
 fn fixations(values: &[String]) -> String {
     let mut out: Vec<String> = Vec::new();
     for f in values.iter().flat_map(|v| v.split(',')) {
@@ -115,9 +94,6 @@ impl Model {
         }
         if let Some(description) = params.description.into_option() {
             item.description = Set(rules::optional(description));
-        }
-        if let Some(t) = params.traits {
-            item.traits = Set(traits(t)?);
         }
         if let Some(f) = params.fixations {
             item.fixations = Set(fixations(&f));
@@ -209,7 +185,8 @@ impl ActiveModel {
         Ok(Self {
             name: Set(rules::text("name", &params.name)?),
             description: Set(rules::optional(params.description)),
-            traits: Set(traits(params.traits)?),
+            // the `traits` column is no longer used; new Hippos leave it empty
+            traits: Set(String::new()),
             fixations: Set(fixations(&params.fixations)),
             ..Default::default()
         }
@@ -497,12 +474,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn traits_and_fixations_are_normalized() {
-        assert_eq!(
-            traits(vec!["ADHD".into(), " adhd".into(), "autistic".into()]).unwrap(),
-            "adhd,autistic"
-        );
-        assert!(traits(vec!["bipolar-ish".into()]).is_err());
+    fn fixations_are_normalized() {
         assert_eq!(
             fixations(&["#Rogue Waves".into(), "chess, openings".into()]),
             "rogue waves,chess,openings"

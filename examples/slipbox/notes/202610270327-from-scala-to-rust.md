@@ -14,4 +14,4 @@ The first Scala in 2017 ([[202610270313-mdd-risk-analysis-the-first-scala]]) bec
 first job and of marola's app. Then the tools moved to Rust: picasso is "Nix and Rust only"
 ([[202610270303-picasso-labs-pin-toolchains]]), marola's tooling is 100 % Rust
 ([[202610270305-marola-ocean-intelligence-layer]]), the fork scivolo is a Scala 3 interpreter written
-in Rust, and ztk is a Rust app on Loco ([[202610270319-ztk-lineage]]).
+in Rust, and Pirsig is a Rust app on Loco ([[202610270319-pirsig-lineage]]).

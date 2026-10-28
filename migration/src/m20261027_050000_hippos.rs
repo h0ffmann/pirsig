@@ -1,8 +1,8 @@
 use loco_rs::schema::*;
 use sea_orm_migration::prelude::*;
 
-/// Hippo identities: a self-described way of thinking (ADHD, autistic,
-/// neurotic, obsessive) whose notes form a rhizome instead of a tree.
+/// Hippos: ways of thinking whose notes form a rhizome instead of a tree. The
+/// `traits` column is no longer used.
 #[derive(DeriveMigrationName)]
 pub struct Migration;
 

@@ -8,7 +8,7 @@ import { Painter } from '../src/painter.ts';
 const painter = await Painter.load(readFileSync(new URL('../build/painter.wasm', import.meta.url)));
 
 test('draws the README drawing from its Desmos state', () => {
-  const state = readFileSync(new URL('../../docs/drawings/ztk.desmos.json', import.meta.url), 'utf8');
+  const state = readFileSync(new URL('../../docs/drawings/pirsig.desmos.json', import.meta.url), 'utf8');
   const r = painter.call('desmos', { source: state });
   assert.deepEqual(r.skipped, []);
   assert.equal((r.svg.match(/<path|<circle/g) ?? []).length, 130);

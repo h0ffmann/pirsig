@@ -38,27 +38,51 @@ async fn a_hippo_grows_a_rhizome_that_heals() {
     request::<App, _, _>(|request, _ctx| async move {
         let res = request
             .post("/api/hippos")
-            .json(&json!({ "name": "h0", "traits": ["bipolar-ish"] }))
+            .json(&json!({ "name": " " }))
             .await;
-        assert_eq!(res.status_code(), 400, "traits are a known, self-described set");
+        assert_eq!(res.status_code(), 400, "a Hippo has a name");
         let res = request
             .post("/api/hippos")
-            .json(&json!({ "name": "h0", "traits": ["ADHD", "autistic"], "fixations": ["Rogue Waves", "#chess"] }))
+            .json(&json!({ "name": "h0", "fixations": ["Rogue Waves", "#chess"] }))
             .await;
         assert_eq!(res.status_code(), 201);
         let hippo: Value = res.json();
-        assert_eq!(hippo["traits"], json!(["adhd", "autistic"]));
         assert_eq!(hippo["fixations"], json!(["rogue waves", "chess"]));
         let h = hippo["id"].as_i64().unwrap();
 
-        let a = note(&request, json!({ "title": "Rogue waves at sea", "hippo_id": h })).await;
-        assert_eq!(a["links"], json!([]), "the first note has nothing to join yet");
+        let a = note(
+            &request,
+            json!({ "title": "Rogue waves at sea", "hippo_id": h }),
+        )
+        .await;
+        assert_eq!(
+            a["links"],
+            json!([]),
+            "the first note has nothing to join yet"
+        );
         // nothing in common: it joins the stream where it was last
-        let b = note(&request, json!({ "title": "Sicilian openings", "body": "#chess", "hippo_id": h })).await;
-        assert_eq!(reasons(&b["links"]), [("1".into(), "rhizome: captured next to \"Rogue waves at sea\"".into())]);
+        let b = note(
+            &request,
+            json!({ "title": "Sicilian openings", "body": "#chess", "hippo_id": h }),
+        )
+        .await;
+        assert_eq!(
+            reasons(&b["links"]),
+            [(
+                "1".into(),
+                "rhizome: captured next to \"Rogue waves at sea\"".into()
+            )]
+        );
         // a shared fixation is the strongest tie
-        let c = note(&request, json!({ "title": "More rogue waves, in data", "hippo_id": h })).await;
-        assert_eq!(reasons(&c["links"]), [("1".into(), "rhizome: both circle rogue waves".into())]);
+        let c = note(
+            &request,
+            json!({ "title": "More rogue waves, in data", "hippo_id": h }),
+        )
+        .await;
+        assert_eq!(
+            reasons(&c["links"]),
+            [("1".into(), "rhizome: both circle rogue waves".into())]
+        );
 
         let res = request
             .post("/api/notes")
@@ -75,13 +99,25 @@ async fn a_hippo_grows_a_rhizome_that_heals() {
         assert_eq!(map["components"].as_array().unwrap().len(), 1);
         assert_eq!(map["plateaus"][0]["fixation"], "rogue waves");
         assert_eq!(map["plateaus"][0]["notes"].as_array().unwrap().len(), 2);
-        assert_eq!(map["plateaus"][1]["notes"][0]["zid"], "2", "#chess joins the chess plateau");
-        assert_eq!(map["resume"][0]["zid"], "3", "where you left off comes first");
+        assert_eq!(
+            map["plateaus"][1]["notes"][0]["zid"], "2",
+            "#chess joins the chess plateau"
+        );
+        assert_eq!(
+            map["resume"][0]["zid"], "3",
+            "where you left off comes first"
+        );
 
         // deleting the note in the middle reconnects the ones around it
         assert_eq!(request.delete("/api/notes/1").await.status_code(), 204);
         let b: Value = request.get("/api/notes/2").await.json();
-        assert_eq!(reasons(&b["links"]), [("3".into(), "rhizome: reconnected through \"Rogue waves at sea\"".into())]);
+        assert_eq!(
+            reasons(&b["links"]),
+            [(
+                "3".into(),
+                "rhizome: reconnected through \"Rogue waves at sea\"".into()
+            )]
+        );
         assert_eq!(pieces(&request, h).await, 1);
 
         // a cut the person makes splits it; weave makes it whole again
@@ -106,10 +142,19 @@ async fn a_hippo_grows_a_rhizome_that_heals() {
         assert_eq!(section["checks"][0]["status"], "ready");
 
         // the identity can go; the notes and their links stay
-        assert_eq!(request.delete(&format!("/api/hippos/{h}")).await.status_code(), 204);
+        assert_eq!(
+            request
+                .delete(&format!("/api/hippos/{h}"))
+                .await
+                .status_code(),
+            204
+        );
         let c: Value = request.get("/api/notes/3").await.json();
         assert!(c["hippo_id"].is_null());
-        assert!(!c["links"].as_array().unwrap().is_empty() || !c["backlinks"].as_array().unwrap().is_empty());
+        assert!(
+            !c["links"].as_array().unwrap().is_empty()
+                || !c["backlinks"].as_array().unwrap().is_empty()
+        );
     })
     .await;
 }
@@ -136,7 +181,7 @@ async fn a_rhizome_survives_the_obsidian_round_trip() {
             json!({ "title": "Endgames are chess grammar", "hippo_id": h }),
         )
         .await;
-        let dir = std::env::temp_dir().join(format!("ztk-hippo-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!("pirsig-hippo-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
         zettelkasten::vault::export(&ctx.db, &dir, false)
             .await

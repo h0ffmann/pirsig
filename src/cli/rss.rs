@@ -7,7 +7,7 @@ use sea_orm::EntityTrait;
 use super::{explain, named, Output};
 use crate::{dtos::feeds::FeedDto, ingest::rss, models::feeds};
 
-/// `ztk rss add URL -a 2`, `ztk rss pull`, `ztk rss out -o notes.xml`.
+/// `psg rss add URL -a 2`, `psg rss pull`, `psg rss out -o notes.xml`.
 #[derive(Debug, clap::Args)]
 pub struct Args {
     #[command(subcommand)]
@@ -56,7 +56,7 @@ enum Action {
         #[arg(long, default_value = "http://localhost:5150")]
         link: String,
         /// Feed title.
-        #[arg(long, default_value = "ztk slipbox")]
+        #[arg(long, default_value = "Pirsig slipbox")]
         title: String,
     },
 }

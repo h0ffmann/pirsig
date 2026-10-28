@@ -1,6 +1,6 @@
 ---
 name: figure
-description: "Add, change or explain a diagram in this repo's Markdown (README.md, docs): a Mermaid fence or an Archify picture, including the PARA tree that `ztk figure` exports from a brain, and the graphify knowledge graph from `ztk graph`. Use when asked for a diagram, flowchart, mind map, a picture or a graph of something (or of the brain), or to update one after its prose changed."
+description: "Add, change or explain a diagram in this repo's Markdown (README.md, docs): a Mermaid fence or an Archify picture, including the PARA tree that `psg figure` exports from a brain, and the graphify knowledge graph from `psg graph`. Use when asked for a diagram, flowchart, mind map, a picture or a graph of something (or of the brain), or to update one after its prose changed."
 ---
 
 # figure
@@ -71,15 +71,15 @@ show it, or it changed since the PNG. `docs/archify/crop.tsv` trims empty space 
 - `just figure` needs node, jq, perl and Chrome (`CHROME` names another binary; headless as root
   needs a wrapper that adds `--no-sandbox`). Archify's own browser check uses `ARCHIFY_CHROME`.
 
-## The brain as a picture: `ztk figure` (Rust)
+## The brain as a picture: `psg figure` (Rust)
 
-Don't hand-write a PARA tree. `ztk figure` reads the brain through the same model layer as the CLI
+Don't hand-write a PARA tree. `psg figure` reads the brain through the same model layer as the CLI
 and API and writes the Archify tree IR (`diagram_type: "tree"`): the brain at the root, then areas,
 their projects, open tasks, and resources under the project or area they belong to (unfiled ones
 under their own node). The code is `src/figures/archify.rs`; `GET /api/figures/tree` serves the same.
 
 ```sh
-ztk figure -o docs/archify/para.json            # --archived, --all (done tasks), -t "title"
+psg figure -o docs/archify/para.json            # --archived, --all (done tasks), -t "title"
 just figure                                     # -> docs/img/para.png
 ```
 
@@ -90,13 +90,13 @@ SQLite file; run it when the export format changes. For a figure of a real brain
 ## The brain as a knowledge graph: graphify
 
 [graphify](https://github.com/safishamsi/graphify) clusters, queries and draws a `graph.json`.
-`ztk graph` writes one (`src/figures/graphify.rs`, also `GET /api/figures/graph`): every area,
+`psg graph` writes one (`src/figures/graphify.rs`, also `GET /api/figures/graph`): every area,
 project, task and resource is a node (`file_type` `concept`, resources `document`,
-`source_file` `ztk/<kind>s/<id>`), containment is a `contains` edge, all `EXTRACTED`.
+`source_file` `pirsig/<kind>s/<id>`), containment is a `contains` edge, all `EXTRACTED`.
 
 ```sh
 pip install graphifyy==0.9.96                   # once; the CLI is `graphify`
-just graph                                      # ztk graph -o graphify-out/graph.json + cluster-only
+just graph                                      # psg graph -o graphify-out/graph.json + cluster-only
 graphify query "what feeds the marathon?"       # also: path "A" "B", explain "X", god-nodes
 ```
 
