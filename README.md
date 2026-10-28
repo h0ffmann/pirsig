@@ -79,6 +79,24 @@ the figure; `src/cli/mod.rs`, `src/controllers/`, `src/figures/`.
 
 </details>
 
+## Use this template
+
+This repository is a GitHub template: **Use this template → Create a new repository**, and
+make the new repository **private**, because your brain is personal data. Then:
+
+```sh
+git clone git@github.com:<you>/<brain>.git && cd <brain>
+just adopt <you> <brain>   # its URLs, app id, owners and contacts become yours; review with git diff
+just brain-reset           # your own GitHub in the brain (or: just fork-state, to start from mine)
+git commit -am "Adopt Pirsig" && git push
+```
+
+To take later versions of Pirsig, add this repository as `upstream`:
+`git remote add upstream https://github.com/h0ffmann/pirsig.git`, then
+`git pull upstream main --allow-unrelated-histories` the first time and `git pull upstream main`
+after that. `just template-check` says whether a copy is still fit to be a template itself;
+[docs/template-readiness.md](docs/template-readiness.md) is the full survey.
+
 ## Start from my brain, or from yours
 
 This repository carries my brain's public notes in [`brain/`](brain/), a Markdown vault (the

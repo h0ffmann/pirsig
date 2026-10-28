@@ -1,0 +1,15 @@
+# Weekly, grouped, so updates come as a few pull requests rather than many.
+version: 2
+updates:
+  - package-ecosystem: cargo
+    directories: ["/", "/desktop/src-tauri"]
+    schedule: { interval: weekly }
+    groups: { cargo: { patterns: ["*"] } }
+  - package-ecosystem: npm
+    directories: ["/desktop", "/obsidian-painter"]
+    schedule: { interval: weekly }
+    groups: { npm: { patterns: ["*"] } }
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: weekly }
+    groups: { actions: { patterns: ["*"] } }
