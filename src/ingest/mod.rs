@@ -16,7 +16,7 @@ use loco_rs::{Error, Result};
 pub(crate) const USER_AGENT: &str = concat!(
     "pirsig/",
     env!("CARGO_PKG_VERSION"),
-    " (+https://github.com/h0ffmann/zettelkasten)"
+    " (+https://github.com/h0ffmann/pirsig)"
 );
 
 /// GET `url` and return the body.

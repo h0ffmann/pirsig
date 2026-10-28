@@ -57,7 +57,7 @@ res "h0ffmann (the profile, and its slip box)" "$GH/h0ffmann/h0ffmann" "$ideas"
 res "scivolo (fork)" "$GH/h0ffmann/scivolo" "$ideas"
 
 res "ouroboric" "$GH/ouroboric-dev/ouroboric" "$ouro"
-res "zettelkasten (this fork)" "$GH/h0ffmann/zettelkasten" "$ouro" -p "$pirsig"
+res "pirsig (this fork)" "$GH/h0ffmann/pirsig" "$ouro" -p "$pirsig"
 res "loco (fork)" "$GH/h0ffmann/loco" "$ouro" -p "$pirsig"
 res "basic-memory (fork)" "$GH/h0ffmann/basic-memory" "$ouro" -p "$pirsig"
 res "ai-memory (fork)" "$GH/h0ffmann/ai-memory" "$ouro" -p "$pirsig"

@@ -234,7 +234,7 @@ The `psg` plugin brings three skills to Claude Code: `psg` (work in the brain), 
 the person gave).
 
 ```sh
-claude plugin marketplace add h0ffmann/zettelkasten
+claude plugin marketplace add h0ffmann/pirsig
 claude plugin install pirsig@zettelkasten
 ```
 

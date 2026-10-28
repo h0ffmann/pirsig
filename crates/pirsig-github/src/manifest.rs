@@ -18,7 +18,7 @@
 use serde_json::{json, Value};
 
 /// Where the app points people: the project home.
-pub const HOMEPAGE: &str = "https://github.com/h0ffmann/zettelkasten";
+pub const HOMEPAGE: &str = "https://github.com/h0ffmann/pirsig";
 
 /// Read-only permissions the app requests, as `(name, level)`.
 pub const PERMISSIONS: [(&str, &str); 3] = [

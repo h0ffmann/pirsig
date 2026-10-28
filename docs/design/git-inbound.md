@@ -29,7 +29,7 @@ place and a note can always be traced back to the exact README line it came from
 ## Commands
 
 ```sh
-psg git import https://github.com/h0ffmann/zettelkasten   # one repo (remote or local path)
+psg git import https://github.com/h0ffmann/pirsig   # one repo (remote or local path)
 psg git import gh:h0ffmann                                 # every repo of a user, forks included
 psg git import gh:h0ffmann --no-forks --docs               # skip forks, also import docs/
 psg git sync                                               # re-import what changed since the last sha
