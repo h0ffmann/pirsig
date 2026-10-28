@@ -12,7 +12,7 @@ use crate::{
     models::plasts::{self, Entity},
 };
 
-/// `ztk plast` (list), `ztk plast go -n 5`, `ztk plast go -d music`.
+/// `psg plast` (list), `psg plast go -n 5`, `psg plast go -d music`.
 #[derive(Debug, clap::Args)]
 pub struct Args {
     #[command(subcommand)]

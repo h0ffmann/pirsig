@@ -1,5 +1,5 @@
 //! Inbound channels that bring sources into the brain as PARA resources:
-//! `ztk.web.rss` (feeds), `ztk.sci.arxiv` (papers) and `ztk.dev.github`
+//! `pirsig.web.rss` (feeds), `pirsig.sci.arxiv` (papers) and `pirsig.dev.github`
 //! (repositories).
 //!
 //! Inbound never needs permission (it only adds private material), so these
@@ -14,7 +14,7 @@ use std::time::Duration;
 use loco_rs::{Error, Result};
 
 pub(crate) const USER_AGENT: &str = concat!(
-    "ztk/",
+    "pirsig/",
     env!("CARGO_PKG_VERSION"),
     " (+https://github.com/h0ffmann/zettelkasten)"
 );

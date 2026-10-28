@@ -9,7 +9,7 @@ export const KINDS = ["fleeting", "literature", "permanent", "hub"];
 const HASHTAG = /(?:^|(?<=[\s(]))#([\p{L}\p{N}_/-]*\p{L}[\p{L}\p{N}_/-]*)/gu;
 
 function hashtags(body) {
-  // tags in code spans and fences do not count, as in ztk itself
+  // tags in code spans and fences do not count, as in Pirsig itself
   const prose = (body ?? "").replace(/```[\s\S]*?```/g, "").replace(/`[^`\n]*`/g, "");
   return [...prose.matchAll(HASHTAG)].map((m) => m[1].toLowerCase());
 }

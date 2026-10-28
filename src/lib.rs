@@ -10,6 +10,7 @@ pub mod mailers;
 pub mod models;
 pub mod plasticity;
 pub mod readiness;
+pub mod reset;
 pub mod tasks;
 pub mod vault;
 pub mod views;

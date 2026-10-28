@@ -1,6 +1,10 @@
 //! arXiv, RSS and GitHub ingest, without the network: papers, feed items and
 //! repositories go straight to `store`, as `fetch` would hand them over.
 use loco_rs::{testing::prelude::*, TestServer};
+use pirsig_github::{
+    index::{plan, RepoFacts},
+    scope::{Private, Scope},
+};
 use sea_orm::prelude::Date;
 use serde_json::{json, Value};
 use serial_test::serial;
@@ -12,10 +16,6 @@ use zettelkasten::{
         rss,
     },
     models::feeds,
-};
-use ztk_github::{
-    index::{plan, RepoFacts},
-    scope::{Private, Scope},
 };
 
 async fn area(request: &TestServer, name: &str) -> i64 {

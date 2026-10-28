@@ -1,4 +1,4 @@
-//! RSS/Atom subscriptions: `ztk rss add URL`, then `ztk rss pull` turns new
+//! RSS/Atom subscriptions: `psg rss add URL`, then `psg rss pull` turns new
 //! entries into resources filed under the feed's area or project.
 #![allow(clippy::missing_errors_doc)]
 pub use super::_entities::feeds::{ActiveModel, Column, Entity, Model};

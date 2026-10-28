@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "What the main window may call: Tauri's defaults. The page talks to ztk's REST API, not to Tauri commands.",
+  "description": "What the main window may call: Tauri's defaults. The page talks to Pirsig's REST API, not to Tauri commands.",
   "windows": ["main"],
   "permissions": ["core:default"]
 }

@@ -1,11 +1,11 @@
 [package]
-name = "ztk-desktop"
-description = "ztk as a desktop app (Tauri 2): the whole brain, with ztk's REST API inside"
+name = "pirsig-desktop"
+description = "Pirsig as a desktop app (Tauri 2): the whole brain, with Pirsig's REST API inside"
 version = "0.1.0"
 edition = "2021"
 publish = false
 
-# not a member of the ztk workspace: Tauri needs a system webview to build, and
+# not a member of the Pirsig workspace: Tauri needs a system webview to build, and
 # `just check` should not (see ../README.md)
 [workspace]
 

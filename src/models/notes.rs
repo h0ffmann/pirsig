@@ -2,7 +2,7 @@
 //!
 //! Zettelkasten cards with Luhmann-style ids (`1`, `1a`, `1a1`, ...), `[[wikilinks]]` that turn into links on save, and
 //! `#hashtags` that turn into tags. Model rules shared by the REST controllers
-//! and the `ztk` CLI.
+//! and the `psg` CLI.
 #![allow(clippy::missing_errors_doc)]
 use std::{cmp::Ordering, collections::HashMap, fmt::Write};
 

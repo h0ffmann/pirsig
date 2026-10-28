@@ -4611,6 +4611,25 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a89322df9ebe1c1578d689c92318e070967d1042b512afbe49518723f4e6d5cd"
 
 [[package]]
+name = "pirsig-desktop"
+version = "0.1.0"
+dependencies = [
+ "loco-rs",
+ "tauri",
+ "tauri-build",
+ "tokio",
+ "zettelkasten",
+]
+
+[[package]]
+name = "pirsig-github"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "pkcs1"
 version = "0.7.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -8251,6 +8270,7 @@ dependencies = [
  "include_dir",
  "loco-rs",
  "migration",
+ "pirsig-github",
  "regex",
  "reqwest 0.12.28",
  "sea-orm",
@@ -8264,7 +8284,6 @@ dependencies = [
  "url",
  "uuid",
  "validator",
- "ztk-github",
 ]
 
 [[package]]
@@ -8305,23 +8324,4 @@ checksum = "481ada9c543b2323cbb7bbdbb5249177fbf0188ed959ed2c15e4b22421c84ed3"
 dependencies = [
  "cc",
  "pkg-config",
-]
-
-[[package]]
-name = "ztk-desktop"
-version = "0.1.0"
-dependencies = [
- "loco-rs",
- "tauri",
- "tauri-build",
- "tokio",
- "zettelkasten",
-]
-
-[[package]]
-name = "ztk-github"
-version = "0.1.0"
-dependencies = [
- "serde",
- "serde_json",
 ]

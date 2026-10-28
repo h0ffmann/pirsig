@@ -1,5 +1,5 @@
-//! ztk as a desktop app. The app runs ztk's own REST API (the Loco app, on a
-//! free port of 127.0.0.1, with the same brain as the `ztk` CLI) and opens a
+//! Pirsig as a desktop app. The app runs Pirsig's own REST API (the Loco app, on a
+//! free port of 127.0.0.1, with the same brain as the `psg` CLI) and opens a
 //! window on it; the API also serves the page (`desktop/dist`), so the window
 //! and the API share an origin. See `desktop/README.md`.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
@@ -14,11 +14,11 @@ use loco_rs::{
 use tauri::{WebviewUrl, WebviewWindowBuilder};
 use zettelkasten::app::App;
 
-/// The folder ztk runs in: `ZTK_HOME`, else the current one when it holds
-/// ztk's `config/`, else the checkout this app was built from. The brain (the
+/// The folder Pirsig runs in: `PIRSIG_HOME`, else the current one when it holds
+/// Pirsig's `config/`, else the checkout this app was built from. The brain (the
 /// database in the config) and the page are found from there.
 fn home() -> PathBuf {
-    if let Some(home) = std::env::var_os("ZTK_HOME") {
+    if let Some(home) = std::env::var_os("PIRSIG_HOME") {
         return home.into();
     }
     let cwd = std::env::current_dir().unwrap_or_default();
@@ -48,7 +48,7 @@ async fn serve(port: u16) -> Result<tokio::task::JoinHandle<()>, Box<dyn Error>>
     };
     let server = tokio::spawn(async move {
         if let Err(e) = boot::start::<App>(booted, params, true).await {
-            eprintln!("ztk API stopped: {e}");
+            eprintln!("Pirsig API stopped: {e}");
         }
     });
     for _ in 0..200 {
@@ -60,7 +60,7 @@ async fn serve(port: u16) -> Result<tokio::task::JoinHandle<()>, Box<dyn Error>>
         }
         tokio::time::sleep(Duration::from_millis(25)).await;
     }
-    Err("the ztk API did not start".into())
+    Err("the Pirsig API did not start".into())
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -81,7 +81,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 app_handle.exit(0);
             });
             WebviewWindowBuilder::new(app, "main", WebviewUrl::External(url))
-                .title("ztk")
+                .title("Pirsig")
                 .inner_size(1240.0, 820.0)
                 .min_inner_size(720.0, 480.0)
                 .build()?;

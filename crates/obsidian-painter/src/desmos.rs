@@ -1,7 +1,7 @@
 //! Desmos graphs to SVG, offline: no API key, no network.
 //!
 //! The input is a Desmos graph state (what `Calc.getState()` returns, and what
-//! `ztk-art desmos` writes), or, for a hand-written block, one LaTeX expression
+//! `pirsig-art desmos` writes), or, for a hand-written block, one LaTeX expression
 //! per line. Drawn: points `(a,b)`, parametric curves `(f(t),g(t))` over their
 //! `parametricDomain`, functions `y=f(x)` (or a bare `f(x)`), `x=g(y)`, polar
 //! `r=f(\theta)`, and assignments (`a=2`) that the others use. Implicit
@@ -417,7 +417,7 @@ mod tests {
 
     #[test]
     fn draws_the_readme_drawing() {
-        let state = include_str!("../../../docs/drawings/ztk.desmos.json");
+        let state = include_str!("../../../docs/drawings/pirsig.desmos.json");
         let r = render(state);
         assert!(r.skipped.is_empty(), "{:?}", r.skipped);
         let paths = r.svg.matches("<path").count();

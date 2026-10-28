@@ -1,0 +1,156 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "How Pirsig works: two ways in, one model layer, figures out",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "legend": {
+      "mode": "hidden"
+    },
+    "output": "how-pirsig-works.html"
+  },
+  "lanes": [
+    {
+      "id": "entry",
+      "label": "You"
+    },
+    {
+      "id": "core",
+      "label": "Inside Pirsig"
+    },
+    {
+      "id": "figures",
+      "label": "Diagram, with archify"
+    },
+    {
+      "id": "graphs",
+      "label": "Knowledge graph, with graphify"
+    }
+  ],
+  "mainPath": [
+    "cli",
+    "models",
+    "figure",
+    "archify"
+  ],
+  "nodes": [
+    {
+      "id": "cli",
+      "lane": "entry",
+      "col": 0,
+      "type": "external",
+      "label": "Pirsig CLI",
+      "sublabel": "area, project, task",
+      "width": 150
+    },
+    {
+      "id": "api",
+      "lane": "entry",
+      "col": 1,
+      "type": "frontend",
+      "label": "REST API",
+      "sublabel": "/api, cargo loco start",
+      "width": 150
+    },
+    {
+      "id": "models",
+      "lane": "core",
+      "col": 2,
+      "type": "backend",
+      "label": "model layer",
+      "sublabel": "one set of PARA rules",
+      "width": 150
+    },
+    {
+      "id": "db",
+      "lane": "core",
+      "col": 3,
+      "type": "database",
+      "label": "SQLite",
+      "sublabel": "or DATABASE_URL",
+      "width": 150
+    },
+    {
+      "id": "figure",
+      "lane": "figures",
+      "col": 3,
+      "type": "backend",
+      "label": "psg figure",
+      "sublabel": "PARA tree, archify IR",
+      "width": 150
+    },
+    {
+      "id": "archify",
+      "lane": "figures",
+      "col": 4,
+      "type": "external",
+      "label": "archify",
+      "sublabel": "checked HTML and PNG",
+      "width": 150
+    },
+    {
+      "id": "graph",
+      "lane": "graphs",
+      "col": 3,
+      "type": "backend",
+      "label": "psg graph",
+      "sublabel": "graphify graph.json",
+      "width": 150
+    },
+    {
+      "id": "graphify",
+      "lane": "graphs",
+      "col": 4,
+      "type": "external",
+      "label": "graphify",
+      "sublabel": "clusters, queries, graph",
+      "width": 150
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "cli",
+      "to": "models",
+      "label": "same calls"
+    },
+    {
+      "id": "e2",
+      "from": "api",
+      "to": "models",
+      "label": "same calls"
+    },
+    {
+      "id": "e3",
+      "from": "models",
+      "to": "db",
+      "label": "reads, writes"
+    },
+    {
+      "id": "e4",
+      "from": "models",
+      "to": "figure",
+      "label": "snapshot"
+    },
+    {
+      "id": "e5",
+      "from": "figure",
+      "to": "archify",
+      "label": "tree JSON"
+    },
+    {
+      "id": "e6",
+      "from": "models",
+      "to": "graph",
+      "label": "snapshot",
+      "role": "branch"
+    },
+    {
+      "id": "e7",
+      "from": "graph",
+      "to": "graphify",
+      "label": "graph.json"
+    }
+  ]
+}

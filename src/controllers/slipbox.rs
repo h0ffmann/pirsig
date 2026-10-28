@@ -55,7 +55,7 @@ pub struct FeedParams {
     pub limit: Option<u64>,
 }
 
-/// The slipbox out (`ztk.web.rss`): permanent notes by default, newest first.
+/// The slipbox out (`pirsig.web.rss`): permanent notes by default, newest first.
 #[debug_handler]
 async fn feed(State(ctx): State<AppContext>, Query(params): Query<FeedParams>) -> Result<Response> {
     let limit = params.limit.unwrap_or(50).clamp(1, 500);
@@ -66,7 +66,7 @@ async fn feed(State(ctx): State<AppContext>, Query(params): Query<FeedParams>) -
         limit,
     )
     .await?;
-    let xml = rss::render("ztk slipbox", &ctx.config.server.full_url(), &items);
+    let xml = rss::render("Pirsig slipbox", &ctx.config.server.full_url(), &items);
     Ok((
         [(header::CONTENT_TYPE, "application/rss+xml; charset=utf-8")],
         xml,
@@ -79,7 +79,7 @@ async fn ready(State(ctx): State<AppContext>) -> Result<Json<Readiness>> {
     Ok(Json(readiness::report(&ctx.db).await?))
 }
 
-/// `GET /api/readiness`: the methodology checks (`ztk ready`).
+/// `GET /api/readiness`: the methodology checks (`psg ready`).
 pub fn readiness_routes() -> Routes {
     Routes::new().prefix("/api").add("/readiness", get(ready))
 }

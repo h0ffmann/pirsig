@@ -1,6 +1,6 @@
-//! `ztk bootstrap gh`: a user's GitHub repositories in, one note each.
+//! `psg bootstrap gh`: a user's GitHub repositories in, one note each.
 //!
-//! What is indexed, and how deeply, is decided by `ztk_github::index::plan`
+//! What is indexed, and how deeply, is decided by `pirsig_github::index::plan`
 //! (design: `docs/design/github-bootstrap.md`): own public repos and public
 //! forks with their metadata; own private repos only when asked, and then at
 //! minimal depth (name, URL, language, last push; never the description,
@@ -21,12 +21,12 @@
 use std::{fmt::Write, time::Duration};
 
 use loco_rs::{model::ModelResult, Error, Result};
+use pirsig_github::index::{Depth, Record, Relation, RepoFacts};
 use regex::Regex;
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, ConnectionTrait, EntityTrait, QueryFilter, Set, TransactionTrait,
 };
 use serde::{Deserialize, Serialize};
-use ztk_github::index::{Depth, Record, Relation, RepoFacts};
 
 use super::{plain_text, USER_AGENT};
 use crate::{
@@ -1180,7 +1180,7 @@ async fn index<C: ConnectionTrait + TransactionTrait>(
 
 #[cfg(test)]
 mod tests {
-    use ztk_github::{
+    use pirsig_github::{
         index::plan,
         scope::{Private, Scope},
     };

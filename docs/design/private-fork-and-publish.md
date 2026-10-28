@@ -1,17 +1,17 @@
-# Private by default: private fork + `ztk publish`
+# Private by default: private fork + `psg publish`
 
 ## Why
 
 A second brain is personal by construction: health, finances, people, half-formed ideas.
-ztk is also code-first and git-friendly, so the natural place for a brain is a git repo.
+Pirsig is also code-first and git-friendly, so the natural place for a brain is a git repo.
 Put those together carelessly and you get a public GitHub repo full of personal data.
 
 Two rules follow:
 
-1. **Run ztk from a private copy of this repository.** The code is public; your brain
-   is not. Nothing about using ztk should need a public repo.
+1. **Run Pirsig from a private copy of this repository.** The code is public; your brain
+   is not. Nothing about using Pirsig should need a public repo.
 2. **Publishing is a separate, explicit step**, modeled on `terraform plan` / `terraform
-   apply`: ztk first shows exactly what would become public, and only an `apply` makes it
+   apply`: Pirsig first shows exactly what would become public, and only an `apply` makes it
    so. Nothing is public unless you said so, note by note.
 
 ## The private fork
@@ -27,7 +27,7 @@ git remote rename origin upstream
 git remote add origin git@github.com:<you>/brain.git
 git push -u origin main
 
-# later: take new ztk versions
+# later: take new Pirsig versions
 git pull upstream main
 ```
 
@@ -39,13 +39,31 @@ What lives where:
 | `brain/` | yes, **your data** | Markdown + YAML frontmatter, one file per item (same format as the Obsidian export) |
 | `*.sqlite` | no (gitignored) | an index rebuilt from `brain/`; never the source of truth |
 | `config/*.local.yaml` | no (gitignored) | machine-local settings and tokens |
-| `.ztk/publish.state.json` | yes | what has been published, see below |
+| `.pirsig/publish.state.json` | yes | what has been published, see below |
 
 Contributing back stays easy: code changes go on a branch, are pushed to a public fork
-of `ouroboric-dev/zettelkasten`, and never touch `brain/`. A pre-push hook (`ztk doctor
+of `ouroboric-dev/zettelkasten`, and never touch `brain/`. A pre-push hook (`psg doctor
 --hooks`) refuses to push `brain/` to any remote that is public.
 
-## `ztk publish`: plan, then apply
+### Built: the fork state
+
+This repository carries one public brain in `brain/`, the author's, so a copy starts with
+something to open. `psg fork export` writes it: the Obsidian export, less every note tagged
+`#private`, the resources only those notes cite, and any link or list line that names them.
+A copy then chooses:
+
+| Command | `just` | What it does |
+|---|---|---|
+| `psg fork import --overwrite` | `fork-state` | start from `brain/` |
+| `psg gh --overwrite` | `brain-reset` | replace the whole brain with your own GitHub |
+| `psg fork export` | `fork-export` | write your brain to `brain/` for whoever copies yours |
+
+Both replacing commands first copy the SQLite brain next to itself
+(`<name>.backup-<timestamp>.sqlite`, with `VACUUM INTO`), then empty it (`src/reset.rs`);
+`psg gh --overwrite` only empties it once GitHub has answered. The `#private` tag is the
+`visibility` of this design in its simplest form, until the column exists.
+
+## `psg publish`: plan, then apply
 
 ### Visibility
 
@@ -64,17 +82,17 @@ with `--visibility` on create/update or `visibility:` in frontmatter.
 ### Commands
 
 ```sh
-ztk publish                 # = plan: show what would change, change nothing
-ztk publish -o next.plan    # save the plan to apply exactly that later
-ztk publish --apply         # plan again, show it, ask "yes" before doing anything
-ztk publish --apply next.plan   # apply a saved plan; fails if the brain changed since
-ztk publish --destroy       # plan + apply removal of everything ztk published
+psg publish                 # = plan: show what would change, change nothing
+psg publish -o next.plan    # save the plan to apply exactly that later
+psg publish --apply         # plan again, show it, ask "yes" before doing anything
+psg publish --apply next.plan   # apply a saved plan; fails if the brain changed since
+psg publish --destroy       # plan + apply removal of everything Pirsig published
 ```
 
 Output looks like terraform's, on purpose:
 
 ```
-ztk will publish to target "site" (git: github.com/<you>/notes, branch gh-pages)
+Pirsig will publish to target "site" (git: github.com/<you>/notes, branch gh-pages)
 
   + note    "Atomic notes beat folders"            (new, public)
   ~ project "Run a marathon"                       (title changed)
@@ -92,8 +110,8 @@ Plan: 1 to add, 2 to change, 1 to destroy. 2 warnings.
 
 1. **Desired state**: every item with `visibility != private`, rendered by the target's
    renderer (Markdown, HTML, JSON).
-2. **Current state**: `.ztk/publish.state.json`, one entry per published item: id,
-   target path, content hash, published-at. Like terraform state, it is how ztk knows
+2. **Current state**: `.pirsig/publish.state.json`, one entry per published item: id,
+   target path, content hash, published-at. Like terraform state, it is how Pirsig knows
    what to update or remove without trusting the remote.
 3. **Diff** desired vs. current gives the `+ ~ -` lines.
 4. **Leak checks** run on the desired state, and warnings are part of the plan:
@@ -101,7 +119,7 @@ Plan: 1 to add, 2 to change, 1 to destroy. 2 warnings.
      URL that reveals the private title, unless the link text itself is the title: then
      it is replaced with `[private]`);
    - secret and PII patterns (tokens, emails, phone numbers, IBANs), reusing the same
-     detectors as `ztk doctor`;
+     detectors as `psg doctor`;
    - labels starting with `private/` or `@` (smart labels) are stripped.
    `--strict` turns warnings into errors.
 5. **Apply** writes the rendered files to the target, then updates the state file. A
@@ -110,10 +128,10 @@ Plan: 1 to add, 2 to change, 1 to destroy. 2 warnings.
 
 ### Targets
 
-Configured in `config/<env>.yaml` under `ztk.publish.targets`:
+Configured in `config/<env>.yaml` under `pirsig.publish.targets`:
 
 ```yaml
-ztk:
+pirsig:
   publish:
     targets:
       site:
@@ -126,7 +144,7 @@ ztk:
         path: ./public
 ```
 
-v0 ships `dir` and `git`. Later: gist, a hosted ztk instance, RSS/ActivityPub.
+v0 ships `dir` and `git`. Later: gist, a hosted Pirsig instance, RSS/ActivityPub.
 
 ## Out of scope
 
@@ -140,7 +158,7 @@ v0 ships `dir` and `git`. Later: gist, a hosted ztk instance, RSS/ActivityPub.
 1. `visibility` column on areas, projects, tasks, resources (migration, default `private`),
    `--visibility` on the CLI, `?visibility=` on the API.
 2. `brain/` Markdown store as the source of truth (shared with the Obsidian export).
-3. `ztk publish` plan/apply with the `dir` target and the state file.
+3. `psg publish` plan/apply with the `dir` target and the state file.
 4. Leak checks, `--strict`.
 5. `git` target, `--destroy`, saved plans.
-6. `ztk doctor --hooks`: pre-push guard for `brain/`.
+6. `psg doctor --hooks`: pre-push guard for `brain/`.

@@ -1,4 +1,4 @@
-// The UI end to end: ztk's API and UI served from the checkout, on a fresh,
+// The UI end to end: Pirsig's API and UI served from the checkout, on a fresh,
 // throwaway brain (target/e2e-brain.sqlite), driven in WebKit, the engine of
 // the macOS webview Tauri uses. `just desktop-e2e`.
 import { dirname, resolve } from "node:path";

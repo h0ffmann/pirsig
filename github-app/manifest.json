@@ -8,12 +8,12 @@
     "metadata": "read",
     "pull_requests": "read"
   },
-  "description": "Seed a ztk second brain from your GitHub FOSS work: your repos, public forks and contributions to the orgs you choose. Read-only; private repositories are indexed as metadata only and never published.",
+  "description": "Seed a Pirsig second brain from your GitHub FOSS work: your repos, public forks and contributions to the orgs you choose. Read-only; private repositories are indexed as metadata only and never published.",
   "hook_attributes": {
     "active": false,
     "url": "https://github.com/h0ffmann/zettelkasten"
   },
-  "name": "ztk bootstrap",
+  "name": "Pirsig bootstrap",
   "public": true,
   "redirect_url": "https://github.com/h0ffmann/zettelkasten",
   "request_oauth_on_install": false,

@@ -28,7 +28,7 @@ server:
   middlewares:
     # The UI (desktop/dist): the Tauri window loads it from here, and so can a
     # browser on http://localhost:5150 while `just dev` runs. Paths are
-    # relative to the checkout, where `ztk` and the desktop app run.
+    # relative to the checkout, where `psg` and the desktop app run.
     static:
       enable: true
       must_exist: true

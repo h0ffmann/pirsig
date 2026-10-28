@@ -1,4 +1,4 @@
-// The ztk app: a hash router over the views, the sidebar and quick capture.
+// The Pirsig app: a hash router over the views, the sidebar and quick capture.
 import { api } from "./api.js";
 import { h, toast } from "./ui.js";
 import * as today from "./views/today.js";

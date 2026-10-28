@@ -136,7 +136,7 @@ async fn a_rhizome_survives_the_obsidian_round_trip() {
             json!({ "title": "Endgames are chess grammar", "hippo_id": h }),
         )
         .await;
-        let dir = std::env::temp_dir().join(format!("ztk-hippo-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!("pirsig-hippo-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
         zettelkasten::vault::export(&ctx.db, &dir, false)
             .await

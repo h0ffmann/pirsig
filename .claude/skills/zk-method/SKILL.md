@@ -1,6 +1,6 @@
 ---
 name: zk-method
-description: Check that notes follow the Zettelkasten method - review a note, a vault, a slip-box or a ztk brain, "is this a good zettel", "audit my notes", "split this note", "why is my slipbox not connecting", or before importing/exporting notes in ztk. Classifies each note (fleeting, literature, permanent, structure), checks atomicity, own words, links with reasons and sources, runs a mechanical lint over a Markdown folder, and proposes concrete fixes without rewriting the person's thinking.
+description: Check that notes follow the Zettelkasten method - review a note, a vault, a slip-box or a Pirsig brain, "is this a good zettel", "audit my notes", "split this note", "why is my slipbox not connecting", or before importing/exporting notes in Pirsig. Classifies each note (fleeting, literature, permanent, structure), checks atomicity, own words, links with reasons and sources, runs a mechanical lint over a Markdown folder, and proposes concrete fixes without rewriting the person's thinking.
 ---
 
 # zk-method: verifying the Zettelkasten method
@@ -60,9 +60,9 @@ A note that is mostly links is structure.
   was ordered by ID and connection, not by subject. Folders belong to PARA (below), not to ideas.
 - **Tags are few and cross-cutting.** A tag that duplicates a link or a folder adds nothing.
 
-## Zettelkasten and PARA in ztk
+## Zettelkasten and PARA in Pirsig
 
-ztk has both, and they answer different questions:
+Pirsig has both, and they answer different questions:
 
 - **PARA** (projects, areas, resources, archives) is *where the work is*: actionable, organised by
   outcome, and things move to the archive when done.
@@ -78,7 +78,7 @@ The interop rules:
   is how project work becomes lasting knowledge.
 - **Never file a permanent note under a project or area folder.** Link it instead.
 
-When reviewing a ztk brain or an Obsidian vault headed for ztk, flag a permanent note inside a
+When reviewing a Pirsig brain or an Obsidian vault headed for Pirsig, flag a permanent note inside a
 PARA folder, a literature note with no resource/source, and a project with no linked notes as
 "knowledge that will be lost when this is archived".
 
@@ -86,7 +86,7 @@ PARA folder, a literature note with no resource/source, and a project with no li
 
 1. **Scope.** Ask, or infer from the request: one note, a set, or the whole vault? Which folders are
    the inbox, the literature notes, the slip-box, and the PARA tree? Read the vault's own
-   conventions first (an `ID` format, a template folder, frontmatter keys): **BYOX** in ztk means
+   conventions first (an `ID` format, a template folder, frontmatter keys): **BYOX** in Pirsig means
    the person's conventions win over this skill's defaults.
 2. **Mechanical lint.** For a folder of Markdown notes, run:
 

@@ -1,9 +1,9 @@
 # Use cases: a second brain made of your own repositories
 
 These use cases take one real person's GitHub, [h0ffmann](https://github.com/h0ffmann), and turn it
-into a ztk brain: the repositories go into PARA, what their READMEs say becomes notes, and the ties
+into a Pirsig brain: the repositories go into PARA, what their READMEs say becomes notes, and the ties
 between the ideas become notes of their own. The worked result is in
-[`examples/slipbox/`](../examples/slipbox/): a PARA seed script that runs on today's `ztk`, and a
+[`examples/slipbox/`](../examples/slipbox/): a PARA seed script that runs on today's `psg`, and a
 29-note slip box that follows the owner's own slip-box rules
 ([h0ffmann/h0ffmann, `NOTES.md`](https://github.com/h0ffmann/h0ffmann/blob/main/NOTES.md)).
 
@@ -56,7 +56,7 @@ graph LR
   research[marola-research]:::water
   skills[marola-skills]:::water
   ouroboric:::ouro
-  ztk[smart-notes → zettelkasten, loco]:::ouro
+  Pirsig[smart-notes → zettelkasten, loco]:::ouro
   forks[basic-memory, ai-memory, onyx]:::ideas
 
   V((verify before<br/>you claim)):::thread
@@ -85,7 +85,7 @@ graph LR
   bench --> W
   corpus --> W
   ml --> W
-  ztk --> B
+  Pirsig --> B
   profile --> B
   corpus --> B
   forks --> B
@@ -99,7 +99,7 @@ graph LR
   mdd --> S
   picasso --> S
   marola --> S
-  ztk --> S
+  Pirsig --> S
 ```
 
 What the threads say, in one line each (the notes have the sources):
@@ -121,7 +121,7 @@ What the threads say, in one line each (the notes have the sources):
 - **The forecasting thread.** Drawdown of a price (2017), weather in a demand forecast (the thesis),
   waves against buoys (marola-bench): honest evaluation, three times.
 - **From Scala to Rust.** The first Scala at UFRJ, then Scala at work and in marola's app, then
-  Rust for picasso, marola's tooling, scivolo and ztk.
+  Rust for picasso, marola's tooling, scivolo and Pirsig.
 
 Ties come in two strengths, and the notes keep them apart. A tie that a record states (a Zenodo
 record, a `refs.bib`, a README saying "came from") is `verified`. A tie a reader noticed is
@@ -136,13 +136,13 @@ Areas are the lights, projects are the open outcomes, resources are the reposito
 and the archive holds what GitHub marks archived.
 
 ```sh
-cargo build --bin ztk
-DATABASE_URL="sqlite://$PWD/slipbox.sqlite?mode=rwc" ZTK=target/debug/ztk examples/slipbox/para.sh
+cargo build --bin psg
+DATABASE_URL="sqlite://$PWD/slipbox.sqlite?mode=rwc" PSG=target/debug/psg examples/slipbox/para.sh
 ```
 
 The script creates 4 areas, 6 projects (marola-bench v1, the ww3-gpu port, marola-gpt 0.1.0,
-the ptbr-writer extension, ztk v0, closed-source v1), 4 tasks, 24 resources and 3 archived ones,
-then prints `ztk para`.
+the ptbr-writer extension, Pirsig v0, closed-source v1), 4 tasks, 24 resources and 3 archived ones,
+then prints `psg para`.
 
 ### 2. One README, several literature notes
 
@@ -153,24 +153,24 @@ tool ([paper fabric](../examples/slipbox/notes/202610270302-paper-fabric-checks-
 Each note's `source` names the repository and the file; with an importer it should also pin the
 commit, so the note can be checked against what it read.
 
-### 3. Load the slip box into ztk and walk the graph (works today)
+### 3. Load the slip box into Pirsig and walk the graph (works today)
 
 ```sh
-DATABASE_URL="sqlite://$PWD/slipbox.sqlite?mode=rwc" ZTK=target/debug/ztk python3 examples/slipbox/load.py
-ztk box stats        # 30 notes, 93 links: 1 hub, 21 literature, 8 permanent; 0 orphans
-ztk note -s 21       # "Verify before you claim", with its links and backlinks
-ztk box graph        # nodes and edges as JSON
+DATABASE_URL="sqlite://$PWD/slipbox.sqlite?mode=rwc" PSG=target/debug/psg python3 examples/slipbox/load.py
+psg box stats        # 30 notes, 93 links: 1 hub, 21 literature, 8 permanent; 0 orphans
+psg note -s 21       # "Verify before you claim", with its links and backlinks
+psg box graph        # nodes and edges as JSON
 ```
 
-`load.py` turns each file into a `ztk note` with its kind, source and tags, rewrites the
-`[[<id>-<slug>]]` links to `[[Title]]` (which ztk resolves on save), and files the index as the hub
-note. ztk notes have no status yet, so the status rides along as a `status/<status>` tag.
+`load.py` turns each file into a `psg note` with its kind, source and tags, rewrites the
+`[[<id>-<slug>]]` links to `[[Title]]` (which Pirsig resolves on save), and files the index as the hub
+note. Pirsig notes have no status yet, so the status rides along as a `status/<status>` tag.
 
 ### 4. Find the threads between repositories
 
 The permanent notes are the point of the exercise: a question no single README answers, like
-"where else do I insist on verification?". With notes and backlinks in ztk, that question is a
-backlink query (`ztk note -s`) on [verify before you claim](../examples/slipbox/notes/202610270320-verify-before-you-claim.md).
+"where else do I insist on verification?". With notes and backlinks in Pirsig, that question is a
+backlink query (`psg note -s`) on [verify before you claim](../examples/slipbox/notes/202610270320-verify-before-you-claim.md).
 
 ### 5. Trace where a convention came from
 
@@ -182,7 +182,7 @@ backlink query (`ztk note -s`) on [verify before you claim](../examples/slipbox/
 
 A fork is somebody else's idea that you keep near you. In the PARA map a fork is a resource with
 "(fork)" in its title, tied to the project it informs: basic-memory, ai-memory and onyx inform
-ztk v0; WW3 informs the ww3-gpu port. In the slip box a fork gets a literature note
+Pirsig v0; WW3 informs the ww3-gpu port. In the slip box a fork gets a literature note
 ([three forks are prior art](../examples/slipbox/notes/202610270330-forks-as-prior-art.md)), never a
 permanent one: the claim in it is the other project's.
 
@@ -194,11 +194,11 @@ pass moves a note to `approved` or deletes it. `cargo test --test mod slipbox` c
 ids, front matter, no dead links, every note linked from the index; the `zk-method` skill's lint
 (`python3 .claude/skills/zk-method/scripts/zk_lint.py examples/slipbox/notes`) reports no findings.
 
-## What this asks of ztk
+## What this asks of Pirsig
 
-- **Notes, links, backlinks and tags** are in ztk now (`ztk note`, `ztk link`, `ztk box`).
+- **Notes, links, backlinks and tags** are in Pirsig now (`psg note`, `psg link`, `psg box`).
   Still missing: a **status** on notes (`unverified` → `verified` → `approved`). The Markdown
-  **import** exists now: `ztk obsidian import examples/slipbox/notes` loads the same 30 notes
+  **import** exists now: `psg obsidian import examples/slipbox/notes` loads the same 30 notes
   and 93 links as `load.py`, resolving the `[[<id>-<slug>]]` links by file name. The only
   thing it leaves out is `status`, which is a key/value tag (not built yet) and which
   `load.py` turns into a `status/<status>` label.

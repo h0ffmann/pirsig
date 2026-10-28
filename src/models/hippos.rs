@@ -4,7 +4,7 @@
 //! obsessive, or any mix. It is never a diagnosis, and it stays in the private
 //! brain. Its notes do not form a Folgezettel tree. They form a rhizome
 //! (Deleuze and Guattari, *A Thousand Plateaus*, 1980): any note can connect to
-//! any other, there is no trunk, and every point is an entry point. ztk keeps
+//! any other, there is no trunk, and every point is an entry point. Pirsig keeps
 //! that true without asking for filing work:
 //!
 //! - **Connection.** Each note is woven in on save: linked to the notes it
@@ -31,7 +31,7 @@ use crate::dtos::hippos::{
 };
 pub type Hippos = Entity;
 
-/// Self-described traits. ztk adapts nothing clinical to them; the `hippo`
+/// Self-described traits. Pirsig adapts nothing clinical to them; the `hippo`
 /// skill uses them to adapt how Claude helps (short steps, literal wording,
 /// reassurance, room for deep dives).
 pub const TRAITS: [&str; 4] = ["adhd", "autistic", "neurotic", "obsessive"];

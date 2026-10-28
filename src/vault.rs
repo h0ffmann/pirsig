@@ -1,12 +1,12 @@
-//! `ztk.pkm.obsidian`: the brain as an Obsidian vault, out and back in.
+//! `pirsig.pkm.obsidian`: the brain as an Obsidian vault, out and back in.
 //!
 //! The vault keeps PARA and the slipbox apart, as the method asks: PARA items
 //! are folders (`Projects/`, `Areas/`, `Resources/`, `Archive/`), notes live
 //! flat in `Zettelkasten/`, ordered by zid and connected by links. Every file
-//! ztk writes carries a `ztk:` front matter key; export only ever replaces or
+//! Pirsig writes carries a `pirsig:` front matter key (`ztk:`, the old name, is still read); export only ever replaces or
 //! removes those files, never the person's own.
 //!
-//! Links are rewritten both ways so they resolve on each side: ztk's `[[1a]]`
+//! Links are rewritten both ways so they resolve on each side: Pirsig's `[[1a]]`
 //! or `[[Some title]]` becomes Obsidian's `[[1a Some title|1a]]` (a file stem),
 //! and an Obsidian `[[file stem]]` comes back as `[[zid]]`.
 #![allow(clippy::missing_errors_doc)]
@@ -41,6 +41,10 @@ use crate::{
     },
 };
 
+/// The front matter key that marks a file Pirsig wrote, and holds its kind.
+const KEY: &str = "pirsig";
+/// The same key under the app's old name, in vaults exported before the rename.
+const LEGACY_KEY: &str = "ztk";
 const NOTES: &str = "Zettelkasten";
 const AREAS: &str = "Areas";
 const PROJECTS: &str = "Projects";
@@ -53,7 +57,7 @@ pub struct ExportReport {
     pub areas: usize,
     pub projects: usize,
     pub resources: usize,
-    /// ztk files from an earlier export whose item is gone or renamed.
+    /// Pirsig files from an earlier export whose item is gone or renamed.
     pub removed: usize,
 }
 
@@ -116,8 +120,8 @@ fn link(path: &str, label: &str) -> String {
 
 fn front(kind: &str, id: i64, title: &str, archived: bool) -> String {
     let mut md = String::from("---\n");
-    let _ = writeln!(md, "ztk: {kind}");
-    let _ = writeln!(md, "ztk_id: {id}");
+    let _ = writeln!(md, "{KEY}: {kind}");
+    let _ = writeln!(md, "{KEY}_id: {id}");
     let _ = writeln!(md, "title: {}", yaml(title));
     if archived {
         md.push_str("archived: true\n");
@@ -156,6 +160,8 @@ struct Snapshot {
     notes: Vec<notes::Model>,
     hippos: HashMap<i64, String>,
     paths: HashMap<(&'static str, i64), String>,
+    /// Notes left out (`#private` ones, in a public export): nothing links to them.
+    hidden: Vec<notes::Model>,
 }
 
 impl Snapshot {
@@ -174,6 +180,7 @@ impl Snapshot {
                 .map(|h| (h.id, h.name))
                 .collect(),
             paths: HashMap::new(),
+            hidden: Vec::new(),
         };
         snap.areas.retain(|a| keep(&a.archived_at));
         snap.projects.retain(|p| keep(&p.archived_at));
@@ -204,6 +211,68 @@ impl Snapshot {
         }
         snap.paths = paths;
         Ok(snap)
+    }
+
+    /// Leave out the notes tagged `private`, the resources only they cite, and
+    /// every way of reaching them: what a public copy of the brain must not show.
+    async fn without_private(mut self, db: &DatabaseConnection) -> ModelResult<Self> {
+        let ids: Vec<i64> = self.notes.iter().map(|n| n.id).collect();
+        let tags = notes::Entity::tags_of(db, &ids).await?;
+        let private = |n: &notes::Model| {
+            tags.get(&n.id)
+                .is_some_and(|t| t.iter().any(|t| t == PRIVATE_TAG))
+        };
+        let (hidden, kept): (Vec<_>, Vec<_>) = self.notes.into_iter().partition(private);
+        let cited: HashSet<i64> = kept.iter().filter_map(|n| n.resource_id).collect();
+        let only_private: HashSet<i64> = hidden
+            .iter()
+            .filter_map(|n| n.resource_id)
+            .filter(|id| !cited.contains(id))
+            .collect();
+        self.resources.retain(|r| !only_private.contains(&r.id));
+        self.paths
+            .retain(|(folder, id), _| *folder != RESOURCES || !only_private.contains(id));
+        self.notes = kept;
+        self.hidden = hidden;
+        Ok(self)
+    }
+
+    fn is_hidden(&self, id: i64) -> bool {
+        self.hidden.iter().any(|n| n.id == id)
+    }
+
+    /// `body` without what points at a hidden note: a list line that links one
+    /// goes, any other such link becomes `[private]`.
+    fn conceal(&self, body: &str) -> String {
+        if self.hidden.is_empty() {
+            return body.to_string();
+        }
+        let hides = |target: &str| {
+            self.hidden
+                .iter()
+                .any(|n| n.zid == target || n.title.eq_ignore_ascii_case(target))
+        };
+        let mut out = Vec::new();
+        for line in body.lines() {
+            let hit = std::cell::Cell::new(false);
+            let rewritten = rewrite_wikilinks_with(line, |target, _, _| {
+                hides(target).then(|| {
+                    hit.set(true);
+                    String::new()
+                })
+            });
+            if !hit.get() {
+                out.push(line.to_string());
+            } else if !line.trim_start().starts_with(['-', '*']) {
+                // the hidden link's text can be its title: say nothing of it
+                out.push(rewritten.replace("[[]]", "[private]"));
+            }
+        }
+        let mut out = out.join("\n");
+        if body.ends_with('\n') {
+            out.push('\n');
+        }
+        out
     }
 
     fn path(&self, folder: &'static str, id: Option<i64>) -> Option<&String> {
@@ -300,10 +369,10 @@ impl Snapshot {
         md
     }
 
-    /// A note, with every body link that ztk resolves (zid, then title)
+    /// A note, with every body link that Pirsig resolves (zid, then title)
     /// pointing at the target's file stem.
     fn note(&self, n: &notes::Model, tags: &[String], links: &[Linked]) -> String {
-        let mut md = String::from("---\nztk: note\n");
+        let mut md = format!("---\n{KEY}: note\n");
         let _ = writeln!(md, "zid: {}", yaml(&n.zid));
         let _ = writeln!(md, "title: {}", yaml(&n.title));
         let _ = writeln!(md, "aliases: [{}]", yaml(&n.title));
@@ -323,7 +392,7 @@ impl Snapshot {
         }
         let _ = writeln!(md, "created: {}", n.created_at.to_rfc3339());
         let _ = writeln!(md, "updated: {}", n.updated_at.to_rfc3339());
-        let body = rewrite_wikilinks_with(&n.body, |target, anchor, label| {
+        let body = rewrite_wikilinks_with(&self.conceal(&n.body), |target, anchor, label| {
             let to = self.notes.iter().find(|m| m.zid == target).or_else(|| {
                 self.notes
                     .iter()
@@ -337,7 +406,9 @@ impl Snapshot {
             Some(format!("{}{anchor}{label}", note_stem(to)))
         });
         heading(&mut md, &n.title, Some(&body));
-        let manual = links.iter().filter(|l| !l.auto);
+        let manual = links
+            .iter()
+            .filter(|l| !l.auto && !self.is_hidden(l.note.id));
         section(
             &mut md,
             "Links",
@@ -366,7 +437,8 @@ impl Snapshot {
             put(&self.paths[&(AREAS, a.id)], self.area(a));
         }
         for p in &self.projects {
-            let pulled = p.notes(db).await?;
+            let mut pulled = p.notes(db).await?;
+            pulled.retain(|(n, _)| !self.is_hidden(n.id));
             put(&self.paths[&(PROJECTS, p.id)], self.project(p, &pulled));
         }
         for r in &self.resources {
@@ -386,8 +458,26 @@ impl Snapshot {
 /// Write the whole brain into `dir` as an Obsidian vault. Archived PARA items
 /// go under `Archive/` only with `archived`.
 pub async fn export(db: &DatabaseConnection, dir: &Path, archived: bool) -> Result<ExportReport> {
-    let io = |p: &Path, e: std::io::Error| Error::Message(format!("{}: {e}", p.display()));
     let snap = Snapshot::load(db, archived).await?;
+    write(snap, db, dir).await
+}
+
+/// The tag that keeps a note out of every public copy of the brain.
+pub const PRIVATE_TAG: &str = "private";
+
+/// Write the brain into `dir` as a vault that may be published.
+///
+/// It is what `export` writes, less the notes tagged `private`, the resources
+/// only they cite, and every link or list line that would name them. This is
+/// the fork state a
+/// copy of the repository starts from (`psg fork export brain`).
+pub async fn export_public(db: &DatabaseConnection, dir: &Path) -> Result<ExportReport> {
+    let snap = Snapshot::load(db, false).await?.without_private(db).await?;
+    write(snap, db, dir).await
+}
+
+async fn write(snap: Snapshot, db: &DatabaseConnection, dir: &Path) -> Result<ExportReport> {
+    let io = |p: &Path, e: std::io::Error| Error::Message(format!("{}: {e}", p.display()));
     let files = snap.render(db).await?;
 
     // replace our own files, and only those
@@ -414,7 +504,8 @@ pub async fn export(db: &DatabaseConnection, dir: &Path, archived: bool) -> Resu
     })
 }
 
-/// Markdown files under `dir` that ztk wrote (they carry a `ztk:` key).
+/// Markdown files under `dir` that Pirsig wrote (they carry a `pirsig:` key, or the
+/// `ztk:` one of a vault exported before the rename).
 fn managed_files(dir: &Path) -> Vec<PathBuf> {
     markdown_files(dir)
         .into_iter()
@@ -422,7 +513,7 @@ fn managed_files(dir: &Path) -> Vec<PathBuf> {
             std::fs::read_to_string(p)
                 .ok()
                 .and_then(|text| split_front(&text).0)
-                .is_some_and(|fm| fm.get("ztk").is_some())
+                .is_some_and(|fm| fm.get(KEY).or_else(|| fm.get(LEGACY_KEY)).is_some())
         })
         .collect()
 }
@@ -520,7 +611,7 @@ fn strip_title<'a>(body: &'a str, title: &str) -> &'a str {
     body
 }
 
-/// The list sections ztk writes at the end of a file (`## Links`, `## Tasks`,
+/// The list sections Pirsig writes at the end of a file (`## Links`, `## Tasks`,
 /// ...): cut them off the body and return their items by heading. A section
 /// that is not only a list is the person's own prose and stays.
 fn cut_sections<'a>(body: &'a str, headings: &[&str]) -> (&'a str, HashMap<String, Vec<String>>) {
@@ -607,7 +698,7 @@ impl Read {
         let archived = in_archive || get_str(fm.as_ref(), "archived").as_deref() == Some("true");
         let body = strip_title(body, &title).to_string();
         Some(Self {
-            kind: get_str(fm.as_ref(), "ztk"),
+            kind: get_str(fm.as_ref(), KEY).or_else(|| get_str(fm.as_ref(), LEGACY_KEY)),
             fm,
             title,
             body,
@@ -627,7 +718,7 @@ impl Read {
 
 /// Read an Obsidian vault into the brain.
 ///
-/// Files with `ztk: area|project|resource` front matter become PARA items,
+/// Files with `Pirsig: area|project|resource` front matter become PARA items,
 /// matched by name, so a re-import updates them; every other Markdown file is
 /// a note, matched by its `zid` (or, without one, by its title). With
 /// `dry_run` everything runs in a transaction that is rolled back.
@@ -984,7 +1075,7 @@ impl<'a> Importer<'a> {
         };
         if !notes::KINDS.contains(&kind.as_str()) {
             self.report.warnings.push(format!(
-                "{}: kind \"{kind}\" is not a ztk kind, imported as fleeting",
+                "{}: kind \"{kind}\" is not a Pirsig kind, imported as fleeting",
                 f.stem
             ));
             return notes::DEFAULT_KIND.into();
@@ -1064,7 +1155,7 @@ impl<'a> Importer<'a> {
                 h
             } else {
                 self.report.warnings.push(format!(
-                    "Hippo \"{name}\" created; set its traits and fixations with ztk hippo -u"
+                    "Hippo \"{name}\" created; set its traits and fixations with psg hippo -u"
                 ));
                 let params = crate::dtos::hippos::CreateHippo {
                     name: name.clone(),
@@ -1172,9 +1263,9 @@ mod tests {
 
     #[test]
     fn front_matter_and_sections() {
-        let text = "---\nztk: note\ntags: [a, \"#b\"]\n---\n\n# T\n\nbody\n\n## Links\n\n- [[1a X|1a]] X: because\n";
+        let text = "---\npirsig: note\ntags: [a, \"#b\"]\n---\n\n# T\n\nbody\n\n## Links\n\n- [[1a X|1a]] X: because\n";
         let (fm, body) = split_front(text);
-        assert_eq!(get_str(fm.as_ref(), "ztk").as_deref(), Some("note"));
+        assert_eq!(get_str(fm.as_ref(), KEY).as_deref(), Some("note"));
         assert_eq!(get_tags(fm.as_ref()), ["a", "b"]);
         let (text, sections) = cut_sections(strip_title(body, "T"), &["Links"]);
         assert_eq!(text, "body");

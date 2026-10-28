@@ -1,4 +1,4 @@
-// ztk's REST API, on the same origin as this page (see desktop/README.md).
+// Pirsig's REST API, on the same origin as this page (see desktop/README.md).
 
 export class ApiError extends Error {
   constructor(status, message, data) {

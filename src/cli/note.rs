@@ -14,8 +14,8 @@ use crate::{
     models::notes,
 };
 
-/// `ztk note -c "An idea"`, `ztk note -c -t "Title" -a 21 -k permanent -e`,
-/// `ztk note -s 21a`, `ztk note -u 21a -e`, `ztk note -d 21a`, `ztk note -q rust` (search).
+/// `psg note -c "An idea"`, `psg note -c -t "Title" -a 21 -k permanent -e`,
+/// `psg note -s 21a`, `psg note -u 21a -e`, `psg note -d 21a`, `psg note -q rust` (search).
 #[derive(Debug, clap::Args)]
 #[command(group(ArgGroup::new("action").args(["create", "update", "delete", "show"])))]
 pub struct Args {
@@ -35,7 +35,7 @@ pub struct Args {
     /// Note title.
     #[arg(short, long)]
     title: Option<String>,
-    /// Title, for quick capture: `ztk note -c "An idea"`.
+    /// Title, for quick capture: `psg note -c "An idea"`.
     #[arg(value_name = "TITLE")]
     quick_title: Option<String>,
     /// Body in Markdown; `-` reads it from stdin. `[[zid]]` or `[[Title]]` links, `#tag` tags.
@@ -139,7 +139,7 @@ pub async fn run(ctx: &AppContext, out: &Output, args: Args) -> Result<()> {
         let title = args
             .title
             .or(args.quick_title)
-            .ok_or_else(|| Error::Message("a title is required: ztk note -c \"Title\"".into()))?;
+            .ok_or_else(|| Error::Message("a title is required: psg note -c \"Title\"".into()))?;
         let mut body = read_body(args.body)?.unwrap_or_default();
         if args.edit {
             body = edit(&format!("# {title}\n\n{body}"))?;
@@ -210,7 +210,7 @@ pub async fn run(ctx: &AppContext, out: &Output, args: Args) -> Result<()> {
     Ok(())
 }
 
-/// `--body -` reads stdin; so does piping into `ztk note -c` without `--body`.
+/// `--body -` reads stdin; so does piping into `psg note -c` without `--body`.
 fn read_body(body: Option<String>) -> Result<Option<String>> {
     match body.as_deref() {
         Some("-") => Ok(Some(read_stdin()?)),
@@ -236,7 +236,7 @@ fn edit(initial: &str) -> Result<String> {
     let editor = std::env::var("VISUAL")
         .or_else(|_| std::env::var("EDITOR"))
         .unwrap_or_else(|_| "vi".into());
-    let path = std::env::temp_dir().join(format!("ztk-{}.md", std::process::id()));
+    let path = std::env::temp_dir().join(format!("pirsig-{}.md", std::process::id()));
     std::fs::write(&path, initial).map_err(|e| Error::Message(e.to_string()))?;
     let mut parts = editor.split_whitespace();
     let program = parts.next().unwrap_or("vi");

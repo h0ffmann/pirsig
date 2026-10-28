@@ -7,7 +7,7 @@ use crate::{
     models::resources,
 };
 
-/// `ztk resource -c -t "Rust book" --url https://doc.rust-lang.org/book/ -a 1`, `ztk resource -d 3`.
+/// `psg resource -c -t "Rust book" --url https://doc.rust-lang.org/book/ -a 1`, `psg resource -d 3`.
 // clap flags are bools by nature
 #[allow(clippy::struct_excessive_bools)]
 #[derive(Debug, clap::Args)]

@@ -1,7 +1,7 @@
 {
-  "name": "ztk-desktop-ui",
+  "name": "pirsig-desktop-ui",
   "version": "0.1.0",
-  "description": "End-to-end tests of the ztk UI (desktop/dist) against a fresh brain",
+  "description": "End-to-end tests of the Pirsig UI (desktop/dist) against a fresh brain",
   "private": true,
   "type": "module",
   "scripts": {

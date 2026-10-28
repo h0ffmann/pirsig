@@ -1,4 +1,4 @@
-//! Model rules shared by the REST controllers and the `ztk` CLI.
+//! Model rules shared by the REST controllers and the `psg` CLI.
 #![allow(clippy::missing_errors_doc)]
 pub use super::_entities::areas::{ActiveModel, Column, Entity, Model};
 use loco_rs::model::{ModelError, ModelResult};

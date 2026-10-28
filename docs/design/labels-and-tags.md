@@ -1,6 +1,6 @@
 # Labels and tags
 
-Two words, two shapes. ztk never uses one for the other.
+Two words, two shapes. Pirsig never uses one for the other.
 
 | | Shape | Example | Answers | Obsidian source (BYOX) |
 |---|---|---|---|---|
@@ -23,21 +23,21 @@ Two words, two shapes. ztk never uses one for the other.
 | Label | `--label running` (repeatable) | `"labels": ["running"]` | `?label=running` (prefix match) | `#running` in the body, `tags: [running]` in front matter |
 | Tag | `--tag status=active` (repeatable) | `"tags": {"status": "active"}` | `?tag=status=active`, `?tag=status` (has key) | `status: active` in front matter, `status:: active` inline |
 
-Obsidian calls value-only marks "tags". ztk reads and writes them in Obsidian's syntax,
-but inside ztk they are **labels**; Obsidian's key/value properties are ztk **tags**. The
+Obsidian calls value-only marks "tags". Pirsig reads and writes them in Obsidian's syntax,
+but inside Pirsig they are **labels**; Obsidian's key/value properties are Pirsig **tags**. The
 round trip is lossless because the shapes match one to one.
 
-## Where ztk is today
+## Where Pirsig is today
 
 - PARA (areas, projects, tasks, resources) has neither yet; the BYOL issue adds labels
   and this note adds tags next to them.
-- Notes store `#hashtags` and `ztk note --tag X` in `note_tags`, exposed as `tags: [..]`.
+- Notes store `#hashtags` and `psg note --tag X` in `note_tags`, exposed as `tags: [..]`.
   Those are **labels** by this note's definition. Planned rename, with a deprecation
   window: `note_tags` → `note_labels`, the JSON field `tags` → `labels`, `--tag X` →
   `--label X`; `--tag` then takes `key=value`. `kind` and `source` on notes are tags in
   all but storage and stay columns.
-- Exports: `ztk graph` will carry labels as a node's `labels` list and tags as node
-  attributes; `ztk figure` can show labels in a sublabel. Neither invents a third shape.
+- Exports: `psg graph` will carry labels as a node's `labels` list and tags as node
+  attributes; `psg figure` can show labels in a sublabel. Neither invents a third shape.
 
 ## Out of scope
 

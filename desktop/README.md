@@ -1,6 +1,6 @@
-# ztk desktop (Tauri)
+# Pirsig desktop (Tauri)
 
-`just desktop` opens ztk as a desktop app built with [Tauri 2](https://v2.tauri.app). The
+`just desktop` opens Pirsig as a desktop app built with [Tauri 2](https://v2.tauri.app). The
 whole brain is managed from it:
 
 | Section | What you can do |
@@ -19,8 +19,8 @@ whole brain is managed from it:
 ## How it fits together
 
 ```
-ztk-desktop (Tauri)                        the same in a browser
-  ├─ ztk's REST API (Loco), 127.0.0.1:<free port>     `just dev` → localhost:5150
+pirsig-desktop (Tauri)                        the same in a browser
+  ├─ Pirsig's REST API (Loco), 127.0.0.1:<free port>     `just dev` → localhost:5150
   │    └─ serves desktop/dist (the UI) at /
   └─ a window on http://127.0.0.1:<port>/
 ```
@@ -32,8 +32,8 @@ commands, and the same UI in a browser while `just dev` runs. The page is plain 
 and ES modules (`dist/`), with no build step and no dependencies; it builds the DOM from text,
 so nothing a note holds is ever parsed as HTML.
 
-The brain is the one in `config/development.yaml`: the app runs in `ZTK_HOME` when set, else
-in the current folder when it holds ztk's `config/`, else in the checkout it was built from.
+The brain is the one in `config/development.yaml`: the app runs in `PIRSIG_HOME` when set, else
+in the current folder when it holds Pirsig's `config/`, else in the checkout it was built from.
 Any process on this machine can reach the API's port while the app runs, as with `just dev`.
 
 | Path | What |

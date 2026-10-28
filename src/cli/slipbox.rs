@@ -14,7 +14,7 @@ use crate::{
     vault,
 };
 
-/// `ztk box` (stats), `ztk box inbox`, `ztk box tree`, `ztk box random`, `ztk box export ./vault`.
+/// `psg box` (stats), `psg box inbox`, `psg box tree`, `psg box random`, `psg box export ./vault`.
 #[derive(Debug, clap::Args)]
 pub struct Args {
     #[command(subcommand)]
@@ -37,7 +37,7 @@ enum View {
     Tags,
     /// Counts: notes, links, inbox, orphans, kinds, tags.
     Stats,
-    /// Write the brain as an Obsidian vault (same as `ztk obsidian export`).
+    /// Write the brain as an Obsidian vault (same as `psg obsidian export`).
     Export {
         /// Destination folder; created if missing.
         dir: PathBuf,

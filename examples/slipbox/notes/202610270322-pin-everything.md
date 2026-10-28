@@ -16,4 +16,4 @@ model's revision ([[202610270307-marola-gpt-lora-on-tucano]]); marola-corpus shi
 tarball; the profile places each work on the graph by hand "so the picture does not move between
 two builds" ([[202610270316-the-works-hold-each-other]]).
 
-For ztk: a literature note pins the commit it was read at.
+For Pirsig: a literature note pins the commit it was read at.

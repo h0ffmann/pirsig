@@ -15,5 +15,5 @@ git ([[202610270312-nashkell-latin-in-git-english-on-disk]]); ww3-gpu is closed 
 commercial requests" ([[202610270304-ww3-gpu-bit-for-bit]]); nagori is private. Against that,
 closed-source argues for publishing the method ([[202610270300-publish-the-method]]).
 
-Open question: which notes of a second brain are the method, and which are only the owner's? ztk
+Open question: which notes of a second brain are the method, and which are only the owner's? Pirsig
 answers it with a private working copy and an explicit publish step.

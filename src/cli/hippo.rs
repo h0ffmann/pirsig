@@ -9,8 +9,8 @@ use crate::{
     models::hippos,
 };
 
-/// `ztk hippo -c -n me --trait adhd --fixation "rogue waves"`, `ztk hippo --map 1`,
-/// `ztk hippo --weave 1`, then `ztk note -c "an idea" -H 1`.
+/// `psg hippo -c -n me --trait adhd --fixation "rogue waves"`, `psg hippo --map 1`,
+/// `psg hippo --weave 1`, then `psg note -c "an idea" -H 1`.
 #[derive(Debug, clap::Args)]
 #[command(group(ArgGroup::new("action").args(["create", "update", "delete", "show", "map", "weave"])))]
 pub struct Args {
@@ -71,7 +71,7 @@ fn map_text(m: &RhizomeMap) -> String {
         match m.components.len() {
             0 => "empty".to_string(),
             1 => "one rhizome".to_string(),
-            n => format!("{n} pieces (ztk hippo --weave {} joins them)", m.hippo.id),
+            n => format!("{n} pieces (psg hippo --weave {} joins them)", m.hippo.id),
         }
     );
     if !m.resume.is_empty() {

@@ -6,7 +6,7 @@ use super::{
 };
 use crate::{dtos::notes::NoteDetail, models::notes};
 
-/// `ztk link 21a 3 -w "contradicts the claim in 3"`, `ztk link -d 21a 3`.
+/// `psg link 21a 3 -w "contradicts the claim in 3"`, `psg link -d 21a 3`.
 ///
 /// Links written as `[[3]]` in a body appear on their own; use this for links
 /// that deserve a reason.

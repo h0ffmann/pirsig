@@ -1,14 +1,14 @@
 {
   "name": "zettelkasten",
-  "description": "ztk, the second brain made of PARA and a Zettelkasten slip-box, for Claude Code",
+  "description": "Pirsig, the second brain made of PARA and a Zettelkasten slip-box, for Claude Code",
   "owner": {
     "name": "h0ffmann"
   },
   "plugins": [
     {
-      "name": "ztk",
-      "source": "./plugins/ztk",
-      "description": "Work in a ztk brain: capture and link notes, file PARA, ingest arXiv and RSS, check the method (zk-method), and grow a Hippo's rhizome"
+      "name": "pirsig",
+      "source": "./plugins/pirsig",
+      "description": "Work in a Pirsig brain: capture and link notes, file PARA, ingest arXiv and RSS, check the method (zk-method), and grow a Hippo's rhizome"
     }
   ]
 }

@@ -6,7 +6,7 @@ use loco_rs::{app::AppContext, Result};
 use super::Output;
 use crate::vault::{self, ExportReport, ImportReport};
 
-/// `ztk obsidian export ./vault`, `ztk obsidian import ./vault --dry-run`.
+/// `psg obsidian export ./vault`, `psg obsidian import ./vault --dry-run`.
 #[derive(Debug, clap::Args)]
 pub struct Args {
     #[command(subcommand)]
@@ -17,13 +17,13 @@ pub struct Args {
 enum Action {
     /// Write the brain as a vault: PARA folders, notes flat in Zettelkasten/.
     Export {
-        /// Vault folder; created if missing. Only files ztk wrote are replaced.
+        /// Vault folder; created if missing. Only files Pirsig wrote are replaced.
         dir: PathBuf,
         /// Also export archived areas, projects and resources, under Archive/.
         #[arg(long)]
         archived: bool,
     },
-    /// Read a vault in: ztk PARA files by name, every other note by zid.
+    /// Read a vault in: Pirsig PARA files by name, every other note by zid.
     Import {
         /// Vault folder.
         dir: PathBuf,
@@ -49,7 +49,7 @@ pub(crate) fn exported(r: &ExportReport, dir: &std::path::Path) -> String {
     )
 }
 
-fn imported(r: &ImportReport) -> String {
+pub(crate) fn imported(r: &ImportReport) -> String {
     let mut s =
         format!(
         "{}{} notes created, {} updated; {} areas, {} projects, {} tasks, {} resources; {} links",

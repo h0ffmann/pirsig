@@ -11,8 +11,8 @@ use crate::{
     models::{notes, projects},
 };
 
-/// `ztk project -c -n "Run a marathon" -a 1 --due 2027-04-18`, `ztk project -u 2 --status done`,
-/// `ztk project --pull 2 --note 1a -w "the training plan"`, `ztk project -d 2`.
+/// `psg project -c -n "Run a marathon" -a 1 --due 2027-04-18`, `psg project -u 2 --status done`,
+/// `psg project --pull 2 --note 1a -w "the training plan"`, `psg project -d 2`.
 // clap flags are bools by nature
 #[allow(clippy::struct_excessive_bools)]
 #[derive(Debug, clap::Args)]

@@ -1,8 +1,9 @@
 //! The brain goes out as an Obsidian vault and comes back the same.
 use loco_rs::{app::Hooks, testing::prelude::*, TestServer};
+use sea_orm::ConnectionTrait;
 use serde_json::{json, Value};
 use serial_test::serial;
-use zettelkasten::{app::App, vault};
+use zettelkasten::{app::App, reset, vault};
 
 async fn post(request: &TestServer, path: &str, body: Value) -> Value {
     let res = request.post(path).json(&body).await;
@@ -58,7 +59,7 @@ async fn round_trips_para_and_the_slipbox() {
         post(&request, "/api/notes/2/links", json!({ "target": "1", "context": "filed under" })).await;
         post(&request, &format!("/api/projects/{bench}/notes"), json!({ "zid": "2", "context": "the method" })).await;
 
-        let dir = std::env::temp_dir().join(format!("ztk-vault-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!("pirsig-vault-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(dir.join("Zettelkasten")).unwrap();
         std::fs::write(dir.join("Mine.md"), "# My own\n\nwritten in Obsidian, links [[2 Atomic idea]]\n").unwrap();
@@ -66,7 +67,7 @@ async fn round_trips_para_and_the_slipbox() {
 
         let out = vault::export(&ctx.db, &dir, true).await.unwrap();
         assert_eq!((out.notes, out.areas, out.projects, out.resources, out.removed), (3, 2, 1, 1, 1));
-        assert!(dir.join("Mine.md").exists(), "never touches files ztk did not write");
+        assert!(dir.join("Mine.md").exists(), "never touches files Pirsig did not write");
         let index = read(&dir, "Zettelkasten/1 Index.md");
         assert!(index.contains("Start at [[2 Atomic idea|2]], see [[2 Atomic idea#Why|why]]."), "{index}");
         let atomic = read(&dir, "Zettelkasten/2 Atomic idea.md");
@@ -127,4 +128,64 @@ async fn round_trips_para_and_the_slipbox() {
         let _ = std::fs::remove_dir_all(&dir);
     })
     .await;
+}
+
+#[tokio::test]
+#[serial]
+async fn the_fork_state_keeps_private_notes_out_and_starts_a_brain() {
+    request::<App, _, _>(|request, ctx| async move {
+        let code = post(&request, "/api/areas", json!({ "name": "Code" })).await["id"].clone();
+        let open = post(&request, "/api/resources", json!({ "title": "h0ffmann/open", "kind": "repo", "area_id": code })).await["id"].clone();
+        let secret = post(&request, "/api/resources", json!({ "title": "h0ffmann/secret-bank", "kind": "repo", "area_id": code })).await["id"].clone();
+        post(&request, "/api/notes", json!({ "title": "Repo: open", "kind": "literature", "resource_id": open })).await;
+        post(
+            &request,
+            "/api/notes",
+            json!({ "title": "Repo: secret-bank", "kind": "literature", "resource_id": secret, "tags": ["private"] }),
+        )
+        .await;
+        post(
+            &request,
+            "/api/notes",
+            json!({ "title": "Repos", "kind": "hub", "body": "- [[1]] open\n- [[2]] secret-bank (private)\n\nCompare [[1]] with [[Repo: secret-bank]].\n" }),
+        )
+        .await;
+        post(&request, "/api/notes/1/links", json!({ "target": "2", "context": "same author" })).await;
+
+        let dir = std::env::temp_dir().join(format!("pirsig-fork-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        let out = vault::export_public(&ctx.db, &dir).await.unwrap();
+        assert_eq!((out.notes, out.resources), (2, 1), "the private note and its resource stay home");
+        let all: String = walk(&dir).iter().map(|p| std::fs::read_to_string(p).unwrap()).collect();
+        assert!(!all.to_lowercase().contains("secret"), "{all}");
+        let hub = read(&dir, "Zettelkasten/3 Repos.md");
+        assert!(hub.contains("- [[1 Repo open|1]] open\n"), "{hub}");
+        assert!(hub.contains("Compare [[1 Repo open|1]] with [private]."), "{hub}");
+
+        // a copy of the repository starts from it
+        reset::wipe(&ctx.db, "sqlite::memory:").await.unwrap_err();
+        for table in ["note_links", "note_tags", "notes", "resources", "areas"] {
+            ctx.db.execute_unprepared(&format!("DELETE FROM {table}")).await.unwrap();
+        }
+        assert!(reset::is_empty(&ctx.db).await.unwrap());
+        let back = vault::import(&ctx.db, &dir, false).await.unwrap();
+        assert_eq!((back.notes_created, back.resources, back.areas), (2, 1, 1));
+        let hub: Value = request.get("/api/notes/3").await.json();
+        assert_eq!(hub["links"].as_array().unwrap().len(), 1, "{hub}");
+        std::fs::remove_dir_all(&dir).unwrap();
+    })
+    .await;
+}
+
+fn walk(dir: &std::path::Path) -> Vec<std::path::PathBuf> {
+    let mut out = Vec::new();
+    for entry in std::fs::read_dir(dir).unwrap().flatten() {
+        let path = entry.path();
+        if path.is_dir() {
+            out.extend(walk(&path));
+        } else {
+            out.push(path);
+        }
+    }
+    out
 }

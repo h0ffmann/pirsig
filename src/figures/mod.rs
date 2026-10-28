@@ -1,6 +1,6 @@
 //! Figures of the brain, as input for external renderers.
 //!
-//! ztk does not draw. It exports what is in the brain in the formats that
+//! Pirsig does not draw. It exports what is in the brain in the formats that
 //! dedicated tools already render well:
 //!
 //! - [`archify`]: the PARA tree as archify's typed JSON IR (`diagram_type: "tree"`),
@@ -8,8 +8,8 @@
 //! - [`graphify`]: the brain as a graphify `graph.json` knowledge graph, which
 //!   `graphify cluster-only`, `query`, `path`, `explain` and `export html` read.
 //!
-//! Both are pure functions of a [`Brain`] snapshot, shared by `ztk figure`,
-//! `ztk graph` and the `/api/figures` endpoints.
+//! Both are pure functions of a [`Brain`] snapshot, shared by `psg figure`,
+//! `psg graph` and the `/api/figures` endpoints.
 
 use loco_rs::Result;
 use sea_orm::{DatabaseConnection, EntityTrait, QueryOrder};
