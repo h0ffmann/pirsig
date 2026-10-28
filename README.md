@@ -188,10 +188,14 @@ An Obsidian plugin in [`obsidian-painter/`](obsidian-painter/README.md), written
 
 `just painter` builds and tests it. A tag `obsidian-painter-v<version>` releases it.
 
-## Desktop (Tauri, bootstrap)
+## Desktop app (Tauri)
 
-ztk will ship as a desktop app built with Tauri. [`desktop/`](desktop/README.md) holds the
-bootstrap: a window that talks to Rust (`just desktop`).
+`just desktop` opens ztk as a desktop app ([`desktop/`](desktop/README.md)), on the same brain
+as the `ztk` CLI. Everything is managed there: PARA (projects with their tasks and pulled-in
+notes, areas, resources, the archive), notes with their links and backlinks, the slip-box
+views, Hippos, feeds and arXiv, Plasticity and readiness. The app runs ztk's REST API inside
+itself, and the API serves the UI, so `just dev` shows the same UI in a browser on
+http://localhost:5150. `just desktop-e2e` drives it end to end in WebKit.
 
 ## Claude Code plugin
 

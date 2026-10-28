@@ -22,3 +22,8 @@ target/
 
 build/
 graphify-out/
+
+# desktop/ e2e (Playwright)
+node_modules/
+test-results/
+playwright-report/

@@ -72,9 +72,13 @@ plast:
 painter:
     cd obsidian-painter && npm ci && npm run build && npm run check && npm test
 
-# Open the desktop shell (Tauri; bootstrap only)
+# Open the desktop app (Tauri): the whole brain, on the same database as `ztk`
 desktop:
     cargo run --manifest-path desktop/src-tauri/Cargo.toml
+
+# The UI end to end in WebKit, on a fresh throwaway brain (Playwright)
+desktop-e2e:
+    cd desktop && npm ci && npx playwright install webkit && npx playwright test
 
 # Format, lint and test: what CI runs
 check: fmt-check lint test

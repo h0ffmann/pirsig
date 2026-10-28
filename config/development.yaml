@@ -26,6 +26,20 @@ server:
   host: http://localhost
   # Out of the box middleware configuration. to disable middleware you can changed the `enable` field to `false` of comment the middleware block
   middlewares:
+    # The UI (desktop/dist): the Tauri window loads it from here, and so can a
+    # browser on http://localhost:5150 while `just dev` runs. Paths are
+    # relative to the checkout, where `ztk` and the desktop app run.
+    static:
+      enable: true
+      must_exist: true
+      precompressed: false
+      folder:
+        uri: "/"
+        path: "desktop/dist"
+      fallback: "desktop/dist/404.html"
+    # Loco's development 404 page would answer before the UI's files.
+    fallback:
+      enable: false
 
 # Worker Configuration
 workers:
