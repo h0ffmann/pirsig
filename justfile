@@ -1,9 +1,9 @@
-# ztk tasks. `just` lists them; `just <name> args...` runs one.
+# psg tasks. `just` lists them; `just <name> args...` runs one.
 # Rust does the work, just only remembers the commands.
 
 set dotenv-load := true
 
-ztk := "cargo run -q --bin ztk --"
+psg := "cargo run -q --bin psg --"
 
 default:
     @just --list --unsorted
@@ -12,43 +12,43 @@ default:
 
 # Capture a fleeting note: just n "An idea" [-b "more"] [--tag x]
 n title *args:
-    {{ztk}} note -c "{{title}}" {{args}}
+    {{psg}} note -c "{{title}}" {{args}}
 
 # Continue a train of thought: just after 21 "Next idea"
 after zid title *args:
-    {{ztk}} note -c "{{title}}" -a {{zid}} {{args}}
+    {{psg}} note -c "{{title}}" -a {{zid}} {{args}}
 
 # Show a note with links and backlinks
 show zid:
-    {{ztk}} note -s {{zid}}
+    {{psg}} note -s {{zid}}
 
 # Edit a note's body in $EDITOR
 edit zid:
-    {{ztk}} note -u {{zid}} -e
+    {{psg}} note -u {{zid}} -e
 
 # Search titles and bodies
 find query:
-    {{ztk}} note -q "{{query}}"
+    {{psg}} note -q "{{query}}"
 
 # Link two notes with a reason: just link 21a 3 "contradicts"
 link from to why="":
-    {{ztk}} link {{from}} {{to}} -w "{{why}}"
+    {{psg}} link {{from}} {{to}} -w "{{why}}"
 
 # Slipbox views: stats | inbox | orphans | random | tree | tags | graph
 box view="stats":
-    {{ztk}} box {{view}}
+    {{psg}} box {{view}}
 
 # Export every note as Markdown into a folder (default ./vault)
 export dir="vault":
-    {{ztk}} box export {{dir}}
+    {{psg}} box export {{dir}}
 
-# Run any ztk command: just ztk para --json
-ztk *args:
-    {{ztk}} {{args}}
+# Run any Pirsig command: just psg para --json
+psg *args:
+    {{psg}} {{args}}
 
-# Install ztk on your PATH
+# Install Pirsig on your PATH
 install:
-    cargo install --path . --bin ztk --locked
+    cargo install --path . --bin psg --locked
 
 # --- development -----------------------------------------------------------
 
@@ -58,19 +58,39 @@ dev:
 
 # Methodology readiness: PARA, Zettelkasten, Obsidian, RSS, arXiv
 ready:
-    {{ztk}} ready
+    {{psg}} ready
+
+# Seed the brain from your GitHub repos: just bootstrap --private minimal --readme
+bootstrap *args:
+    GH_TOKEN=$(gh auth token) {{psg}} bootstrap gh {{args}}
+
+# Start from the fork state in brain/ (h0ffmann's public notes); replaces your brain after a backup
+fork-state:
+    {{psg}} fork import brain --overwrite
+
+# Replace the whole brain with your own GitHub (backed up first): just brain-reset --readme
+brain-reset *args:
+    GH_TOKEN=$(gh auth token) {{psg}} gh --overwrite --private minimal {{args}}
+
+# Write your brain to brain/, without #private notes: the fork state others start from
+fork-export:
+    {{psg}} fork export brain
 
 # A quick Plasticity session: five exercises
 plast:
-    {{ztk}} plast go
+    {{psg}} plast go
 
 # Build the obsidian-painter plugin (Rust core to WebAssembly, then main.js) and test it
 painter:
     cd obsidian-painter && npm ci && npm run build && npm run check && npm test
 
-# Open the desktop shell (Tauri; bootstrap only)
+# Open the desktop app (Tauri): the whole brain, on the same database as `psg`
 desktop:
     cargo run --manifest-path desktop/src-tauri/Cargo.toml
+
+# The UI end to end in WebKit, on a fresh throwaway brain (Playwright)
+desktop-e2e:
+    cd desktop && npm ci && npx playwright install webkit && npx playwright test
 
 # Format, lint and test: what CI runs
 check: fmt-check lint test
@@ -134,21 +154,21 @@ figure: figure-init
 
 # The demo brain lives in a throwaway SQLite file, so the PARA picture is the CLI's own output;
 # `just figure` then draws it.
-# Write docs/archify/para.json with `ztk figure` from a demo brain
+# Write docs/archify/para.json with `psg figure` from a demo brain
 figure-para:
     #!/usr/bin/env bash
     set -euo pipefail
     mkdir -p build/figure
     db="$PWD/build/figure/demo.sqlite"; rm -f "$db"
     export DATABASE_URL="sqlite://$db?mode=rwc"
-    cargo build -q --bin ztk
-    z=target/debug/ztk
+    cargo build -q --bin psg
+    z=target/debug/psg
     $z area -c -n Health --description "body and mind" >/dev/null
     $z area -c -n Work >/dev/null
     $z area -c -n "Second brain" >/dev/null
     $z project -c -n "Run a marathon" -a 1 --status active >/dev/null
-    $z project -c -n "Q4 roadmap" -a 2 --status planning >/dev/null
-    $z project -c -n "Ship ztk v0" -a 3 --status active >/dev/null
+    $z project -c -n "Q4 roadmap" -a 2 --status waiting >/dev/null
+    $z project -c -n "Ship Pirsig v0" -a 3 --status active >/dev/null
     $z task -c -t "Buy shoes" -p 1 --due 2026-11-01 >/dev/null
     $z task -c -t "Long run, 21 km" -p 1 >/dev/null
     $z task -c -t "Obsidian sync" -p 3 >/dev/null
@@ -156,7 +176,7 @@ figure-para:
     $z resource -c -t "Couch to 5k" --url https://example.com/c25k -p 1 >/dev/null
     $z resource -c -t "PARA method" -a 3 >/dev/null
     $z resource -c -t "Reading list" >/dev/null
-    $z figure -t "A second brain in ztk" -o docs/archify/para.json
+    $z figure -t "A second brain in Pirsig" -o docs/archify/para.json
 
 # The inputs of each figure (its source, the look, the crop, the Archify pin), one line per slug.
 _figure-lock:
@@ -183,6 +203,6 @@ figure-check:
 # on PATH (pip install graphifyy==0.9.96); DATABASE_URL picks the brain.
 # The brain as a graphify knowledge graph
 graph:
-    {{ztk}} graph -o graphify-out/graph.json
+    {{psg}} graph -o graphify-out/graph.json
     graphify cluster-only . --no-label
     @echo "graph: graphify-out/graph.html; ask with: graphify query \"...\""

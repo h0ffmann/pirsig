@@ -1,4 +1,4 @@
-//! `ztk`: manage the second brain from the terminal.
+//! `psg`: manage the second brain from the terminal.
 //!
 //! The CLI boots the same Loco [`AppContext`] as the server and calls the
 //! model layer directly, so the REST API and the CLI share one set of rules.
@@ -21,7 +21,9 @@ use crate::{app::App, dtos::common::Patch};
 
 pub mod area;
 pub mod arxiv;
+pub mod bootstrap;
 pub mod figure;
+pub mod fork;
 pub mod hippo;
 pub mod link;
 pub mod note;
@@ -36,7 +38,11 @@ pub mod slipbox;
 pub mod task;
 
 #[derive(Debug, Parser)]
-#[command(name = "ztk", version, about = "Your second brain, in the terminal")]
+#[command(
+    name = "psg",
+    version,
+    about = "Pirsig: your second brain, in the terminal"
+)]
 pub struct Cli {
     /// Print results as JSON instead of text.
     #[arg(long, global = true)]
@@ -69,15 +75,21 @@ pub enum Command {
     /// The slipbox as a whole: inbox, orphans, tree, random, graph, stats, export.
     #[command(name = "box", alias = "slipbox")]
     Slipbox(slipbox::Args),
-    /// Obsidian vault out and in (ztk.pkm.obsidian).
+    /// Obsidian vault out and in (pirsig.pkm.obsidian).
     Obsidian(obsidian::Args),
-    /// RSS/Atom feeds in as resources, and the slipbox out as a feed (ztk.web.rss).
+    /// RSS/Atom feeds in as resources, and the slipbox out as a feed (pirsig.web.rss).
     Rss(rss::Args),
-    /// arXiv papers in as resources, with citekeys and filing (ztk.sci.arxiv).
+    /// arXiv papers in as resources, with citekeys and filing (pirsig.sci.arxiv).
     Arxiv(arxiv::Args),
+    /// Seed the brain from GitHub: a resource and a note per repo, indexed by category.
+    Bootstrap(bootstrap::Args),
+    /// Your GitHub in the brain (`bootstrap gh`); --overwrite replaces the whole brain with it.
+    Gh(bootstrap::GhArgs),
+    /// The fork state: export the brain for copies of the repository, or start from it.
+    Fork(fork::Args),
     /// Methodology readiness: PARA, Zettelkasten, Obsidian, RSS and arXiv checks.
     Ready(ready::Args),
-    /// Hippo identities: a rhizome of notes for ADHD, autistic, neurotic and obsessive minds.
+    /// Hippos: rhizomes of notes grown around fixations, with no trunk.
     Hippo(hippo::Args),
     /// Plasticity: quick exercises in math, abstraction, logic, music, literature, languages.
     Plast(plast::Args),
@@ -105,6 +117,9 @@ pub async fn run(cli: Cli) -> Result<()> {
         Command::Obsidian(args) => obsidian::run(&ctx, &out, args).await,
         Command::Rss(args) => rss::run(&ctx, &out, args).await,
         Command::Arxiv(args) => arxiv::run(&ctx, &out, args).await,
+        Command::Bootstrap(args) => bootstrap::run(&ctx, &out, args).await,
+        Command::Gh(args) => bootstrap::run_gh(&ctx, &out, args).await,
+        Command::Fork(args) => fork::run(&ctx, &out, args).await,
         Command::Ready(args) => ready::run(&ctx, &out, args).await,
         Command::Hippo(args) => hippo::run(&ctx, &out, args).await,
         Command::Plast(args) => plast::run(&ctx, &out, args).await,

@@ -1,11 +1,11 @@
 //! Plasticity: quick exercises that train the brain itself, next to the brain
-//! ztk stores.
+//! Pirsig stores.
 //!
 //! A **plast** is one kind of exercise in one domain (mental arithmetic,
 //! sequences, argument forms, intervals, classic first lines, Latin words).
 //! Every exercise is generated from a `(seed, level)` pair, so it can be shown
 //! now and checked later without storing it. For now the plasts are the ones in
-//! [`CATALOG`], shipped by ztk; a plast's `origin` column leaves room for the
+//! [`CATALOG`], shipped by Pirsig; a plast's `origin` column leaves room for the
 //! person's own.
 pub mod abstraction;
 pub mod languages;
@@ -107,7 +107,7 @@ pub fn normalize(s: &str) -> String {
     folded.split_whitespace().collect::<Vec<_>>().join(" ")
 }
 
-/// A plast ztk ships.
+/// A plast Pirsig ships.
 pub struct Plast {
     pub slug: &'static str,
     pub domain: &'static str,
@@ -116,7 +116,7 @@ pub struct Plast {
     pub generate: fn(u64, u8) -> Exercise,
 }
 
-/// The plasts provided by ztk, one per domain.
+/// The plasts provided by Pirsig, one per domain.
 pub const CATALOG: [Plast; 6] = [
     Plast {
         slug: "mental-arithmetic",

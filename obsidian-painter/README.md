@@ -17,7 +17,7 @@ r=1+\cos(\theta)
 ````
 
 A block holds a Desmos graph state (what `Calc.getState()` returns, such as
-[`docs/drawings/ztk.desmos.json`](../docs/drawings/ztk.desmos.json)) or one LaTeX expression per
+[`docs/drawings/pirsig.desmos.json`](../docs/drawings/pirsig.desmos.json)) or one LaTeX expression per
 line. It draws points, parametric curves over their domain, `y=f(x)`, `x=g(y)`, polar
 `r=f(\theta)`, and assignments (`a=2`) the others use, with Desmos's colours, widths, dashes
 and viewport. No API key and no network: the expressions are parsed and sampled in Rust.

@@ -19,4 +19,4 @@ marola-dev/marola-research, brought here"; ptbr-writer is a badge on marola
 ([[202610270311-ptbr-writer-marks-what-it-did-not-check]]); and marola-skills keeps the catalogue of
 the skills that travel ([[202610270310-marola-skills-only-describes]]).
 
-For ztk: "where did this convention come from?" is a backlink query.
+For Pirsig: "where did this convention come from?" is a backlink query.

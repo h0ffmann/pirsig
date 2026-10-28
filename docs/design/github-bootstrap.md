@@ -1,4 +1,4 @@
-# `ztk bootstrap gh`: your GitHub FOSS work as the first layer of the brain
+# `psg bootstrap gh`: your GitHub FOSS work as the first layer of the brain
 
 ## Why
 
@@ -9,7 +9,7 @@ point is that **anyone can replicate it by signing in with their own GitHub acco
 no token to create, no config to write before the first useful screen.
 
 This builds on [git-inbound](git-inbound.md). Bootstrap is the *minimal, everything*
-pass (one resource per repo, metadata only); `ztk git import` is the *deep, selected*
+pass (one resource per repo, metadata only); `psg git import` is the *deep, selected*
 pass (README sections as notes) and stays opt-in.
 
 ## What is indexed
@@ -28,7 +28,7 @@ pass (README sections as notes) and stays opt-in.
 - **minimal**: name, URL, language, your PR counts, last push. No description, topics,
   stars, README or any file content; `publishable: false` forever.
 
-The rules live in `crates/ztk-github/src/index.rs` (`plan`, `Record::from_facts`) and
+The rules live in `crates/pirsig-github/src/index.rs` (`plan`, `Record::from_facts`) and
 are tested there, including that a private repo cannot be forced to metadata depth.
 
 ```yaml
@@ -43,8 +43,54 @@ github:
     - name: picasso-labs
 ```
 
-Each record becomes a ztk **resource** keyed `gh:owner/name` (re-runs update in place),
+Each record becomes a Pirsig **resource** keyed `gh:owner/name` (re-runs update in place),
 labelled `gh`, `gh:owner`, `relation:owner|fork|contributor` and the repo's topics.
+
+### What is built: one note per repo, indexed by category
+
+`psg bootstrap gh` (`src/ingest/github.rs`, `src/cli/bootstrap.rs`) runs `plan` on what
+the token can see and writes, for each record:
+
+- a `repo` **resource** keyed by the record's `gh:owner/name`. A resource added by hand
+  with the same URL is claimed, not duplicated, and a re-run files one left unfiled;
+- one short **literature note**, `Repo: <name>`, citing the resource. It holds only the
+  record's fields: description, language, public or private, `fork-of`, last push,
+  stars. `--readme` adds the README's first paragraph, read only when
+  `may_read_contents()` allows, so never for a minimal record. Text from GitHub is quoted
+  in code spans where it would otherwise link (`[[x]]`) or tag (`#x`) the note;
+- a **category**, from the words in the name, description, topics and upstream (twice)
+  and the README (once): the note gets `#repo/<category>` and the resource the area the
+  category names (`Oceanography`, `Weather`, `Game Theory`, `The Essays`, `ZAMM`, else
+  `Software` or `Code` when the brain has one, else `-a AREA_ID`);
+- the repo's **topics**, as a `Topics:` line and a `#topic/<topic>` tag each, and
+  **every language** GitHub counts, the primary one first (a minimal record keeps only
+  the primary one, and no topics);
+- a **`Related:`** line linking the notes of related repos: its family (the repos whose
+  names start with the same repo name followed by `-` or `_`: `marola`, `marola-app`,
+  `marola-ml`), then the repos sharing at least two topics with it, at most 12. A public
+  repo never links to a private one;
+- a line in the category's **hub note** (`Repos: <category>`, own repos then forks), and
+  the hub in the root hub **GitHub repositories**.
+
+```sh
+GH_TOKEN=$(gh auth token) psg bootstrap gh --dry-run      # what would be indexed
+GH_TOKEN=$(gh auth token) psg bootstrap gh --private minimal --readme
+```
+
+**Depth control.** Only featured repos get a note and a resource: own repositories pushed
+in the last `--cold-after` months (default 24). Public forks are lines of one index note,
+**GitHub: public forks** (`--forks index`, the default; `notes` gives each its note, `skip`
+leaves them out). Cold own repositories are lines of **GitHub: cold repositories**, and
+private ones that are cold or forks are lines of the `#private` **GitHub: private
+repositories**. The index notes are rewritten whole on every run, a section per category, and
+linked from the root hub. A repo that already has a note keeps it, whatever its tier.
+
+Re-runs add what is new and bring every repo note and resource back to what GitHub says
+now, so a private repo indexed in full by an earlier import is cut down to minimal depth.
+A re-run keeps the note's category (its `repo/<category>` tag, chosen by hand or by an
+earlier rule), its other tags and a README lead it does not read again. Notes are tagged `github`, `own` or `fork`, `private` and
+`repo/<category>` for now; the `gh:owner` and `relation:` labels wait for
+[labels and tags](labels-and-tags.md). Org contributions (the PR search) are not built.
 
 ## Credentials: a GitHub App with the device flow
 
@@ -54,9 +100,9 @@ Why an App and not a personal access token or an OAuth App:
   `read` (see `github-app/manifest.json`). An OAuth App can only ask for `repo`, which
   is full write access to every private repo.
 - **The user chooses repos and orgs** at install time, and org owners approve access to
-  their private repos. ztk never sees more than both the user and the installation
+  their private repos. Pirsig never sees more than both the user and the installation
   allow.
-- **Device flow** suits a CLI: `ztk bootstrap gh` prints a code, you enter it at
+- **Device flow** suits a CLI: `psg bootstrap gh` prints a code, you enter it at
   `github.com/login/device`, done. It needs only the public client id, so nothing
   secret ships in the binary.
 - **Short-lived tokens**: user-to-server tokens expire after 8 hours and are refreshed;
@@ -74,22 +120,22 @@ it; the same `plan` rules apply to whatever it can see.
 3. Per listed org: `GET /search/issues?q=type:pr author:{user} org:{org}` grouped by
    repository for PR counts (merged via `is:merged`).
 4. Turn results into `RepoFacts`, run `plan`, upsert resources. No file contents are
-   read in bootstrap; `contents: read` is for the later, opt-in `ztk git import` of
+   read in bootstrap; `contents: read` is for the later, opt-in `psg git import` of
    public repos.
 
-All of it is conditional requests with `ETag`, so `ztk bootstrap gh --sync` from a
+All of it is conditional requests with `ETag`, so `psg bootstrap gh --sync` from a
 daily cron costs almost no rate limit. No webhooks: the app has no server.
 
 ## Privacy
 
 - Everything lands `private` in the brain, like every inbound channel.
 - Minimal records carry nothing a private org would consider content; they cannot be
-  published (`ztk publish` refuses records with `publishable: false`, not just warns).
+  published (`psg publish` refuses records with `publishable: false`, not just warns).
 - The token is stored in the OS keychain, never in the brain or in git.
 
 ## Sharing it: "expose my GitHub knowledge"
 
-Once indexed, `ztk publish` can emit the public part (metadata records only) as a page
+Once indexed, `psg publish` can emit the public part (metadata records only) as a page
 or a JSON graph: repos, forks, orgs, `fork-of` and `depends-on` edges. That page is the
 author's public map; anyone else gets their own by running the same bootstrap.
 
@@ -100,10 +146,12 @@ Done once by the maintainer with GitHub's manifest flow; steps in
 
 ## Implementation steps
 
-1. ✓ `crates/ztk-github`: manifest (source of `github-app/manifest.json`), `Scope`,
+1. ✓ `crates/pirsig-github`: manifest (source of `github-app/manifest.json`), `Scope`,
    `plan` and minimisation, with tests.
 2. Register the app (maintainer, manual) and compile its client id in.
-3. Device flow + token storage (`keyring`), HTTP client with ETag cache.
-4. `ztk bootstrap gh [--sync] [--dry-run]`: list, plan, upsert resources; `--dry-run`
-   prints the plan as a table, publish-style.
-5. `publishable` enforced in `ztk publish`.
+3. Device flow + token storage (`keyring`), HTTP client with ETag cache. Until then
+   `GH_TOKEN` or `GITHUB_TOKEN` is the only credential.
+4. ✓ `psg bootstrap gh [--private minimal] [--readme] [--dry-run]`: list, plan, upsert
+   resources, one note per repo, hub notes per category (see above). Still to do: org
+   contributions, `--sync` with ETags.
+5. `publishable` enforced in `psg publish`.

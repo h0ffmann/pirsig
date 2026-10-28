@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# plugin-smoke — install the ztk plugin from this checkout the way a third party would, in an
+# plugin-smoke — install the Pirsig plugin from this checkout the way a third party would, in an
 # empty Claude Code config, and check what they get: the manifests validate, the three skills
 # load from real files with a description, and the always-on cost stays under a ceiling. No
 # login, no tokens. After h0ffmann/ptbr-writer's scripts/plugin-smoke.sh.
@@ -8,16 +8,16 @@
 set -euo pipefail
 
 max=${1:-300}
-want="hippo, zk-method, ztk"
+want="hippo, pirsig, zk-method"
 root=$(git rev-parse --show-toplevel)
 cfg=$(mktemp -d); trap 'rm -rf "$cfg"' EXIT
 export CLAUDE_CONFIG_DIR=$cfg
 
 claude plugin validate "$root" >/dev/null
-claude plugin validate "$root/plugins/ztk" >/dev/null
+claude plugin validate "$root/plugins/pirsig" >/dev/null
 claude plugin marketplace add "$root" >/dev/null
-claude plugin install ztk@zettelkasten >/dev/null
-details=$(claude plugin details ztk@zettelkasten)
+claude plugin install pirsig@pirsig >/dev/null
+details=$(claude plugin details pirsig@pirsig)
 
 got=$(sed -n 's/^ *Skills ([0-9]*) *//p' <<<"$details")
 [ "$got" = "$want" ] || { echo "plugin-smoke: skills are \"$got\", want \"$want\"" >&2; exit 1; }

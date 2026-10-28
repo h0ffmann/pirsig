@@ -12,7 +12,7 @@ people see, so the Desmos file and the picture never disagree.
 The house style is the one-line drawing after Picasso, as in
 [picasso](https://github.com/h0ffmann/picasso) (`site/static/drawings/`) and the README drawings of
 `piabrota/alerts` and this repository (`docs/drawings/`). Read `docs/drawings/README.md` and
-`crates/ztk-drawings/src/ztk.rs` once before the first drawing: they are a finished example.
+`crates/pirsig-drawings/src/pirsig.rs` once before the first drawing: they are a finished example.
 
 ## What makes a drawing good
 
@@ -40,7 +40,7 @@ The house style is the one-line drawing after Picasso, as in
 2. **Compose on the grid.** SVG coordinates, y down. Block the big shapes first as rough rectangles
    in a comment: where the subject sits, where the empty space is. Then list the points of the main
    stroke, going round the shape in one direction.
-3. **Write the drawing.** In this repository, copy `crates/ztk-drawings/src/ztk.rs` to a new module
+3. **Write the drawing.** In this repository, copy `crates/pirsig-drawings/src/pirsig.rs` to a new module
    and use the pen in `pen.rs`:
 
    | Pen call | Makes | Desmos |
@@ -50,12 +50,12 @@ The house style is the one-line drawing after Picasso, as in
    | `dot(at, size)` | a filled dot (`size` is Desmos `pointSize`) | a point |
 
    A procedural part (a spiral, a lobed outline) is a function that returns points: see `ear()` and
-   `brain_outline()` in `ztk.rs`. Keep hand-placed points as `const` arrays, so the shape is
+   `brain_outline()` in `pirsig.rs`. Keep hand-placed points as `const` arrays, so the shape is
    readable.
 4. **Render and look.** Write the SVG and render it:
 
    ```sh
-   cargo run -q -p ztk-drawings --bin ztk-art > docs/drawings/<name>.svg
+   cargo run -q -p pirsig-drawings --bin pirsig-art > docs/drawings/<name>.svg
    NODE_PATH=$(npm root -g) node .claude/skills/ddraw/scripts/shot.js docs/drawings/<name>.svg /tmp/<name>.png 3
    ```
 
@@ -64,7 +64,7 @@ The house style is the one-line drawing after Picasso, as in
    write down what fails: overlaps that were not meant, kinks, crowding, a line that says nothing.
    Move points, delete lines, redraw. Three rounds at least; stop when a round finds nothing.
    Look at scale 1 too: at README size, thin detail vanishes.
-6. **Write the Desmos file** (`… ztk-art desmos > docs/drawings/<name>.desmos.json`) and make the
+6. **Write the Desmos file** (`… pirsig-art desmos > docs/drawings/<name>.desmos.json`) and make the
    test that compares the committed files with the binary's output pass.
 7. **Credit.** Say in `docs/drawings/README.md` what the drawing follows (an artist, a famous work, a
    repository). A drawing beside someone else's artwork loads that artwork from its source and
@@ -105,6 +105,6 @@ If the orange line leaves the blue one anywhere, the LaTeX is wrong: fix the pen
 
 ## Outside this repository
 
-Without the `ztk-drawings` crate, do the same by hand: write the points, compute each Bézier's power
+Without the `pirsig-drawings` crate, do the same by hand: write the points, compute each Bézier's power
 form, write the graph state as JSON, and render the curves to SVG with the same coefficients. Keep
 the steps: brief, compose, draw, look, critique, redraw, credit.

@@ -1,4 +1,4 @@
-//! `ztk.web.rss`: feeds in (each entry becomes a resource) and the slipbox out
+//! `pirsig.web.rss`: feeds in (each entry becomes a resource) and the slipbox out
 //! (an RSS 2.0 feed of notes).
 #![allow(clippy::missing_errors_doc)]
 use std::fmt::Write;
@@ -17,7 +17,7 @@ use crate::{
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Item {
     /// `rss:<entry id>`: what a later pull matches on. An entry that links to
-    /// an arXiv paper is `arxiv:<id>` instead, the same resource `ztk arxiv add`
+    /// an arXiv paper is `arxiv:<id>` instead, the same resource `psg arxiv add`
     /// makes, so a paper met in a feed and added by hand is filed once.
     pub external_id: String,
     /// `paper` for arXiv entries, `article` for the rest.
@@ -150,8 +150,8 @@ pub fn render(title: &str, link: &str, items: &[(notes::Model, Vec<String>)]) ->
     xml.push_str("<rss version=\"2.0\">\n<channel>\n");
     let _ = writeln!(xml, "<title>{}</title>", xml_escape(title));
     let _ = writeln!(xml, "<link>{}</link>", xml_escape(link));
-    xml.push_str("<description>Notes from a ztk slipbox</description>\n");
-    xml.push_str("<generator>ztk</generator>\n");
+    xml.push_str("<description>Notes from a Pirsig slipbox</description>\n");
+    xml.push_str("<generator>Pirsig</generator>\n");
     if let Some((newest, _)) = items.first() {
         let _ = writeln!(
             xml,
@@ -167,6 +167,7 @@ pub fn render(title: &str, link: &str, items: &[(notes::Model, Vec<String>)]) ->
             "<link>{}</link>",
             xml_escape(&format!("{link}/api/notes/{}/markdown", n.zid))
         );
+        // the old name stays in the guid: a feed reader would see every note as new
         let _ = writeln!(xml, "<guid isPermaLink=\"false\">ztk:{}</guid>", n.zid);
         let _ = writeln!(xml, "<description>{}</description>", xml_escape(&n.body));
         for t in tags {

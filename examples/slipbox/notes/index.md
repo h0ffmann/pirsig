@@ -62,7 +62,7 @@ Every note of this sample slip box. The first tag of each note is its light
 ### Ouroboric (orange)
 
 - [[202610270318-ouroboric-open-factories]] Ouroboric: open factories that improve themselves (`verified`)
-- [[202610270319-ztk-lineage]] Where ztk comes from (`verified`)
+- [[202610270319-pirsig-lineage]] Where Pirsig comes from (`verified`)
 
 ### Closed source (red)
 

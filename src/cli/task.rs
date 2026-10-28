@@ -8,7 +8,7 @@ use crate::{
     models::tasks,
 };
 
-/// `ztk task -c -t "Buy shoes" -p 2 --due 2026-11-01`, `ztk task --done 5`, `ztk task -d 5`.
+/// `psg task -c -t "Buy shoes" -p 2 --due 2026-11-01`, `psg task --done 5`, `psg task -d 5`.
 #[derive(Debug, clap::Args)]
 #[command(group(ArgGroup::new("action").args(["create", "update", "delete", "show", "done", "undone"])))]
 pub struct Args {

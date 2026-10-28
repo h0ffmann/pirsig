@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/obsidian-painter", "crates/ztk-drawings", "crates/ztk-github"]
+members = ["crates/obsidian-painter", "crates/pirsig-drawings", "crates/pirsig-github"]
 # the Tauri shell builds on its own (it needs a webview); see desktop/README.md
 exclude = ["desktop/src-tauri"]
 
@@ -49,6 +49,8 @@ serde_yaml = { version = "0.9" }
 # ingest: RSS/Atom feeds and the arXiv API (Atom)
 feed-rs = { version = "2" }
 reqwest = { version = "0.12", default-features = false, features = ["rustls-tls"] }
+# psg bootstrap gh: what to index from GitHub, and how little of a private repo
+pirsig-github = { path = "crates/pirsig-github" }
 
 [[bin]]
 name = "zettelkasten-cli"
@@ -56,8 +58,8 @@ path = "src/bin/main.rs"
 required-features = []
 
 [[bin]]
-name = "ztk"
-path = "src/bin/ztk.rs"
+name = "psg"
+path = "src/bin/psg.rs"
 
 [dev-dependencies]
 loco-rs = { workspace = true, features = ["testing"] }

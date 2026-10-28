@@ -15,4 +15,4 @@ knowledge from conversations with LLMs, kept as Markdown files on your computer,
 ai-memory: long-term memory for coding agents, so one agent can continue another's task.
 onyx: a self-hosted context layer indexed from 50+ apps.
 
-What ztk takes from them is in [[202610270324-second-brain-lineage]].
+What Pirsig takes from them is in [[202610270324-second-brain-lineage]].

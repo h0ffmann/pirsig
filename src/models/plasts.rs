@@ -53,6 +53,7 @@ pub async fn ensure_catalog<C: ConnectionTrait>(db: &C) -> ModelResult<()> {
                 domain: Set(p.domain.to_string()),
                 title: Set(p.title.to_string()),
                 description: Set(Some(p.description.to_string())),
+                // `ztk`, the app's old name, marks the shipped plasts in existing brains
                 origin: Set("ztk".into()),
                 level: Set(1),
                 streak: Set(0),
@@ -86,7 +87,7 @@ impl Model {
         plasticity::plast(&self.slug).ok_or_else(|| {
             rules::invalid(
                 "plast",
-                "only the plasts ztk ships can be practised for now",
+                "only the plasts Pirsig ships can be practised for now",
             )
         })
     }

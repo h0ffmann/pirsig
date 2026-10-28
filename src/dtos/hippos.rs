@@ -9,8 +9,6 @@ pub struct HippoDto {
     pub id: i64,
     pub name: String,
     pub description: Option<String>,
-    /// Self-described: `adhd`, `autistic`, `neurotic`, `obsessive`.
-    pub traits: Vec<String>,
     /// Obsessions and special interests: the plateaus the rhizome grows around.
     pub fixations: Vec<String>,
     #[ts(type = "string")]
@@ -23,7 +21,6 @@ impl From<crate::models::_entities::hippos::Model> for HippoDto {
     fn from(m: crate::models::_entities::hippos::Model) -> Self {
         Self {
             id: m.id,
-            traits: crate::models::hippos::split(&m.traits),
             fixations: crate::models::hippos::split(&m.fixations),
             name: m.name,
             description: m.description,
@@ -38,19 +35,16 @@ pub struct CreateHippo {
     pub name: String,
     pub description: Option<String>,
     #[serde(default)]
-    pub traits: Vec<String>,
-    #[serde(default)]
     pub fixations: Vec<String>,
 }
 
-/// Partial update: `traits` and `fixations`, when present, replace the lists.
+/// Partial update: `fixations`, when present, replaces the list.
 #[derive(Debug, Default, serde::Serialize, serde::Deserialize, TS)]
 pub struct UpdateHippo {
     pub name: Option<String>,
     #[serde(default, skip_serializing_if = "Patch::is_keep")]
     #[ts(type = "string | null")]
     pub description: Patch<String>,
-    pub traits: Option<Vec<String>>,
     pub fixations: Option<Vec<String>>,
 }
 

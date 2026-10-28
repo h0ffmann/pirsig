@@ -2,15 +2,15 @@
   "schema_version": 1,
   "diagram_type": "tree",
   "meta": {
-    "title": "A second brain in ztk",
-    "subtitle": "PARA exported by ztk. Links show containment: area, project, task, resource.",
+    "title": "A second brain in Pirsig",
+    "subtitle": "PARA exported by Pirsig. Links show containment: area, project, task, resource.",
     "output": "para.html",
     "quality_profile": "showcase"
   },
   "nodes": [
     {
       "id": "brain",
-      "label": "A second brain in ztk",
+      "label": "A second brain in Pirsig",
       "sublabel": "3 areas, 3 projects, 4 tasks, 3 resources"
     },
     {
@@ -50,11 +50,11 @@
       "id": "project-2",
       "label": "Q4 roadmap",
       "parent": "area-2",
-      "sublabel": "planning"
+      "sublabel": "waiting"
     },
     {
       "id": "project-3",
-      "label": "Ship ztk v0",
+      "label": "Ship Pirsig v0",
       "parent": "area-3",
       "sublabel": "active"
     },

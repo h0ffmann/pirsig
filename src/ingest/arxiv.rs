@@ -1,4 +1,4 @@
-//! `ztk.sci.arxiv`: papers in, smartly.
+//! `pirsig.sci.arxiv`: papers in, smartly.
 //!
 //! Any way of naming a paper works (`1706.03762`, `arXiv:1706.03762v5`, an
 //! `abs/` or `pdf/` URL, old ids like `hep-th/9901001`). Each paper becomes one

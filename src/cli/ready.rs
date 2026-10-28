@@ -5,7 +5,7 @@ use loco_rs::{app::AppContext, Result};
 use super::Output;
 use crate::readiness::{self, Readiness, Status};
 
-/// `ztk ready`: how far the brain follows PARA and the Zettelkasten method,
+/// `psg ready`: how far the brain follows PARA and the Zettelkasten method,
 /// and whether its Obsidian, RSS and arXiv channels are in use.
 #[derive(Debug, clap::Args)]
 pub struct Args {}

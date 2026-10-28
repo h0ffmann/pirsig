@@ -105,7 +105,7 @@ async fn exports_para_as_archify_tree_and_graphify_graph() {
         assert_eq!(links.len(), 3);
         assert!(links.iter().all(|l| l["relation"] == "contains"
             && l["confidence"] == "EXTRACTED"
-            && l["source_file"].as_str().unwrap().starts_with("ztk/")));
+            && l["source_file"].as_str().unwrap().starts_with("pirsig/")));
         assert!(links
             .iter()
             .any(|l| l["source"] == format!("project-{project}")
@@ -119,7 +119,7 @@ async fn exports_para_as_archify_tree_and_graphify_graph() {
         assert_eq!(unfiled_node["file_type"], "document");
         assert_eq!(
             unfiled_node["source_file"],
-            format!("ztk/resources/{unfiled}")
+            format!("pirsig/resources/{unfiled}")
         );
     })
     .await;

@@ -200,42 +200,42 @@ impl Brain {
                     areas > 0,
                     false,
                     format!("{areas} active area(s)"),
-                    "ztk area -c -n NAME",
+                    "psg area -c -n NAME",
                 ),
                 listed(
                     "projects have a deadline",
                     &undated,
                     &format!("{} open project(s), all dated", active.len()),
                     "without a due date",
-                    "ztk project -u ID --due YYYY-MM-DD (no end date: it is an area)",
+                    "psg project -u ID --due YYYY-MM-DD (no end date: it is an area)",
                 ),
                 listed(
                     "active projects have a next action",
                     &stuck,
                     "every active project has an open task",
                     "with no open task",
-                    "ztk task -c -t TITLE -p ID, or ztk project -u ID --status waiting",
+                    "psg task -c -t TITLE -p ID, or psg project -u ID --status waiting",
                 ),
                 listed(
                     "done projects archived",
                     &done,
                     "no done project left out",
                     "done but not archived",
-                    "ztk project --archive ID",
+                    "psg project --archive ID",
                 ),
                 listed(
                     "no overdue tasks",
                     &overdue,
                     "nothing overdue",
                     "overdue",
-                    "ztk task --done ID, or ztk task -u ID --due YYYY-MM-DD",
+                    "psg task --done ID, or psg task -u ID --due YYYY-MM-DD",
                 ),
                 listed(
                     "resources filed",
                     &unfiled,
                     &format!("{} resource(s), all filed", self.resources.len()),
                     "in no area or project",
-                    "ztk resource -u ID -a AREA_ID",
+                    "psg resource -u ID -a AREA_ID",
                 ),
             ],
         )
@@ -287,49 +287,49 @@ impl Brain {
                     !permanent.is_empty(),
                     false,
                     format!("{} permanent note(s)", permanent.len()),
-                    "ztk note -c -t \"A claim in your words\" -k permanent -e",
+                    "psg note -c -t \"A claim in your words\" -k permanent -e",
                 ),
                 listed(
                     "inbox drains",
                     &stale,
                     &format!("no fleeting note older than {INBOX_DAYS} days"),
                     &format!("fleeting notes older than {INBOX_DAYS} days"),
-                    "ztk box inbox: turn each into a literature/permanent note, or delete it",
+                    "psg box inbox: turn each into a literature/permanent note, or delete it",
                 ),
                 listed(
                     "no orphan permanent notes",
                     &orphans,
                     "every permanent note is linked",
                     "linked to nothing",
-                    "ztk link ZID OTHER -w \"why they belong together\"",
+                    "psg link ZID OTHER -w \"why they belong together\"",
                 ),
                 listed(
                     "permanent notes are atomic",
                     &long,
                     &format!("none over {ATOMIC_WORDS} words or with several sections"),
                     "likely hold more than one idea",
-                    "split each into one note per idea, continuing it (ztk note -c -a ZID)",
+                    "split each into one note per idea, continuing it (psg note -c -a ZID)",
                 ),
                 check(
                     "entry points exist",
                     hubs > 0 || permanent.len() <= 5,
                     true,
                     format!("{hubs} hub note(s) for {} permanent", permanent.len()),
-                    "ztk note -c -t TOPIC -k hub, listing its notes with a line each",
+                    "psg note -c -t TOPIC -k hub, listing its notes with a line each",
                 ),
                 listed(
                     "literature notes hang off a resource",
                     &loose_literature,
                     "every literature note points at its source's resource",
                     "cite a source with no resource",
-                    "ztk note -u ZID -r RESOURCE_ID",
+                    "psg note -u ZID -r RESOURCE_ID",
                 ),
                 listed(
                     "projects pull notes in",
                     &unlinked_projects,
                     "every active project links the notes it uses",
                     "link no notes (their knowledge goes when they are archived)",
-                    "ztk project --pull ID --note ZID -w why",
+                    "psg project --pull ID --note ZID -w why",
                 ),
             ],
         )
@@ -354,7 +354,7 @@ impl Brain {
                 Check {
                     name: "vault round trip",
                     status: Status::Ready,
-                    detail: "ztk obsidian export DIR / ztk obsidian import DIR [--dry-run]".into(),
+                    detail: "psg obsidian export DIR / psg obsidian import DIR [--dry-run]".into(),
                     fix: None,
                 },
                 listed(
@@ -390,7 +390,7 @@ impl Brain {
                     !self.feeds.is_empty(),
                     false,
                     format!("{} feed(s), {unfiled} filed nowhere", self.feeds.len()),
-                    "ztk rss add URL -a AREA_ID",
+                    "psg rss add URL -a AREA_ID",
                 ),
                 check(
                     "feeds pulled",
@@ -407,14 +407,14 @@ impl Brain {
                             &stale,
                         )
                     },
-                    "ztk rss pull (daily, e.g. from cron)",
+                    "psg rss pull (daily, e.g. from cron)",
                 ),
                 check(
                     "slipbox feed out",
                     publishable > 0,
                     true,
                     format!("{publishable} permanent note(s) in GET /api/slipbox/feed.xml"),
-                    "write permanent notes; ztk rss out -o feed.xml",
+                    "write permanent notes; psg rss out -o feed.xml",
                 ),
             ],
         )
@@ -462,7 +462,7 @@ impl Brain {
                     !papers.is_empty(),
                     false,
                     format!("{} paper(s) from arXiv", papers.len()),
-                    "ztk arxiv add ID... [-a AREA_ID] [--note]",
+                    "psg arxiv add ID... [-a AREA_ID] [--note]",
                 ),
                 check(
                     "papers filed",
@@ -475,7 +475,7 @@ impl Brain {
                     } else {
                         some(unfiled.len(), "in no area or project", &unfiled)
                     },
-                    "ztk resource -u ID -a AREA_ID",
+                    "psg resource -u ID -a AREA_ID",
                 ),
                 check(
                     "papers processed",
@@ -488,7 +488,7 @@ impl Brain {
                     } else {
                         some(unread.len(), "without a literature note", &unread)
                     },
-                    "ztk note -c -t \"What it says, in your words\" -k literature -r RESOURCE_ID",
+                    "psg note -c -t \"What it says, in your words\" -k literature -r RESOURCE_ID",
                 ),
             ],
         )
@@ -505,8 +505,7 @@ async fn hippo<C: ConnectionTrait>(db: &C) -> ModelResult<Section> {
             vec![Check {
                 name: "Hippo identity",
                 status: Status::Ready,
-                detail: "none (optional: ztk hippo -c -n NAME --trait adhd --fixation TOPIC)"
-                    .into(),
+                detail: "none (optional: psg hippo -c -n NAME --fixation TOPIC)".into(),
                 fix: None,
             }],
         ));
@@ -535,14 +534,14 @@ async fn hippo<C: ConnectionTrait>(db: &C) -> ModelResult<Section> {
                 &broken,
                 &format!("{} Hippo(s), every rhizome in one piece", all.len()),
                 "in pieces",
-                "ztk hippo --weave ID",
+                "psg hippo --weave ID",
             ),
             listed(
                 "fixations have notes",
                 &empty,
                 "every fixation has notes around it",
                 "fixations with no note yet",
-                "ztk note -c \"a thought\" -H ID --tag FIXATION",
+                "psg note -c \"a thought\" -H ID --tag FIXATION",
             ),
         ],
     ))
@@ -566,7 +565,7 @@ async fn plasticity<C: ConnectionTrait>(db: &C) -> ModelResult<Section> {
                 "{fresh} of {} plasts practised in the last 7 days",
                 all.len()
             ),
-            "ztk plast go (five quick exercises)",
+            "psg plast go (five quick exercises)",
         )],
     ))
 }

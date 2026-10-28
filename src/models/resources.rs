@@ -1,4 +1,4 @@
-//! Model rules shared by the REST controllers and the `ztk` CLI.
+//! Model rules shared by the REST controllers and the `psg` CLI.
 //!
 //! A resource is the PARA home of a source: its literature notes point at it
 //! (`notes.resource_id`), and its `citekey` is how they cite it.

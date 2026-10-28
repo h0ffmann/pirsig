@@ -2,11 +2,11 @@
 //!
 //! Emits graphify's `graph.json` (networkx node-link data with `links`): every
 //! area, project, task and resource is a node, and containment is a
-//! `contains` edge. Every edge comes from ztk's own records, so all of them
+//! `contains` edge. Every edge comes from Pirsig's own records, so all of them
 //! are `EXTRACTED`. Point graphify at it to cluster, query and draw the brain:
 //!
 //! ```sh
-//! ztk graph -o graphify-out/graph.json
+//! psg graph -o graphify-out/graph.json
 //! graphify cluster-only . --no-label    # communities, GRAPH_REPORT.md, graph.html
 //! graphify query "what feeds the marathon?"
 //! ```
@@ -33,9 +33,9 @@ pub struct GraphMeta {
 pub struct Node {
     pub id: String,
     pub label: String,
-    /// graphify's node type; ztk records are `concept`s, resources `document`s.
+    /// graphify's node type; Pirsig records are `concept`s, resources `document`s.
     pub file_type: &'static str,
-    /// Where the node came from: `ztk/<kind>s/<id>`, the record's REST path.
+    /// Where the node came from: `pirsig/<kind>s/<id>`, the record's REST path.
     pub source_file: String,
     /// `area`, `project`, `task` or `resource`.
     pub kind: &'static str,
@@ -71,7 +71,7 @@ impl Node {
             } else {
                 "concept"
             },
-            source_file: format!("ztk/{kind}s/{id}"),
+            source_file: format!("pirsig/{kind}s/{id}"),
             kind,
             archived,
             status: None,
@@ -132,7 +132,9 @@ pub fn graph(brain: &Brain) -> Graph {
     Graph {
         directed: true,
         multigraph: false,
-        graph: GraphMeta { generator: "ztk" },
+        graph: GraphMeta {
+            generator: "pirsig",
+        },
         nodes,
         links,
     }

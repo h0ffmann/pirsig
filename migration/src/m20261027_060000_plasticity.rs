@@ -18,7 +18,7 @@ impl MigrationTrait for Migration {
                 ("domain", ColType::String),
                 ("title", ColType::String),
                 ("description", ColType::TextNull),
-                // "ztk" for the catalog; "user" is reserved for the person's own
+                // "pirsig" for the catalog; "user" is reserved for the person's own
                 ("origin", ColType::String),
                 ("level", ColType::Integer),
                 ("streak", ColType::Integer),

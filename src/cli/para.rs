@@ -9,7 +9,7 @@ use crate::{
     models::{areas, projects, resources, tasks},
 };
 
-/// `ztk para`: areas, their projects and open tasks, resources, and the archive size.
+/// `psg para`: areas, their projects and open tasks, resources, and the archive size.
 #[derive(Debug, clap::Args)]
 pub struct Args {
     /// Also list done tasks.
