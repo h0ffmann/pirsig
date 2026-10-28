@@ -3,6 +3,7 @@ name = "pirsig-desktop"
 description = "Pirsig as a desktop app (Tauri 2): the whole brain, with Pirsig's REST API inside"
 version = "0.1.0"
 edition = "2021"
+license = "MPL-2.0"
 publish = false
 
 # not a member of the Pirsig workspace: Tauri needs a system webview to build, and
