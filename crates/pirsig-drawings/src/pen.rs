@@ -13,9 +13,12 @@ use serde_json::{json, Value};
 /// A point in SVG coordinates (y down).
 pub type P = (f64, f64);
 
-/// The blue of the drawing, the same as in piabrota/alerts.
+/// The ink of the drawing, light and dark, as in h0ffmann/picasso's drawings.
+pub const INK: &str = "#1f2328";
+pub const INK_DARK: &str = "#e6edf3";
+/// The blue of the check render (`pirsig-art check`), the same as in piabrota/alerts.
 pub const BLUE: &str = "#1682D4";
-/// The orange of the Desmos layer.
+/// The orange of the Desmos layer in the check render.
 pub const ORANGE: &str = "#FF4F00";
 
 #[derive(Debug, Clone, Copy)]
@@ -268,13 +271,9 @@ impl Drawing {
         })
     }
 
-    /// The drawing as SVG: the geometry in blue and, on top, each Desmos expression sampled in
-    /// orange. Where the two agree, the orange line runs inside the blue one.
-    ///
-    /// # Errors
-    /// When an expression of [`Self::desmos`] cannot be read back.
-    pub fn svg(&self) -> Result<String, String> {
-        let mut blue = vec![];
+    /// The geometry as SVG elements: a path per line, a circle per dot.
+    fn shapes(&self, dot_attrs: &str) -> Vec<String> {
+        let mut out = vec![];
         for mark in &self.marks {
             match mark {
                 Mark::Line {
@@ -303,25 +302,51 @@ impl Drawing {
                     } else {
                         ""
                     };
-                    blue.push(format!(
+                    out.push(format!(
                         "<path d=\"{d}\" stroke-width=\"{}\"{dash}/>",
                         num(*width)
                     ));
                 }
-                Mark::Dot { at, size } => blue.push(format!(
-                    "<circle cx=\"{}\" cy=\"{}\" r=\"{}\" fill=\"{BLUE}\" stroke=\"none\"/>",
+                Mark::Dot { at, size } => out.push(format!(
+                    "<circle cx=\"{}\" cy=\"{}\" r=\"{}\" {dot_attrs}/>",
                     num(at.0),
                     num(at.1),
                     num(size / 3.0)
                 )),
             }
         }
-        let orange = self.desmos_layer()?;
+        out
+    }
+
+    /// The drawing as SVG, in ink, as h0ffmann/picasso draws: near black on light pages, near
+    /// white on dark ones (`prefers-color-scheme`).
+    #[must_use]
+    pub fn svg(&self) -> String {
         let (w, h, label, desc) = (num(self.w), num(self.h), self.label, self.desc);
-        Ok(format!(
+        format!(
             r#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="{w}" height="{h}" role="img" aria-label="{label}">
   <title>{label}</title>
   <desc>{desc}</desc>
+  <style>.l{{fill:none;stroke:{INK};stroke-linecap:round;stroke-linejoin:round}}.d{{fill:{INK};stroke:none}}@media (prefers-color-scheme:dark){{.l{{stroke:{INK_DARK}}}.d{{fill:{INK_DARK}}}}}</style>
+  <g class="l">
+    {}
+  </g>
+</svg>"#,
+            self.shapes(r#"class="d""#).join("\n    ")
+        )
+    }
+
+    /// The check render: the geometry in blue and, on top, each Desmos expression sampled in
+    /// orange. Where the two agree, the orange line runs inside the blue one.
+    ///
+    /// # Errors
+    /// When an expression of [`Self::desmos`] cannot be read back.
+    pub fn check_svg(&self) -> Result<String, String> {
+        let blue = self.shapes(&format!(r#"fill="{BLUE}" stroke="none""#));
+        let orange = self.desmos_layer()?;
+        let (w, h, label) = (num(self.w), num(self.h), self.label);
+        Ok(format!(
+            r#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="{w}" height="{h}" role="img" aria-label="{label}, with its Desmos expressions over it">
   <g fill="none" stroke="{BLUE}" stroke-linecap="round" stroke-linejoin="round">
     {}
   </g>
@@ -332,6 +357,51 @@ impl Drawing {
             blue.join("\n    "),
             orange.join("\n    ")
         ))
+    }
+
+    /// How far, at most, any Desmos expression strays from the line it stands for: each one is
+    /// read back from its LaTeX and compared with its Bézier at eleven points.
+    ///
+    /// # Errors
+    /// When an expression cannot be read back, or there are not as many as lines and dots.
+    #[cfg_attr(not(test), allow(dead_code))] // run by the tests
+    pub fn check(&self) -> Result<f64, String> {
+        let state = self.desmos();
+        let list = state["expressions"]["list"]
+            .as_array()
+            .ok_or("no expressions")?;
+        let mut expressions = list.iter();
+        let mut worst = 0.0_f64;
+        for mark in &self.marks {
+            let wanted: Vec<Box<dyn Fn(f64) -> P>> = match mark {
+                Mark::Line { beziers, .. } => beziers
+                    .iter()
+                    .map(|b| {
+                        let b = *b;
+                        Box::new(move |t| b.at(t)) as Box<dyn Fn(f64) -> P>
+                    })
+                    .collect(),
+                Mark::Dot { at, .. } => {
+                    let at = *at;
+                    vec![Box::new(move |_| at)]
+                }
+            };
+            for f in wanted {
+                let e = expressions.next().ok_or("fewer expressions than lines")?;
+                let latex = e["latex"].as_str().ok_or("no latex")?;
+                let (fx, fy) = parse_pair(latex).ok_or_else(|| format!("cannot read {latex}"))?;
+                for i in 0..=10 {
+                    let t = f64::from(i) / 10.0;
+                    let (x, y) = f(t);
+                    let (dx, dy) = (eval(&fx, t) - x, self.h - eval(&fy, t) - y);
+                    worst = worst.max(dx.hypot(dy));
+                }
+            }
+        }
+        if expressions.next().is_some() {
+            return Err("more expressions than lines".into());
+        }
+        Ok(worst)
     }
 
     /// Reads each expression of the Desmos state back and samples it.

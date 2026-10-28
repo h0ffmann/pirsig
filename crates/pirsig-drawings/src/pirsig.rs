@@ -1,13 +1,11 @@
-//! The Pirsig logo: 無 (*mu*, "no thing") brushed in its twelve strokes, in the standard order,
-//! inside an open ensō. Pirsig answers yes-or-no questions with *mu* in *Zen and the Art of
+//! The Pirsig logo: 無 (*mu*, "no thing") brushed in its twelve strokes, in the standard order.
+//! Pirsig answers yes-or-no questions with *mu* in *Zen and the Art of
 //! Motorcycle Maintenance* (chapter 26).
 //!
 //! Each stroke is a brush line through hand-placed points with a width at each point, so it
 //! presses in, carries, and lifts the way a brush does: horizontals and verticals stop firmly
 //! (*tome*), the first stroke sweeps out to a point (*harai*), and the fire dots (灬) swell as
 //! they fall. The stroke order follows KanjiVG; the points are drawn here.
-
-use std::f64::consts::PI;
 
 use crate::pen::{brush, Drawing, Mark, P};
 
@@ -103,11 +101,13 @@ const MU: [Stroke; 12] = [
     ],
 ];
 
+/// The canvas, square, with the kanji in its middle.
+const SIDE: f64 = 240.0;
 /// The kanji's box on the canvas: centre and scale of the 0–100 box.
-const CENTRE: P = (160.0, 122.0);
-const SCALE: f64 = 1.5;
+const CENTRE: P = (SIDE / 2.0, SIDE / 2.0);
+const SCALE: f64 = 2.2;
 /// How heavy the brush is: the widths of [`MU`] times this.
-const INK: f64 = 1.5;
+const BRUSH: f64 = 2.2;
 
 fn place((x, y): P) -> P {
     (
@@ -116,39 +116,19 @@ fn place((x, y): P) -> P {
     )
 }
 
-/// The ensō: one stroke round the kanji, begun pressed at the lower left, carried up and over,
-/// and lifted dry before it closes, leaving the circle open.
-fn enso() -> (Vec<P>, Vec<f64>) {
-    let (start, end, n) = (214.0_f64, -116.0_f64, 30);
-    let mut pts = vec![];
-    let mut widths = vec![];
-    for i in 0..=n {
-        let k = f64::from(i) / f64::from(n);
-        let a = (end - start).mul_add(k, start) * PI / 180.0;
-        // the hand drifts a little inward as the stroke goes round
-        let r = 4.0f64.mul_add(-k, 100.0);
-        pts.push((r.mul_add(a.cos(), CENTRE.0), r.mul_add(-a.sin(), CENTRE.1)));
-        // pressed hard at the start, thinning as the ink runs out
-        widths.push(5.5f64.mul_add(-k.sqrt(), 6.5).max(1.0));
-    }
-    (pts, widths)
-}
-
 #[must_use]
 pub fn drawing() -> Drawing {
     let mut marks: Vec<Mark> = vec![];
-    let (ring, ring_widths) = enso();
-    marks.extend(brush(&ring, &ring_widths));
     for s in MU {
         let pts: Vec<P> = s.iter().map(|&(x, y, _)| place((x, y))).collect();
-        let widths: Vec<f64> = s.iter().map(|&(_, _, w)| w * INK).collect();
+        let widths: Vec<f64> = s.iter().map(|&(_, _, w)| w * BRUSH).collect();
         marks.extend(brush(&pts, &widths));
     }
     Drawing {
-        w: 320.0,
-        h: 240.0,
-        label: "The Pirsig logo: the kanji 無 (mu, no thing) brushed in its twelve strokes inside an open ensō, by @h0ffmann, rendered from its Desmos expressions",
-        desc: "Blue: the geometry, cubic Béziers through hand-placed points, each piece at its brush width. Orange: each expression of pirsig.desmos.json, sampled.",
+        w: SIDE,
+        h: SIDE,
+        label: "The Pirsig logo: the kanji 無 (mu, no thing) brushed in its twelve strokes, by @h0ffmann",
+        desc: "Drawn from the Desmos expressions of pirsig.desmos.json: cubic Béziers through hand-placed points, each piece at its brush width.",
         marks,
     }
 }
