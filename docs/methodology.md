@@ -26,9 +26,9 @@ set up yet). Rules the database can hold are *enforced*: breaking one is an erro
 | **Obsidian in/out** (`pirsig.pkm.obsidian`) | ready | export replaces only files Pirsig wrote; links rewritten to file stems and back; import matches notes by zid (else title) and PARA by name; `--dry-run` rolls back | `[[links]]` with no note behind them | `tests/requests/vault.rs` |
 | **RSS in** (`pirsig.web.rss`) | ready | feed URLs are http(s) and unique; entries matched by guid, so pulls never duplicate; arXiv entries share the paper's identity | feeds not pulled in 7 days, feeds filed nowhere | `tests/requests/ingest.rs` |
 | **RSS out** | ready | permanent notes by default; fleeting notes (the inbox) never go out | whether anything is publishable | `tests/requests/ingest.rs` |
-| **Hippo rhizome** | ready | traits are `adhd`, `autistic`, `neurotic` or `obsessive`; each note is woven in on save (two links, each with a reason); no `--after`; a deleted note's neighbours are relinked | rhizomes in pieces, fixations with no notes | `tests/requests/hippos.rs` |
+| **Hippo rhizome** | ready | each note is woven in on save (two links, each with a reason); no `--after`; a deleted note's neighbours are relinked | rhizomes in pieces, fixations with no notes | `tests/requests/hippos.rs` |
 | **Plasticity** | ready | the plasts are Pirsig's six; levels run 1 to 5; seeds below 2^53; every attempt is recorded | whether any plast was practised this week | `tests/requests/plasticity.rs`, `src/plasticity/` |
-| **GitHub in** (`psg bootstrap gh`) | ready | one resource per repo, keyed `gh:owner/name` (a hand-made one with the same URL is claimed); private repos skipped, or minimal (no description, topics or README) with `--private minimal`; one literature note per repo, linked from its category hub; text from GitHub never links or tags | through PARA and the Zettelkasten: unfiled repo resources, dangling links | `tests/requests/ingest.rs`, `src/ingest/github.rs`, `crates/pirsig-github` |
+| **GitHub in** (`psg gh`) | ready | a resource and a literature note per featured repo (own, pushed in the last `--cold-after` months), keyed `gh:owner/name` (a hand-made one with the same URL is claimed) and linked from its category hub; public forks and cold repos as lines of one index note each; private repos skipped, or minimal (no description, topics or README) with `--private minimal`, cold or forked ones in a `#private` index; text from GitHub never links or tags | through PARA and the Zettelkasten: unfiled repo resources, dangling links | `tests/requests/ingest.rs`, `src/ingest/github.rs`, `crates/pirsig-github` |
 | **arXiv in** (`pirsig.sci.arxiv`) | ready | any id shape; one resource per paper (a new version updates it); unique BibTeX citekeys; filed into the one area its categories point to, else reported | papers not filed, papers with no literature note | `tests/requests/ingest.rs`, `src/ingest/arxiv.rs` |
 
 Not covered yet: Obsidian's key/value properties as Pirsig *tags* (see
@@ -71,7 +71,7 @@ always the better move.
 
 ## Hippo rhizome
 
-A Hippo is a self-described identity (traits plus fixations), never a diagnosis. Its notes
+A Hippo is a name, a description and the fixations its notes gather around. Its notes
 follow the rhizome principles of Deleuze and Guattari (*A Thousand Plateaus*, 1980), as far as
 software can hold them:
 
@@ -83,7 +83,7 @@ software can hold them:
 | multiplicity, plateaus | each fixation is a plateau; `psg hippo --map` lists its notes, and where you left off |
 
 The automatic links carry a `rhizome:` reason, so they can be told from the person's own,
-which always win. The traits change how Claude helps (the `hippo` skill), not what Pirsig stores.
+which always win.
 
 ## Channels
 

@@ -1,10 +1,11 @@
 ---
 pirsig: resource
-pirsig_id: 2
+pirsig_id: 185
 title: "h0ffmann/scala-spice"
 kind: "repo"
 url: "https://github.com/h0ffmann/scala-spice"
-area: "[[Areas/ZAMM]]"
+external_id: "gh:h0ffmann/scala-spice"
+area: "[[Areas/Software]]"
 ---
 
 # h0ffmann/scala-spice
@@ -13,5 +14,5 @@ Circuit analysis using Scala-lang.
 
 ## Literature notes
 
-- [[2 Repo scala-spice|Repo: scala-spice]]
+- [[50 Repo scala-spice|Repo: scala-spice]]
 

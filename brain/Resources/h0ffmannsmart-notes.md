@@ -1,9 +1,10 @@
 ---
 pirsig: resource
-pirsig_id: 132
+pirsig_id: 189
 title: "h0ffmann/smart-notes"
 kind: "repo"
 url: "https://github.com/h0ffmann/smart-notes"
+external_id: "gh:h0ffmann/smart-notes"
 area: "[[Areas/Software]]"
 ---
 
@@ -13,5 +14,5 @@ obsidian for humans
 
 ## Literature notes
 
-- [[132 Repo smart-notes|Repo: smart-notes]]
+- [[54 Repo smart-notes|Repo: smart-notes]]
 

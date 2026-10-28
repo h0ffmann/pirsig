@@ -480,6 +480,66 @@ impl Repo {
 
 const README_LEAD: &str = "README opens with: ";
 
+impl Repo {
+    /// The repo as one line of an index note: name and link, then what the
+    /// record allows (description, languages, upstream, last push, stars).
+    #[must_use]
+    pub fn index_line(&self) -> String {
+        let r = &self.record;
+        let mut facts = Vec::new();
+        if let Some(d) = &r.description {
+            facts.push(inert(&shorten(d, 140)));
+        }
+        let languages = self.languages();
+        if !languages.is_empty() {
+            facts.push(
+                languages
+                    .iter()
+                    .take(3)
+                    .copied()
+                    .collect::<Vec<_>>()
+                    .join(", "),
+            );
+        }
+        if let Some(u) = &r.fork_of {
+            facts.push(format!("fork of [{u}](https://github.com/{u})"));
+        }
+        if let Some(p) = r.pushed_at.as_deref().and_then(|p| p.get(..7)) {
+            facts.push(format!("last push {p}"));
+        }
+        if let Some(s) = r.stars.filter(|s| *s > 0) {
+            facts.push(format!("{s}★"));
+        }
+        let mut line = format!("- [{}]({})", self.name(), r.url);
+        if !facts.is_empty() {
+            let _ = write!(line, ": {}", facts.join(" · "));
+        }
+        line
+    }
+}
+
+/// An index note's body: its opening line, then a section per category.
+fn index_body(intro: &str, items: &[(Repo, &'static Category)]) -> String {
+    let mut by_category: Vec<(&str, Vec<&Repo>)> = Vec::new();
+    for (repo, category) in items {
+        match by_category.iter_mut().find(|(t, _)| *t == category.title) {
+            Some((_, repos)) => repos.push(repo),
+            None => by_category.push((category.title, vec![repo])),
+        }
+    }
+    by_category.sort_by(|a, b| a.0.cmp(b.0));
+    let mut body = format!("{intro} Rewritten by `psg gh` on every run.\n");
+    for (title, mut repos) in by_category {
+        repos.sort_by_key(|r| r.name().to_lowercase());
+        let _ = write!(body, "\n## {title}\n\n");
+        for r in repos {
+            body.push_str(&r.index_line());
+            body.push('\n');
+        }
+    }
+    body
+}
+
 /// The README lead an earlier run wrote into `body`, to keep it when this run
 /// did not read the README.
 fn readme_in(body: &str) -> Option<String> {
@@ -873,13 +933,87 @@ impl Client {
 pub struct Filing {
     /// The area for repos whose category has no area in the brain.
     pub area_id: Option<i64>,
+    /// Which repos get a note of their own; `None`: every one.
+    pub tiering: Option<Tiering>,
+}
+
+/// How a repository is kept: a note of its own, or a line in an index note.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum Tier {
+    /// Its own note and resource: an own repo pushed lately.
+    Featured,
+    /// A line in "GitHub: public forks".
+    Fork,
+    /// A line in "GitHub: cold repositories": no push for a long while.
+    Cold,
+    /// A line in the `#private` "GitHub: private repositories": a private
+    /// repo that is cold or a fork.
+    Private,
+}
+
+impl Tier {
+    /// The index note's title, tags and opening line, for the tiers that have one.
+    const fn index(self) -> Option<(&'static str, &'static [&'static str], &'static str)> {
+        match self {
+            Self::Featured => None,
+            Self::Fork => Some((
+                "GitHub: public forks",
+                &["github", "repo/forks"],
+                "Every public fork, by category: a line each, not a note each.",
+            )),
+            Self::Cold => Some((
+                "GitHub: cold repositories",
+                &["github", "repo/cold"],
+                "Own repositories with no push for a long while, by category: a line each.",
+            )),
+            Self::Private => Some((
+                "GitHub: private repositories",
+                &["github", "repo/private", "private"],
+                "Private repositories that are cold or forks, at minimal depth: a line each.",
+            )),
+        }
+    }
+}
+
+/// Depth control: which repos get a note of their own.
+#[derive(Debug, Clone)]
+pub struct Tiering {
+    /// A repo with no push in this many months is cold.
+    pub cold_after_months: u32,
+    /// Forks go in the forks index (else each gets a note, if recent).
+    pub index_forks: bool,
+    pub now: chrono::DateTime<chrono::Utc>,
+}
+
+impl Tiering {
+    #[must_use]
+    pub fn tier(&self, repo: &Repo) -> Tier {
+        let cutoff = self
+            .now
+            .checked_sub_months(chrono::Months::new(self.cold_after_months))
+            .unwrap_or(self.now);
+        let cold = repo
+            .record
+            .pushed_at
+            .as_deref()
+            .and_then(|p| chrono::DateTime::parse_from_rfc3339(p).ok())
+            .is_none_or(|p| p < cutoff);
+        match (repo.fork() && self.index_forks, cold, repo.private()) {
+            (true, _, false) => Tier::Fork,
+            (true, _, true) | (false, true, true) => Tier::Private,
+            (false, true, false) => Tier::Cold,
+            (false, false, _) => Tier::Featured,
+        }
+    }
 }
 
 #[derive(Debug, Serialize)]
 #[allow(clippy::struct_excessive_bools)]
 pub struct Indexed {
     pub repo: String,
-    pub resource_id: i64,
+    /// Its resource; a repo in an index note has none (unless an earlier run made one).
+    pub resource_id: Option<i64>,
     pub created: bool,
     /// Its note was brought up to date.
     pub updated: bool,
@@ -889,6 +1023,9 @@ pub struct Indexed {
     pub area: Option<String>,
     /// zid of its note, when this run wrote or updated it.
     pub note: Option<String>,
+    pub tier: Tier,
+    /// The index note it is a line of, when it has no note of its own.
+    pub index: Option<&'static str>,
     pub fork: bool,
     pub private: bool,
 }
@@ -1037,18 +1174,35 @@ struct Stored {
 /// importer does not own.
 pub async fn store<C: ConnectionTrait + TransactionTrait>(
     db: &C,
-    mut repos: Vec<Repo>,
+    repos: Vec<Repo>,
     filing: &Filing,
 ) -> ModelResult<Vec<Indexed>> {
     let active = areas::Entity::listing(false).all(db).await?;
-    // first pass: every repo's resource and note, a new note in its hub
+    // first pass: every featured repo's resource and note, a new note in its
+    // hub; the others wait for their index note. A repo with a note of its own
+    // keeps it, whatever its tier now.
     let mut stored = Vec::new();
-    for repo in &mut repos {
+    let mut noted = Vec::new();
+    let mut indexes = Indexes::new();
+    for mut repo in repos {
         let found = find_resource(db, &repo.record).await?;
         let note = match &found {
             Some(r) => r.notes(db).await?.into_iter().next(),
             None => None,
         };
+        let tier = filing
+            .tiering
+            .as_ref()
+            .map_or(Tier::Featured, |t| t.tier(&repo));
+        if note.is_none() && tier != Tier::Featured {
+            let category = repo.category();
+            indexes
+                .entry(tier)
+                .or_default()
+                .push((repo, category, found.map(|r| r.id)));
+            continue;
+        }
+        let repo = &mut repo;
         let tags = match &note {
             Some(n) => n.tags(db).await?,
             None => Vec::new(),
@@ -1087,13 +1241,15 @@ pub async fn store<C: ConnectionTrait + TransactionTrait>(
         stored.push(Stored {
             indexed: Indexed {
                 repo: repo.record.title.clone(),
-                resource_id: resource.id,
+                resource_id: Some(resource.id),
                 created,
                 updated: false,
                 category: category.tag,
                 depth: repo.record.depth,
                 area,
                 note: new_note.then(|| note.zid.clone()),
+                tier,
+                index: None,
                 fork: repo.fork(),
                 private: repo.private(),
             },
@@ -1102,12 +1258,25 @@ pub async fn store<C: ConnectionTrait + TransactionTrait>(
             category,
             new_note,
         });
+        noted.push(repo.clone());
     }
+    let repos = noted;
 
-    // second pass: every note says what GitHub says now, and links its
-    // related repos' notes, which all exist by now
+    refresh(db, &repos, &mut stored).await?;
+    let mut out: Vec<Indexed> = stored.into_iter().map(|s| s.indexed).collect();
+    out.extend(write_indexes(db, indexes).await?);
+    Ok(out)
+}
+
+/// Second pass of `store`: every note says what GitHub says now, and links
+/// its related repos' notes, which all exist by now.
+async fn refresh<C: ConnectionTrait + TransactionTrait>(
+    db: &C,
+    repos: &[Repo],
+    stored: &mut [Stored],
+) -> ModelResult<()> {
     let zids: Vec<String> = stored.iter().map(|s| s.note.zid.clone()).collect();
-    for ((repo, s), rel) in repos.iter().zip(&mut stored).zip(related(&repos)) {
+    for ((repo, s), rel) in repos.iter().zip(stored.iter_mut()).zip(related(repos)) {
         let links: Vec<(String, String)> = rel
             .iter()
             .map(|&j| (zids[j].clone(), repos[j].name().to_string()))
@@ -1138,7 +1307,83 @@ pub async fn store<C: ConnectionTrait + TransactionTrait>(
             s.indexed.note = Some(note.zid);
         }
     }
-    Ok(stored.into_iter().map(|s| s.indexed).collect())
+    Ok(())
+}
+
+/// The repos waiting for an index note, by tier, with their category and the
+/// resource an earlier run may have made for them.
+type Indexes = std::collections::BTreeMap<Tier, Vec<(Repo, &'static Category, Option<i64>)>>;
+
+/// The index notes: one per tier that has repos, rewritten whole.
+async fn write_indexes<C: ConnectionTrait + TransactionTrait>(
+    db: &C,
+    indexes: Indexes,
+) -> ModelResult<Vec<Indexed>> {
+    let mut out = Vec::new();
+    for (tier, items) in indexes {
+        let Some((title, tags, intro)) = tier.index() else {
+            continue;
+        };
+        let lines: Vec<(Repo, &'static Category)> =
+            items.iter().map(|(r, c, _)| (r.clone(), *c)).collect();
+        let body = index_body(intro, &lines);
+        let tags: Vec<String> = tags.iter().map(|t| (*t).to_string()).collect();
+        let (note, new) = hub(db, title, intro, tags.clone()).await?;
+        let before = note.body.clone();
+        if note.body != body {
+            let params = UpdateNote {
+                body: Some(body),
+                tags: Some(tags),
+                ..Default::default()
+            };
+            note.clone().update_with(db, params).await?;
+        }
+        if new {
+            root_line(db, &note).await?;
+        }
+        for (repo, category, resource_id) in items {
+            out.push(Indexed {
+                created: !before.contains(&format!("]({})", repo.record.url)),
+                repo: repo.record.title.clone(),
+                resource_id,
+                updated: false,
+                category: category.tag,
+                depth: repo.record.depth,
+                area: None,
+                note: None,
+                tier,
+                index: Some(title),
+                fork: repo.fork(),
+                private: repo.private(),
+            });
+        }
+    }
+    Ok(out)
+}
+
+/// `hub` as a line of the root hub, made if missing.
+async fn root_line<C: ConnectionTrait + TransactionTrait>(
+    db: &C,
+    hub_note: &notes::Model,
+) -> ModelResult<()> {
+    let (root, _) = hub(
+        db,
+        ROOT_HUB,
+        "Entry point to the GitHub repositories, one hub per category.",
+        vec!["github".into()],
+    )
+    .await?;
+    if root.body.contains(&format!("[[{}]]", hub_note.zid)) {
+        return Ok(());
+    }
+    let body = format!(
+        "{}\n- [[{}]] {}\n",
+        root.body.trim_end(),
+        hub_note.zid,
+        hub_note.title
+    );
+    rewrite(db, root, body).await?;
+    Ok(())
 }
 
 /// A new repo note into its category's hub, and a new hub into the root hub.
@@ -1160,20 +1405,7 @@ async fn index<C: ConnectionTrait + TransactionTrait>(
     let body = add_to_hub(&cat_hub.body, &line, repo.fork());
     let cat_hub = rewrite(db, cat_hub, body).await?;
     if new_hub {
-        let (root, _) = hub(
-            db,
-            ROOT_HUB,
-            "Entry point to the GitHub repositories, one hub per category.",
-            vec!["github".into()],
-        )
-        .await?;
-        let body = format!(
-            "{}\n- [[{}]] {}\n",
-            root.body.trim_end(),
-            cat_hub.zid,
-            cat_hub.title
-        );
-        rewrite(db, root, body).await?;
+        root_line(db, &cat_hub).await?;
     }
     Ok(())
 }
@@ -1360,6 +1592,75 @@ mod tests {
         let body = r.body(r.category(), &[]);
         assert!(crate::models::notes::wikilinks(&body).is_empty(), "{body}");
         assert!(crate::models::notes::hashtags(&body).is_empty(), "{body}");
+    }
+
+    #[test]
+    fn tiers_keep_notes_for_recent_own_repos() {
+        let now = chrono::DateTime::parse_from_rfc3339("2026-10-28T00:00:00Z")
+            .unwrap()
+            .to_utc();
+        let tiering = Tiering {
+            cold_after_months: 24,
+            index_forks: true,
+            now,
+        };
+        let at = |pushed: &str, fork: bool, private: bool| {
+            let mut f = facts("x", Some("x"), None);
+            f.pushed_at = Some(pushed.into());
+            f.fork = fork;
+            f.private = private;
+            tiering.tier(&repo(&f))
+        };
+        assert_eq!(at("2026-01-01T00:00:00Z", false, false), Tier::Featured);
+        assert_eq!(
+            at("2026-01-01T00:00:00Z", false, true),
+            Tier::Featured,
+            "private, recent"
+        );
+        assert_eq!(
+            at("2024-10-27T00:00:00Z", false, false),
+            Tier::Cold,
+            "just over two years"
+        );
+        assert_eq!(at("2024-10-29T00:00:00Z", false, false), Tier::Featured);
+        assert_eq!(
+            at("2026-10-01T00:00:00Z", true, false),
+            Tier::Fork,
+            "however recent"
+        );
+        assert_eq!(at("2020-01-01T00:00:00Z", false, true), Tier::Private);
+        let notes = Tiering {
+            index_forks: false,
+            ..tiering
+        };
+        let mut f = facts("x", None, None);
+        f.fork = true;
+        assert_eq!(
+            notes.tier(&repo(&f)),
+            Tier::Featured,
+            "recent fork, --forks notes"
+        );
+    }
+
+    #[test]
+    fn an_index_note_has_a_line_per_repo_by_category() {
+        let mut ww3 = facts("WW3", Some("WAVEWATCH III, see [[x]]"), Some("Fortran"));
+        ww3.fork = true;
+        ww3.parent = Some("NOAA-EMC/WW3".into());
+        ww3.stars = 2;
+        let ww3 = repo(&ww3);
+        let gpu = repo(&facts("rust-gpu", None, Some("Rust")));
+        let body = index_body(
+            "Every fork.",
+            &[(ww3.clone(), ww3.category()), (gpu.clone(), gpu.category())],
+        );
+        assert_eq!(
+            body,
+            "Every fork. Rewritten by `psg gh` on every run.\n\n\
+             ## GPU computing\n\n- [rust-gpu](https://github.com/h0ffmann/rust-gpu): Rust · last push 2026-09\n\n\
+             ## ocean and wave modelling\n\n- [WW3](https://github.com/h0ffmann/WW3): WAVEWATCH III, see `[[x]]` · \
+             Fortran · fork of [NOAA-EMC/WW3](https://github.com/NOAA-EMC/WW3) · last push 2026-09 · 2★\n"
+        );
     }
 
     #[test]

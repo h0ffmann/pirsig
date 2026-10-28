@@ -89,7 +89,7 @@ pub enum Command {
     Fork(fork::Args),
     /// Methodology readiness: PARA, Zettelkasten, Obsidian, RSS and arXiv checks.
     Ready(ready::Args),
-    /// Hippo identities: a rhizome of notes for ADHD, autistic, neurotic and obsessive minds.
+    /// Hippos: rhizomes of notes grown around fixations, with no trunk.
     Hippo(hippo::Args),
     /// Plasticity: quick exercises in math, abstraction, logic, music, literature, languages.
     Plast(plast::Args),

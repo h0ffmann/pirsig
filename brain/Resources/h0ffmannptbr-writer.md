@@ -1,9 +1,10 @@
 ---
 pirsig: resource
-pirsig_id: 125
+pirsig_id: 183
 title: "h0ffmann/ptbr-writer"
 kind: "repo"
 url: "https://github.com/h0ffmann/ptbr-writer"
+external_id: "gh:h0ffmann/ptbr-writer"
 area: "[[Areas/Software]]"
 ---
 
@@ -13,5 +14,5 @@ area: "[[Areas/Software]]"
 
 ## Literature notes
 
-- [[125 Repo ptbr-writer|Repo: ptbr-writer]]
+- [[48 Repo ptbr-writer|Repo: ptbr-writer]]
 

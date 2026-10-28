@@ -1,9 +1,10 @@
 ---
 pirsig: resource
-pirsig_id: 16
+pirsig_id: 196
 title: "h0ffmann/zex"
 kind: "repo"
 url: "https://github.com/h0ffmann/zex"
+external_id: "gh:h0ffmann/zex"
 area: "[[Areas/Software]]"
 ---
 
@@ -13,5 +14,5 @@ Functional programming design experiments
 
 ## Literature notes
 
-- [[16 Repo zex|Repo: zex]]
+- [[63 Repo zex|Repo: zex]]
 

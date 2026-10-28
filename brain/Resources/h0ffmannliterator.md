@@ -1,9 +1,10 @@
 ---
 pirsig: resource
-pirsig_id: 62
+pirsig_id: 172
 title: "h0ffmann/literator"
 kind: "repo"
 url: "https://github.com/h0ffmann/literator"
+external_id: "gh:h0ffmann/literator"
 area: "[[Areas/Software]]"
 ---
 
@@ -13,5 +14,5 @@ next gen book analytics
 
 ## Literature notes
 
-- [[62 Repo literator|Repo: literator]]
+- [[36 Repo literator|Repo: literator]]
 

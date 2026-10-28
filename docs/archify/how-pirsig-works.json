@@ -2,7 +2,7 @@
   "schema_version": 2,
   "diagram_type": "workflow",
   "meta": {
-    "title": "How Pirsig works: two ways in, one model layer, figures out",
+    "title": "How Pirsig works: the psg CLI and the desktop app share one model layer, figures out",
     "locale": "en",
     "quality_profile": "showcase",
     "legend": {
@@ -40,8 +40,8 @@
       "lane": "entry",
       "col": 0,
       "type": "external",
-      "label": "Pirsig CLI",
-      "sublabel": "area, project, task",
+      "label": "psg CLI",
+      "sublabel": "note, gh, fork, para",
       "width": 150
     },
     {
@@ -49,8 +49,8 @@
       "lane": "entry",
       "col": 1,
       "type": "frontend",
-      "label": "REST API",
-      "sublabel": "/api, cargo loco start",
+      "label": "REST API and app",
+      "sublabel": "Tauri window, browser, /api",
       "width": 150
     },
     {

@@ -1,9 +1,10 @@
 ---
 pirsig: resource
-pirsig_id: 67
+pirsig_id: 159
 title: "h0ffmann/forecast-energy-demand"
 kind: "repo"
 url: "https://github.com/h0ffmann/forecast-energy-demand"
+external_id: "gh:h0ffmann/forecast-energy-demand"
 area: "[[Areas/Software]]"
 ---
 
@@ -13,5 +14,5 @@ forecasting algorithms applied to hourly electricity
 
 ## Literature notes
 
-- [[67 Repo forecast-energy-demand|Repo: forecast-energy-demand]]
+- [[22 Repo forecast-energy-demand|Repo: forecast-energy-demand]]
 

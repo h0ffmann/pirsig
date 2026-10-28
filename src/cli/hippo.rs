@@ -9,7 +9,7 @@ use crate::{
     models::hippos,
 };
 
-/// `psg hippo -c -n me --trait adhd --fixation "rogue waves"`, `psg hippo --map 1`,
+/// `psg hippo -c -n me --fixation "rogue waves"`, `psg hippo --map 1`,
 /// `psg hippo --weave 1`, then `psg note -c "an idea" -H 1`.
 #[derive(Debug, clap::Args)]
 #[command(group(ArgGroup::new("action").args(["create", "update", "delete", "show", "map", "weave"])))]
@@ -39,27 +39,18 @@ pub struct Args {
     /// A sentence on how this mind works; `""` clears it.
     #[arg(long)]
     description: Option<String>,
-    /// Self-described trait, repeatable: adhd, autistic, neurotic, obsessive.
-    /// On update, replaces the list.
-    #[arg(short, long = "trait", value_name = "TRAIT")]
-    traits: Vec<String>,
     /// Obsession or special interest, repeatable. On update, replaces the list.
     #[arg(short, long = "fixation", value_name = "TOPIC")]
     fixations: Vec<String>,
 }
 
 fn line(h: &HippoDto) -> String {
-    let traits = if h.traits.is_empty() {
-        String::new()
-    } else {
-        format!(" ({})", h.traits.join(", "))
-    };
     let fix = if h.fixations.is_empty() {
         String::new()
     } else {
         format!(" ~ {}", h.fixations.join(" · "))
     };
-    format!("#{} {}{traits}{fix}", h.id, h.name)
+    format!("#{} {}{fix}", h.id, h.name)
 }
 
 fn map_text(m: &RhizomeMap) -> String {
@@ -98,13 +89,11 @@ fn map_text(m: &RhizomeMap) -> String {
 
 pub async fn run(ctx: &AppContext, out: &Output, args: Args) -> Result<()> {
     let db = &ctx.db;
-    let traits = (!args.traits.is_empty()).then_some(args.traits);
     let fixations = (!args.fixations.is_empty()).then_some(args.fixations);
     if args.create {
         let params = CreateHippo {
             name: required(args.name, "--name")?,
             description: args.description,
-            traits: traits.unwrap_or_default(),
             fixations: fixations.unwrap_or_default(),
         };
         let h = hippos::ActiveModel::create(db, params)
@@ -115,7 +104,6 @@ pub async fn run(ctx: &AppContext, out: &Output, args: Args) -> Result<()> {
         let params = UpdateHippo {
             name: args.name,
             description: args.description.into(),
-            traits,
             fixations,
         };
         let h = named(hippos::Model::find(db, id).await, "hippo", id)?;

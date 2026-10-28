@@ -1,9 +1,10 @@
 ---
 pirsig: resource
-pirsig_id: 48
+pirsig_id: 173
 title: "h0ffmann/manus-playground"
 kind: "repo"
 url: "https://github.com/h0ffmann/manus-playground"
+external_id: "gh:h0ffmann/manus-playground"
 area: "[[Areas/Software]]"
 ---
 
@@ -13,5 +14,5 @@ This repository contains a collection of diverse projects that demonstrate diffe
 
 ## Literature notes
 
-- [[48 Repo manus-playground|Repo: manus-playground]]
+- [[37 Repo manus-playground|Repo: manus-playground]]
 

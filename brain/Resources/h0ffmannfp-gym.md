@@ -1,9 +1,10 @@
 ---
 pirsig: resource
-pirsig_id: 60
+pirsig_id: 160
 title: "h0ffmann/fp-gym"
 kind: "repo"
 url: "https://github.com/h0ffmann/fp-gym"
+external_id: "gh:h0ffmann/fp-gym"
 area: "[[Areas/Software]]"
 ---
 
@@ -13,5 +14,5 @@ func. programing exercises
 
 ## Literature notes
 
-- [[60 Repo fp-gym|Repo: fp-gym]]
+- [[24 Repo fp-gym|Repo: fp-gym]]
 

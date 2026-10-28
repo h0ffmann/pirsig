@@ -206,11 +206,10 @@ test("a literature note without a source is refused, with the reason", async () 
   await expect(page.getByRole("alert")).toContainText(/source/i);
 });
 
-test("hippos: create, grow, weave, refuse an unknown trait", async () => {
+test("hippos: create, grow, weave, add a fixation", async () => {
   await nav("Hippos");
   await page.getByRole("button", { name: "New Hippo" }).click();
   await dialog().getByLabel("Name").fill("Sea mind");
-  await dialog().getByLabel("Traits").fill("adhd");
   await dialog().getByLabel("Fixations").fill("waves");
   await dialog().getByRole("button", { name: "Save" }).click();
   await toast("Hippo Sea mind created");
@@ -226,10 +225,10 @@ test("hippos: create, grow, weave, refuse an unknown trait", async () => {
   await toast("Woven");
 
   await page.getByRole("button", { name: "Edit" }).click();
-  await dialog().getByLabel("Traits").fill("sleepy");
+  await dialog().getByLabel("Fixations").fill("waves, tides");
   await dialog().getByRole("button", { name: "Save" }).click();
-  await expect(dialog().getByRole("alert")).toContainText("traits");
-  await dialog().getByRole("button", { name: "Cancel" }).click();
+  await toast("Hippo saved");
+  await expect(page.getByRole("heading", { name: "tides", exact: true })).toBeVisible();
 });
 
 test("feeds: subscribe and unsubscribe", async () => {

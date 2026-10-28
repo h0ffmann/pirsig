@@ -1,9 +1,10 @@
 ---
 pirsig: resource
-pirsig_id: 61
+pirsig_id: 191
 title: "h0ffmann/tf-gcp-workspace"
 kind: "repo"
 url: "https://github.com/h0ffmann/tf-gcp-workspace"
+external_id: "gh:h0ffmann/tf-gcp-workspace"
 area: "[[Areas/Software]]"
 ---
 
@@ -13,5 +14,5 @@ An automated Terraform and Python template for accessing shared Google Workspace
 
 ## Literature notes
 
-- [[61 Repo tf-gcp-workspace|Repo: tf-gcp-workspace]]
+- [[56 Repo tf-gcp-workspace|Repo: tf-gcp-workspace]]
 

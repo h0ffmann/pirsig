@@ -1,9 +1,10 @@
 ---
 pirsig: resource
-pirsig_id: 20
+pirsig_id: 156
 title: "h0ffmann/che-scala-template"
 kind: "repo"
 url: "https://github.com/h0ffmann/che-scala-template"
+external_id: "gh:h0ffmann/che-scala-template"
 area: "[[Areas/Software]]"
 ---
 
@@ -13,5 +14,5 @@ che test
 
 ## Literature notes
 
-- [[20 Repo che-scala-template|Repo: che-scala-template]]
+- [[19 Repo che-scala-template|Repo: che-scala-template]]
 

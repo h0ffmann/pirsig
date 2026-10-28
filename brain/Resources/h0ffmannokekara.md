@@ -1,9 +1,10 @@
 ---
 pirsig: resource
-pirsig_id: 57
+pirsig_id: 180
 title: "h0ffmann/okekara"
 kind: "repo"
 url: "https://github.com/h0ffmann/okekara"
+external_id: "gh:h0ffmann/okekara"
 area: "[[Areas/Software]]"
 ---
 
@@ -13,5 +14,5 @@ synchronized lyrics and karaoke mode to YouTube Music
 
 ## Literature notes
 
-- [[57 Repo okekara|Repo: okekara]]
+- [[45 Repo okekara|Repo: okekara]]
 

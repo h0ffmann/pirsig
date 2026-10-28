@@ -1,9 +1,10 @@
 ---
 pirsig: resource
-pirsig_id: 4
+pirsig_id: 163
 title: "h0ffmann/go-hello"
 kind: "repo"
 url: "https://github.com/h0ffmann/go-hello"
+external_id: "gh:h0ffmann/go-hello"
 area: "[[Areas/Software]]"
 ---
 
@@ -13,5 +14,5 @@ Skeleton for GO RESTful API's.
 
 ## Literature notes
 
-- [[4 Repo go-hello|Repo: go-hello]]
+- [[27 Repo go-hello|Repo: go-hello]]
 

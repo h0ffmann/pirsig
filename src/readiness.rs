@@ -505,8 +505,7 @@ async fn hippo<C: ConnectionTrait>(db: &C) -> ModelResult<Section> {
             vec![Check {
                 name: "Hippo identity",
                 status: Status::Ready,
-                detail: "none (optional: psg hippo -c -n NAME --trait adhd --fixation TOPIC)"
-                    .into(),
+                detail: "none (optional: psg hippo -c -n NAME --fixation TOPIC)".into(),
                 fix: None,
             }],
         ));

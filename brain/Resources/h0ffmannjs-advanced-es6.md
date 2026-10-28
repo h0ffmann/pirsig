@@ -1,9 +1,10 @@
 ---
 pirsig: resource
-pirsig_id: 3
+pirsig_id: 171
 title: "h0ffmann/js-advanced-es6"
 kind: "repo"
 url: "https://github.com/h0ffmann/js-advanced-es6"
+external_id: "gh:h0ffmann/js-advanced-es6"
 area: "[[Areas/Software]]"
 ---
 
@@ -13,5 +14,5 @@ Advanced JavaScript ES6 Alura's course.
 
 ## Literature notes
 
-- [[3 Repo js-advanced-es6|Repo: js-advanced-es6]]
+- [[35 Repo js-advanced-es6|Repo: js-advanced-es6]]
 

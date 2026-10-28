@@ -1155,7 +1155,7 @@ impl<'a> Importer<'a> {
                 h
             } else {
                 self.report.warnings.push(format!(
-                    "Hippo \"{name}\" created; set its traits and fixations with psg hippo -u"
+                    "Hippo \"{name}\" created; set its fixations with psg hippo -u"
                 ));
                 let params = crate::dtos::hippos::CreateHippo {
                     name: name.clone(),

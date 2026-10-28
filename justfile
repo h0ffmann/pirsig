@@ -167,7 +167,7 @@ figure-para:
     $z area -c -n Work >/dev/null
     $z area -c -n "Second brain" >/dev/null
     $z project -c -n "Run a marathon" -a 1 --status active >/dev/null
-    $z project -c -n "Q4 roadmap" -a 2 --status planning >/dev/null
+    $z project -c -n "Q4 roadmap" -a 2 --status waiting >/dev/null
     $z project -c -n "Ship Pirsig v0" -a 3 --status active >/dev/null
     $z task -c -t "Buy shoes" -p 1 --due 2026-11-01 >/dev/null
     $z task -c -t "Long run, 21 km" -p 1 >/dev/null

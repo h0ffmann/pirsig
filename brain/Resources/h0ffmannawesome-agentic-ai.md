@@ -1,9 +1,10 @@
 ---
 pirsig: resource
-pirsig_id: 49
+pirsig_id: 149
 title: "h0ffmann/awesome-agentic-ai"
 kind: "repo"
 url: "https://github.com/h0ffmann/awesome-agentic-ai"
+external_id: "gh:h0ffmann/awesome-agentic-ai"
 area: "[[Areas/Software]]"
 ---
 
@@ -11,5 +12,5 @@ area: "[[Areas/Software]]"
 
 ## Literature notes
 
-- [[49 Repo awesome-agentic-ai|Repo: awesome-agentic-ai]]
+- [[8 Repo awesome-agentic-ai|Repo: awesome-agentic-ai]]
 

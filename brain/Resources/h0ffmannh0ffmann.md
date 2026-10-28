@@ -1,9 +1,10 @@
 ---
 pirsig: resource
-pirsig_id: 34
+pirsig_id: 164
 title: "h0ffmann/h0ffmann"
 kind: "repo"
 url: "https://github.com/h0ffmann/h0ffmann"
+external_id: "gh:h0ffmann/h0ffmann"
 area: "[[Areas/Software]]"
 ---
 
@@ -13,5 +14,5 @@ R E A D M E
 
 ## Literature notes
 
-- [[34 Repo h0ffmann|Repo: h0ffmann]]
+- [[28 Repo h0ffmann|Repo: h0ffmann]]
 

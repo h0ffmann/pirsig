@@ -10,7 +10,7 @@ use sea_orm::TransactionTrait;
 
 use super::{explain, Output};
 use crate::{
-    ingest::github::{self, Client, Filing, Indexed, Repo},
+    ingest::github::{self, Client, Filing, Indexed, Repo, Tiering},
     reset,
 };
 
@@ -19,6 +19,16 @@ use crate::{
 pub struct Args {
     #[command(subcommand)]
     source: Source,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
+enum Forks {
+    /// One "GitHub: public forks" note, a line per fork.
+    Index,
+    /// A note per fork, as for own repositories.
+    Notes,
+    /// Leave forks out.
+    Skip,
 }
 
 #[derive(Debug, Clone, Copy, ValueEnum)]
@@ -47,9 +57,13 @@ pub struct GhArgs {
     /// Your private repositories (only seen with your own token).
     #[arg(long, value_enum, default_value = "skip")]
     private: PrivateRepos,
-    /// Leave out your public forks.
-    #[arg(long)]
-    no_forks: bool,
+    /// Public forks: one index note (index), a note each (notes), or none (skip).
+    #[arg(long, value_enum, default_value = "index")]
+    forks: Forks,
+    /// Own repositories with no push in this many months go in one cold index
+    /// note instead of a note each.
+    #[arg(long, value_name = "MONTHS", default_value_t = 24)]
+    cold_after: u32,
     /// Also read each public repo's README for its first paragraph.
     #[arg(long)]
     readme: bool,
@@ -72,7 +86,11 @@ fn indexed_line(i: &Indexed) -> String {
         (false, true) => "updated",
         (false, false) => "known",
     };
-    let mut s = format!("{what} #{} {} repo/{}", i.resource_id, i.repo, i.category);
+    let id = i
+        .resource_id
+        .map(|id| format!(" #{id}"))
+        .unwrap_or_default();
+    let mut s = format!("{what}{id} {} repo/{}", i.repo, i.category);
     if i.fork {
         s.push_str(" fork");
     }
@@ -87,6 +105,10 @@ fn indexed_line(i: &Indexed) -> String {
             let _ = write!(s, " [{a}]");
         }
         None => s.push_str(" [unfiled]"),
+    }
+    if let Some(index) = i.index {
+        let _ = write!(s, " → {index}");
+        return s;
     }
     if let Some(z) = &i.note {
         let _ = write!(s, "; note {z}");
@@ -103,7 +125,8 @@ pub async fn run_gh(ctx: &AppContext, out: &Output, args: GhArgs) -> Result<()> 
     let GhArgs {
         user,
         private,
-        no_forks,
+        forks,
+        cold_after,
         readme,
         area,
         dry_run,
@@ -112,7 +135,7 @@ pub async fn run_gh(ctx: &AppContext, out: &Output, args: GhArgs) -> Result<()> 
     let client = Client::from_env()?;
     let (user, facts) = client.facts(user.as_deref()).await?;
     let scope = Scope {
-        forks: !no_forks,
+        forks: forks != Forks::Skip,
         own_private: match private {
             PrivateRepos::Skip => Private::Skip,
             PrivateRepos::Minimal => Private::Minimal,
@@ -136,9 +159,20 @@ pub async fn run_gh(ctx: &AppContext, out: &Output, args: GhArgs) -> Result<()> 
     }
     // a dry run does all the writing in a transaction, then rolls it back
     let txn = ctx.db.begin().await?;
-    let done = github::store(&txn, repos, &Filing { area_id: area })
-        .await
-        .map_err(explain)?;
+    let done = github::store(
+        &txn,
+        repos,
+        &Filing {
+            area_id: area,
+            tiering: Some(Tiering {
+                cold_after_months: cold_after,
+                index_forks: forks == Forks::Index,
+                now: chrono::Utc::now(),
+            }),
+        },
+    )
+    .await
+    .map_err(explain)?;
     if dry_run {
         txn.rollback().await?;
         if !out.json {

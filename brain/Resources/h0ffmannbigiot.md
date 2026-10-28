@@ -1,9 +1,10 @@
 ---
 pirsig: resource
-pirsig_id: 21
+pirsig_id: 153
 title: "h0ffmann/bigiot"
 kind: "repo"
 url: "https://github.com/h0ffmann/bigiot"
+external_id: "gh:h0ffmann/bigiot"
 area: "[[Areas/Software]]"
 ---
 
@@ -13,5 +14,5 @@ data platform implementation for remote monitoring systems  using asynchronous m
 
 ## Literature notes
 
-- [[21 Repo bigiot|Repo: bigiot]]
+- [[16 Repo bigiot|Repo: bigiot]]
 

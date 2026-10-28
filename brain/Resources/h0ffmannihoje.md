@@ -1,17 +1,18 @@
 ---
 pirsig: resource
-pirsig_id: 45
+pirsig_id: 168
 title: "h0ffmann/ihoje"
 kind: "repo"
 url: "https://github.com/h0ffmann/ihoje"
+external_id: "gh:h0ffmann/ihoje"
 area: "[[Areas/Software]]"
 ---
 
 # h0ffmann/ihoje
 
-[](https://github.com/robinraju/web-crawler/actions/workflows/scala.yml) [](https://scala-steward.org)
+A simple web crawler built using Scala and Akka Typed
 
 ## Literature notes
 
-- [[45 Repo ihoje|Repo: ihoje]]
+- [[32 Repo ihoje|Repo: ihoje]]
 

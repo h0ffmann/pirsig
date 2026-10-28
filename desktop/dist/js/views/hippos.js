@@ -3,15 +3,12 @@ import { api } from "../api.js";
 import { refs } from "../refs.js";
 import { attempt, button, confirm, form, h, head, list, toast } from "../ui.js";
 
-const TRAITS = "adhd, autistic, neurotic, obsessive";
-
 async function editHippo(hippo, after) {
   const saved = await form({
     title: hippo ? `Edit ${hippo.name}` : "New Hippo",
     fields: [
       { name: "name", label: "Name", required: true, autofocus: true },
       { name: "description", label: "Description", type: "textarea" },
-      { name: "traits", label: "Traits (self-described)", type: "list", placeholder: TRAITS, hint: `Any of: ${TRAITS}.` },
       { name: "fixations", label: "Fixations: what the rhizome grows around", type: "list", placeholder: "waves, game theory" },
     ],
     values: hippo ?? {},
@@ -39,7 +36,7 @@ export async function list_({ reload }) {
     h("p", { class: "sub" }, "A Hippo is a rhizome of notes: many entry points, no root, linked as you write."),
     list(hippos, (x) => h("li", {},
       h("div", { class: "grow" }, h("a", { class: "title", href: `#/hippos/${x.id}` }, x.name),
-        h("div", { class: "meta" }, [x.traits.join(", "), x.fixations.length ? `fixations: ${x.fixations.join(", ")}` : null, x.description].filter(Boolean).join(" · "))),
+        h("div", { class: "meta" }, [x.fixations.length ? `fixations: ${x.fixations.join(", ")}` : null, x.description].filter(Boolean).join(" · "))),
       h("div", { class: "actions" },
         button("Edit", () => editHippo(x, reload), "small"),
         button("Delete", () => removeHippo(x, reload), "small danger"))),
@@ -67,7 +64,7 @@ export async function show({ args, go, reload }) {
       }, "small"),
       button("Edit", () => editHippo(x, reload), "small"),
       button("Delete", () => removeHippo(x, () => go("#/hippos")), "small danger")),
-    h("p", { class: "sub" }, [x.traits.join(", "), `${map.notes} note(s), ${map.links} link(s), ${map.components.length} piece(s)`].filter(Boolean).join(" · ")),
+    h("p", { class: "sub" }, `${map.notes} note(s), ${map.links} link(s), ${map.components.length} piece(s)`),
     x.description ? h("p", {}, x.description) : null,
     h("div", { class: "cols" },
       h("section", {},

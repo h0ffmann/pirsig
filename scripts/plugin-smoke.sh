@@ -16,8 +16,8 @@ export CLAUDE_CONFIG_DIR=$cfg
 claude plugin validate "$root" >/dev/null
 claude plugin validate "$root/plugins/pirsig" >/dev/null
 claude plugin marketplace add "$root" >/dev/null
-claude plugin install pirsig@zettelkasten >/dev/null
-details=$(claude plugin details pirsig@zettelkasten)
+claude plugin install pirsig@pirsig >/dev/null
+details=$(claude plugin details pirsig@pirsig)
 
 got=$(sed -n 's/^ *Skills ([0-9]*) *//p' <<<"$details")
 [ "$got" = "$want" ] || { echo "plugin-smoke: skills are \"$got\", want \"$want\"" >&2; exit 1; }

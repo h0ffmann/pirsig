@@ -77,6 +77,14 @@ GH_TOKEN=$(gh auth token) psg bootstrap gh --dry-run      # what would be indexe
 GH_TOKEN=$(gh auth token) psg bootstrap gh --private minimal --readme
 ```
 
+**Depth control.** Only featured repos get a note and a resource: own repositories pushed
+in the last `--cold-after` months (default 24). Public forks are lines of one index note,
+**GitHub: public forks** (`--forks index`, the default; `notes` gives each its note, `skip`
+leaves them out). Cold own repositories are lines of **GitHub: cold repositories**, and
+private ones that are cold or forks are lines of the `#private` **GitHub: private
+repositories**. The index notes are rewritten whole on every run, a section per category, and
+linked from the root hub. A repo that already has a note keeps it, whatever its tier.
+
 Re-runs add what is new and bring every repo note and resource back to what GitHub says
 now, so a private repo indexed in full by an earlier import is cut down to minimal depth.
 A re-run keeps the note's category (its `repo/<category>` tag, chosen by hand or by an
