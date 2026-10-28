@@ -2,11 +2,11 @@
 
 <table>
 <tr>
-<td align="center"><img alt="The Pirsig logo: a head in one line whose brain is a zettelkasten, by @h0ffmann" src="docs/drawings/pirsig.svg" width="320"/></td>
+<td align="center"><img alt="The Pirsig logo: the kanji 無 (mu, no thing) brushed in its twelve strokes inside an open ensō, by @h0ffmann" src="docs/drawings/pirsig.svg" width="320"/></td>
 <td align="center"><a href="https://www.desmos.com/calculator/4vxpt3qrjp"><img alt="Brain, a Desmos graph" src="https://saved-work.desmos.com/calc_thumbs/production/4vxpt3qrjp.png" width="320"/></a></td>
 </tr>
 <tr>
-<td align="center"><sub><i>The Pirsig logo</i>, Matheus Hoffmann (<a href="https://github.com/h0ffmann">@h0ffmann</a>), 2026</sub></td>
+<td align="center"><sub><i>無</i> (<i>mu</i>), the Pirsig logo, Matheus Hoffmann (<a href="https://github.com/h0ffmann">@h0ffmann</a>), 2026</sub></td>
 <td align="center"><sub><a href="https://www.desmos.com/calculator/4vxpt3qrjp"><i>Brain</i></a>, a Desmos graph; author not shown ⚠</sub></td>
 </tr>
 <tr>
@@ -27,6 +27,12 @@ share one model layer, so the rules are the same wherever you work.
 > [*Zen and the Art of Motorcycle Maintenance*](https://en.wikipedia.org/wiki/Zen_and_the_Art_of_Motorcycle_Maintenance)
 > (1974) and *Lila* (1991). He is my favorite author and a great inspiration to all of my
 > work. On 24 April 2027 it will be ten years without him.
+>
+> The logo is 無, *mu*, "no thing": in chapter 26 of *Zen and the Art of Motorcycle
+> Maintenance*, Pirsig takes it from Zen as the answer that is neither yes nor no, and writes
+> that "science grows by its mu answers more than by its yes or no answer" (p. 413 in the
+> edition [LitCharts](https://www.litcharts.com/lit/zen-and-the-art-of-motorcycle-maintenance/symbols/mu)
+> cites; see [docs/drawings](docs/drawings/README.md)).
 
 ## Pirsig in a minute
 
@@ -286,3 +292,8 @@ the vendored archify, and `just figure-check` says whether a PNG is stale.
   `cargo run -p pirsig-drawings --bin pirsig-art`; see [docs/drawings](docs/drawings/README.md).
 - **Use cases.** [docs/use-cases.md](docs/use-cases.md) builds a brain out of one person's
   GitHub repositories, with a sample slip-box in [`examples/slipbox/`](examples/slipbox/).
+
+## License
+
+Pirsig is licensed under the [Mozilla Public License 2.0](LICENSE) (MPL-2.0): use it, change it and
+ship it, and share your changes to its files under the same license.

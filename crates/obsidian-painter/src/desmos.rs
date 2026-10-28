@@ -422,7 +422,9 @@ mod tests {
         assert!(r.skipped.is_empty(), "{:?}", r.skipped);
         let paths = r.svg.matches("<path").count();
         let dots = r.svg.matches("<circle").count();
-        assert_eq!(paths + dots, 130, "every expression is drawn");
+        let expressions = state.matches("\"latex\"").count();
+        assert!(expressions > 100, "the logo is many expressions");
+        assert_eq!(paths + dots, expressions, "every expression is drawn");
         assert!(
             r.svg.contains(r#"viewBox="0 0 800 600.0""#),
             "the state's viewport (320x240)"
