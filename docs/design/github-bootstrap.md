@@ -62,6 +62,13 @@ the token can see and writes, for each record:
   and the README (once): the note gets `#repo/<category>` and the resource the area the
   category names (`Oceanography`, `Weather`, `Game Theory`, `The Essays`, `ZAMM`, else
   `Software` or `Code` when the brain has one, else `-a AREA_ID`);
+- the repo's **topics**, as a `Topics:` line and a `#topic/<topic>` tag each, and
+  **every language** GitHub counts, the primary one first (a minimal record keeps only
+  the primary one, and no topics);
+- a **`Related:`** line linking the notes of related repos: its family (the repos whose
+  names start with the same repo name followed by `-` or `_`: `marola`, `marola-app`,
+  `marola-ml`), then the repos sharing at least two topics with it, at most 12. A public
+  repo never links to a private one;
 - a line in the category's **hub note** (`Repos: <category>`, own repos then forks), and
   the hub in the root hub **GitHub repositories**.
 
@@ -70,7 +77,10 @@ GH_TOKEN=$(gh auth token) ztk bootstrap gh --dry-run      # what would be indexe
 GH_TOKEN=$(gh auth token) ztk bootstrap gh --private minimal --readme
 ```
 
-Re-runs add only what is new. Notes are tagged `github`, `own` or `fork`, `private` and
+Re-runs add what is new and bring every repo note and resource back to what GitHub says
+now, so a private repo indexed in full by an earlier import is cut down to minimal depth.
+A re-run keeps the note's category (its `repo/<category>` tag, chosen by hand or by an
+earlier rule), its other tags and a README lead it does not read again. Notes are tagged `github`, `own` or `fork`, `private` and
 `repo/<category>` for now; the `gh:owner` and `relation:` labels wait for
 [labels and tags](labels-and-tags.md). Org contributions (the PR search) are not built.
 

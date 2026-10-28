@@ -217,6 +217,7 @@ fn repo(name: &str, description: Option<&str>, upstream: Option<&str>, private: 
         description: description.map(Into::into),
         topics: vec![],
         language: None,
+        languages: vec![],
         stars: 0,
         prs: 0,
         merged_prs: 0,
@@ -316,6 +317,110 @@ async fn github_repos_become_notes_indexed_by_category() {
             .await
             .json();
         assert_eq!(r["area_id"], software);
+    })
+    .await;
+}
+
+#[tokio::test]
+#[serial]
+async fn a_rerun_brings_old_repo_notes_up_to_date() {
+    request::<App, _, _>(|request, ctx| async move {
+        // notes from an earlier import: a private repo described in full, and
+        // a public one without topics; both with a category chosen by hand
+        let old = |name: &str, body: &str, tags: Value| {
+            let request = &request;
+            let (name, body) = (name.to_string(), body.to_string());
+            async move {
+                let r: Value = request
+                    .post("/api/resources")
+                    .json(&json!({ "title": format!("h0ffmann/{name}"), "kind": "repo",
+                        "url": format!("https://github.com/h0ffmann/{name}"), "body": "our secret" }))
+                    .await
+                    .json();
+                let n = request
+                    .post("/api/notes")
+                    .json(&json!({ "title": format!("Repo: {name}"), "kind": "literature",
+                        "resource_id": r["id"], "body": body, "tags": tags }))
+                    .await;
+                assert_eq!(n.status_code(), 201, "{}", n.text());
+                (r["id"].as_i64().unwrap(), n.json::<Value>()["zid"].as_str().unwrap().to_string())
+            }
+        };
+        let (vault, vault_zid) = old(
+            "vault",
+            "**h0ffmann/vault**: our secret\n\nREADME opens with: “the secret plan”\n",
+            json!(["github", "own", "private", "repo/finance", "idea"]),
+        )
+        .await;
+        let (_, notes_zid) = old(
+            "smart-notes",
+            "**h0ffmann/smart-notes**: notes\n\nREADME opens with: “A slip-box in Rust.”\n",
+            json!(["github", "own", "repo/knowledge"]),
+        )
+        .await;
+
+        let mut vault_facts = repo("vault", Some("our secret"), None, true);
+        vault_facts.topics = vec!["secret-topic".into()];
+        let mut smart = repo("smart-notes", Some("notes"), None, false);
+        smart.topics = vec!["zettelkasten".into(), "rust".into(), "notes".into()];
+        smart.language = Some("Rust".into());
+        smart.languages = vec!["Rust".into(), "TypeScript".into()];
+        let mut zk = repo("zettelkasten", Some("a second brain"), None, false);
+        zk.topics = vec!["rust".into(), "zettelkasten".into()];
+        let scope = Scope {
+            own_private: Private::Minimal,
+            ..Scope::for_user("h0ffmann")
+        };
+        let repos: Vec<Repo> = plan(&scope, &[vault_facts, smart, zk])
+            .into_iter()
+            .map(Repo::from)
+            .collect();
+        let done = github::store(&ctx.db, repos.clone(), &github::Filing::default())
+            .await
+            .unwrap();
+        assert_eq!(
+            done.iter().map(|d| (d.repo.as_str(), d.created, d.updated)).collect::<Vec<_>>(),
+            [
+                ("h0ffmann/smart-notes", false, true),
+                ("h0ffmann/vault", false, true),
+                ("h0ffmann/zettelkasten", true, false),
+            ]
+        );
+
+        // the private one, down to minimal depth: no words, no topics
+        let note: Value = request.get(&format!("/api/notes/{vault_zid}")).await.json();
+        let body = note["body"].as_str().unwrap();
+        assert!(!body.contains("secret"), "{body}");
+        assert_eq!(note["tags"], json!(["github", "idea", "own", "private", "repo/finance"]));
+        let r: Value = request.get(&format!("/api/resources/{vault}")).await.json();
+        assert_eq!(r["body"], Value::Null, "the resource keeps no words either");
+
+        // the public one: topics, languages, its README kept, linked to the
+        // repo it shares two topics with, still in the category chosen by hand
+        let zk_zid = done[2].note.as_deref().unwrap();
+        let note: Value = request.get(&format!("/api/notes/{notes_zid}")).await.json();
+        assert_eq!(
+            note["body"],
+            format!(
+                "**h0ffmann/smart-notes**: notes\n\nlanguages Rust, TypeScript; public; own repository; \
+                 last push 2026-03-04.\n\nTopics: zettelkasten, rust, notes.\n\n\
+                 README opens with: “A slip-box in Rust.”\n\n\
+                 Category: notes, writing and knowledge tools.\n\nRelated: [[{zk_zid}]] zettelkasten.\n"
+            )
+        );
+        assert_eq!(
+            note["tags"],
+            json!(["github", "own", "repo/knowledge", "topic/notes", "topic/rust", "topic/zettelkasten"])
+        );
+        assert_eq!(note["links"][0]["zid"], zk_zid);
+        let zk: Value = request.get(&format!("/api/notes/{zk_zid}")).await.json();
+        assert_eq!(zk["links"].as_array().unwrap().len(), 1, "and back");
+
+        // once up to date, a rerun changes nothing
+        let again = github::store(&ctx.db, repos, &github::Filing::default())
+            .await
+            .unwrap();
+        assert!(again.iter().all(|d| !d.created && !d.updated && d.note.is_none()));
     })
     .await;
 }
