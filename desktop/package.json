@@ -9,5 +9,6 @@
   },
   "devDependencies": {
     "@playwright/test": "1.64.1"
-  }
+  },
+  "license": "MPL-2.0"
 }

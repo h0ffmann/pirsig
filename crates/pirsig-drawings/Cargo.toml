@@ -3,6 +3,7 @@ name = "pirsig-drawings"
 description = "Writes the README drawing: a one-line head whose brain is a zettelkasten, as SVG and as a Desmos state"
 version = "0.1.0"
 edition = "2021"
+license = "MPL-2.0"
 publish = false
 
 [[bin]]

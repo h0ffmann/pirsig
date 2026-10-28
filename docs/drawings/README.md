@@ -2,8 +2,8 @@
 
 ## `pirsig.svg`
 
-A head in one line whose brain is a zettelkasten, by Matheus Hoffmann
-([@h0ffmann](https://github.com/h0ffmann)), 2026. The Rust binary `pirsig-art` (crate
+無 (*mu*) inside an open ensō, by Matheus Hoffmann ([@h0ffmann](https://github.com/h0ffmann)),
+2026. The Rust binary `pirsig-art` (crate
 `crates/pirsig-drawings`) writes the drawing in two formats from one geometry:
 
 | File | Command | What it is |
@@ -13,16 +13,27 @@ A head in one line whose brain is a zettelkasten, by Matheus Hoffmann
 
 A test (`cargo test -p pirsig-drawings`) checks that the committed files are the output of the binary.
 
-**What it shows.** The head faces right and is one line, from the nape round the skull and down the
-face to the throat, after Picasso's one-line drawings. The eye is seen from the front in a face seen
-from the side, as in his cubist portraits. Inside the skull, the brain is an outline with folds.
-The dots are notes on the folds, and the dashed lines are links between notes: the zettelkasten.
-The ear is a spiral. The signature `psg` is at the bottom right.
+**What it shows.** The kanji 無, *mu*, "no thing", brushed in its twelve strokes in the standard
+order: the falling stroke ノ, the short top horizontal, the long horizontal, the four verticals
+from left to right, the bottom horizontal, and the four dots of fire (灬), the first falling to
+the left and the other three to the right. Each stroke presses in, carries and lifts as a brush
+does: horizontals and verticals stop firmly (*tome*), the first stroke sweeps out to a point
+(*harai*), and the dots swell as they fall. Around it, an ensō, the Zen circle of one stroke,
+begun pressed and left open as the ink runs dry.
 
-**How it is drawn.** Each line is a list of hand-placed points. A Catmull-Rom spline runs through
+**Why mu.** In *Zen and the Art of Motorcycle Maintenance*, chapter 26, Pirsig takes
+*mu*, "no thing", from Zen as the answer to a question that cannot be answered yes or no:
+"A very strong case can be made for the statement that science grows by its mu answers more
+than by its yes or no answer." ⚠ Page 413 is the page
+[LitCharts](https://www.litcharts.com/lit/zen-and-the-art-of-motorcycle-maintenance/symbols/mu)
+cites for that line; it does not name the edition, so the page could not be checked against a
+copy. Page numbers differ between editions; the chapter does not.
+
+**How it is drawn.** Each stroke is a list of hand-placed points, with a brush width at each. A Catmull-Rom spline runs through
 them, so the line is smooth and passes through every point. Each piece of the spline is a cubic
 Bézier, and each Bézier is one Desmos parametric expression,
-`(a+bt+ct^{2}+dt^{3}, …)` for `0 ≤ t ≤ 1`. The pen is `crates/pirsig-drawings/src/pen.rs`; the
+`(a+bt+ct^{2}+dt^{3}, …)` for `0 ≤ t ≤ 1`. A brush stroke cuts each piece in four, each drawn
+at the width of its middle, so the width changes smoothly along the stroke. The pen is `crates/pirsig-drawings/src/pen.rs`; the
 drawing is `crates/pirsig-drawings/src/pirsig.rs`.
 
 **The default render is the Desmos render**, the same as in
@@ -46,8 +57,12 @@ not depend on Desmos.
 
 ### Credits
 
-- The style follows the one-line drawings of [picasso](https://github.com/h0ffmann/picasso)
-  (`site/static/drawings/`), after Pablo Picasso's one-line drawings.
+- The stroke order and the structure of 無 follow [KanjiVG](https://kanjivg.tagaini.net/)
+  (`kanji/07121.svg`, © Ulrich Apel, CC BY-SA 3.0), used as a reference: the points and widths
+  here are drawn by hand, and no KanjiVG path is copied.
+- The ensō follows the Zen brush circle (*ensō*, 円相).
+- Earlier versions of this logo followed the one-line drawings of
+  [picasso](https://github.com/h0ffmann/picasso), after Pablo Picasso.
 - The SVG-plus-Desmos render and its check come from
   [piabrota/alerts](https://github.com/piabrota/alerts) (`crates/alerts-drawings`).
 - To make another drawing this way, use the `ddraw` skill in `.claude/skills/ddraw/`.
