@@ -49,6 +49,8 @@ serde_yaml = { version = "0.9" }
 # ingest: RSS/Atom feeds and the arXiv API (Atom)
 feed-rs = { version = "2" }
 reqwest = { version = "0.12", default-features = false, features = ["rustls-tls"] }
+# ztk bootstrap gh: what to index from GitHub, and how little of a private repo
+ztk-github = { path = "crates/ztk-github" }
 
 [[bin]]
 name = "zettelkasten-cli"

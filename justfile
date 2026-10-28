@@ -60,6 +60,10 @@ dev:
 ready:
     {{ztk}} ready
 
+# Seed the brain from your GitHub repos: just bootstrap --private minimal --readme
+bootstrap *args:
+    GH_TOKEN=$(gh auth token) {{ztk}} bootstrap gh {{args}}
+
 # A quick Plasticity session: five exercises
 plast:
     {{ztk}} plast go

@@ -11,8 +11,9 @@ stays out. Code that implements a note links back to it.
 | [`ztk bootstrap gh`: your GitHub FOSS work](github-bootstrap.md) | inbound | Sign in with the ztk GitHub App and index your repos, public forks and org contributions (private ones metadata-only) as the brain's first layer. |
 | [Labels and tags](labels-and-tags.md) | model | Labels are values (`#running`), tags are key/value pairs (`status=active`); how each maps to Obsidian, the CLI and the API. |
 
-Built: `ztk.pkm.obsidian` (vault out and in), `ztk.web.rss` (feeds in, the slipbox out)
-and `ztk.sci.arxiv` (papers in). [methodology.md](../methodology.md) says what each one
+Built: `ztk.pkm.obsidian` (vault out and in), `ztk.web.rss` (feeds in, the slipbox out),
+`ztk.sci.arxiv` (papers in) and `ztk bootstrap gh` (repos in, with a token; the GitHub
+App sign-in is not built yet). [methodology.md](../methodology.md) says what each one
 guarantees and how `ztk ready` checks it.
 
 **Inbound** channels bring things into the brain (git, web clipper, Obsidian import).

@@ -216,6 +216,7 @@ run only by hand (Actions → plugin), because they cost API credits. The layout
 | Obsidian vault out and in | `ztk obsidian export ./vault [--archived]`, `ztk obsidian import ./vault [--dry-run]` | |
 | RSS/Atom feeds in, as resources | `ztk rss add URL -a AREA`, `ztk rss pull`, `ztk rss` | `/api/feeds`, `POST /api/feeds/{id}/pull` |
 | The slipbox out, as RSS | `ztk rss out -o feed.xml` | `GET /api/slipbox/feed.xml` |
+| GitHub repos in: a note each, indexed by category | `ztk bootstrap gh [--private minimal] [--readme] [--dry-run]` | |
 | arXiv papers in: cited, filed, deduplicated | `ztk arxiv add ID... [--note]`, `ztk arxiv search QUERY` | `POST /api/ingest/arxiv`, `GET /api/ingest/arxiv/search` |
 | Methodology readiness | `ztk ready` | `GET /api/readiness` |
 

@@ -28,6 +28,7 @@ set up yet). Rules the database can hold are *enforced*: breaking one is an erro
 | **RSS out** | ready | permanent notes by default; fleeting notes (the inbox) never go out | whether anything is publishable | `tests/requests/ingest.rs` |
 | **Hippo rhizome** | ready | traits are `adhd`, `autistic`, `neurotic` or `obsessive`; each note is woven in on save (two links, each with a reason); no `--after`; a deleted note's neighbours are relinked | rhizomes in pieces, fixations with no notes | `tests/requests/hippos.rs` |
 | **Plasticity** | ready | the plasts are ztk's six; levels run 1 to 5; seeds below 2^53; every attempt is recorded | whether any plast was practised this week | `tests/requests/plasticity.rs`, `src/plasticity/` |
+| **GitHub in** (`ztk bootstrap gh`) | ready | one resource per repo, keyed `gh:owner/name` (a hand-made one with the same URL is claimed); private repos skipped, or minimal (no description, topics or README) with `--private minimal`; one literature note per repo, linked from its category hub; text from GitHub never links or tags | through PARA and the Zettelkasten: unfiled repo resources, dangling links | `tests/requests/ingest.rs`, `src/ingest/github.rs`, `crates/ztk-github` |
 | **arXiv in** (`ztk.sci.arxiv`) | ready | any id shape; one resource per paper (a new version updates it); unique BibTeX citekeys; filed into the one area its categories point to, else reported | papers not filed, papers with no literature note | `tests/requests/ingest.rs`, `src/ingest/arxiv.rs` |
 
 Not covered yet: Obsidian's key/value properties as ztk *tags* (see
@@ -96,6 +97,10 @@ ztk rss add https://export.arxiv.org/rss/physics.ao-ph -a 3
 ztk rss pull                                   # all feeds; daily from cron
 # RSS out: your permanent notes as a feed
 ztk rss out -o feed.xml                        # or GET /api/slipbox/feed.xml
+
+# GitHub: every repo a resource and a note, indexed by category
+GH_TOKEN=$(gh auth token) ztk bootstrap gh --dry-run
+GH_TOKEN=$(gh auth token) ztk bootstrap gh --private minimal --readme -a 6
 
 # arXiv: papers in, cited and filed
 ztk arxiv search 'ti:"rogue waves" AND cat:physics.ao-ph' -n 5

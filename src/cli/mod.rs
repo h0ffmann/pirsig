@@ -21,6 +21,7 @@ use crate::{app::App, dtos::common::Patch};
 
 pub mod area;
 pub mod arxiv;
+pub mod bootstrap;
 pub mod figure;
 pub mod hippo;
 pub mod link;
@@ -75,6 +76,8 @@ pub enum Command {
     Rss(rss::Args),
     /// arXiv papers in as resources, with citekeys and filing (ztk.sci.arxiv).
     Arxiv(arxiv::Args),
+    /// Seed the brain from GitHub: a resource and a note per repo, indexed by category.
+    Bootstrap(bootstrap::Args),
     /// Methodology readiness: PARA, Zettelkasten, Obsidian, RSS and arXiv checks.
     Ready(ready::Args),
     /// Hippo identities: a rhizome of notes for ADHD, autistic, neurotic and obsessive minds.
@@ -105,6 +108,7 @@ pub async fn run(cli: Cli) -> Result<()> {
         Command::Obsidian(args) => obsidian::run(&ctx, &out, args).await,
         Command::Rss(args) => rss::run(&ctx, &out, args).await,
         Command::Arxiv(args) => arxiv::run(&ctx, &out, args).await,
+        Command::Bootstrap(args) => bootstrap::run(&ctx, &out, args).await,
         Command::Ready(args) => ready::run(&ctx, &out, args).await,
         Command::Hippo(args) => hippo::run(&ctx, &out, args).await,
         Command::Plast(args) => plast::run(&ctx, &out, args).await,

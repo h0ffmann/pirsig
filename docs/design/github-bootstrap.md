@@ -46,6 +46,34 @@ github:
 Each record becomes a ztk **resource** keyed `gh:owner/name` (re-runs update in place),
 labelled `gh`, `gh:owner`, `relation:owner|fork|contributor` and the repo's topics.
 
+### What is built: one note per repo, indexed by category
+
+`ztk bootstrap gh` (`src/ingest/github.rs`, `src/cli/bootstrap.rs`) runs `plan` on what
+the token can see and writes, for each record:
+
+- a `repo` **resource** keyed by the record's `gh:owner/name`. A resource added by hand
+  with the same URL is claimed, not duplicated, and a re-run files one left unfiled;
+- one short **literature note**, `Repo: <name>`, citing the resource. It holds only the
+  record's fields: description, language, public or private, `fork-of`, last push,
+  stars. `--readme` adds the README's first paragraph, read only when
+  `may_read_contents()` allows, so never for a minimal record. Text from GitHub is quoted
+  in code spans where it would otherwise link (`[[x]]`) or tag (`#x`) the note;
+- a **category**, from the words in the name, description, topics and upstream (twice)
+  and the README (once): the note gets `#repo/<category>` and the resource the area the
+  category names (`Oceanography`, `Weather`, `Game Theory`, `The Essays`, `ZAMM`, else
+  `Software` or `Code` when the brain has one, else `-a AREA_ID`);
+- a line in the category's **hub note** (`Repos: <category>`, own repos then forks), and
+  the hub in the root hub **GitHub repositories**.
+
+```sh
+GH_TOKEN=$(gh auth token) ztk bootstrap gh --dry-run      # what would be indexed
+GH_TOKEN=$(gh auth token) ztk bootstrap gh --private minimal --readme
+```
+
+Re-runs add only what is new. Notes are tagged `github`, `own` or `fork`, `private` and
+`repo/<category>` for now; the `gh:owner` and `relation:` labels wait for
+[labels and tags](labels-and-tags.md). Org contributions (the PR search) are not built.
+
 ## Credentials: a GitHub App with the device flow
 
 Why an App and not a personal access token or an OAuth App:
@@ -103,7 +131,9 @@ Done once by the maintainer with GitHub's manifest flow; steps in
 1. ✓ `crates/ztk-github`: manifest (source of `github-app/manifest.json`), `Scope`,
    `plan` and minimisation, with tests.
 2. Register the app (maintainer, manual) and compile its client id in.
-3. Device flow + token storage (`keyring`), HTTP client with ETag cache.
-4. `ztk bootstrap gh [--sync] [--dry-run]`: list, plan, upsert resources; `--dry-run`
-   prints the plan as a table, publish-style.
+3. Device flow + token storage (`keyring`), HTTP client with ETag cache. Until then
+   `GH_TOKEN` or `GITHUB_TOKEN` is the only credential.
+4. ✓ `ztk bootstrap gh [--private minimal] [--readme] [--dry-run]`: list, plan, upsert
+   resources, one note per repo, hub notes per category (see above). Still to do: org
+   contributions, `--sync` with ETags.
 5. `publishable` enforced in `ztk publish`.
