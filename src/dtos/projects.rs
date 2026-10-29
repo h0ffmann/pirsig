@@ -82,6 +82,10 @@ pub struct ProjectNoteDto {
 
 impl ProjectNoteDto {
     /// The project's notes with their tags, in one query for the tags.
+    ///
+    /// # Errors
+    ///
+    /// When the tags can't be read.
     pub async fn many<C: ConnectionTrait>(
         db: &C,
         notes: Vec<(notes::Model, Option<String>)>,
