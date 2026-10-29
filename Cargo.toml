@@ -50,6 +50,10 @@ serde_yaml = { version = "0.9" }
 # ingest: RSS/Atom feeds and the arXiv API (Atom)
 feed-rs = { version = "2" }
 reqwest = { version = "0.12", default-features = false, features = ["rustls-tls"] }
+# pirsig.toml, and `psg bootstrap repo`: a fork state out of a GitHub tarball
+toml = { version = "0.8" }
+flate2 = { version = "1" }
+tar = { version = "0.4" }
 # psg bootstrap gh: what to index from GitHub, and how little of a private repo
 pirsig-github = { path = "crates/pirsig-github" }
 
