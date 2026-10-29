@@ -38,14 +38,12 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 24.22.1
-      # the runner ships the Android SDK and NDK
+      # the runner ships the Android SDK and NDK (ANDROID_NDK_LATEST_HOME, a shell variable)
       - run: rustup target add aarch64-linux-android
       - working-directory: desktop
         run: |
           npm ci
-          npx tauri android build --ci --debug --apk --target aarch64
-        env:
-          NDK_HOME: ${{ env.ANDROID_NDK_LATEST_HOME }}
+          NDK_HOME="$ANDROID_NDK_LATEST_HOME" npx tauri android build --ci --debug --apk --target aarch64
 
   e2e:
     runs-on: ubuntu-latest
