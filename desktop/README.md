@@ -1,7 +1,8 @@
-# Pirsig desktop (Tauri)
+# Pirsig app (Tauri): macOS and Android
 
-`just desktop` opens Pirsig as a desktop app built with [Tauri 2](https://v2.tauri.app). The
-whole brain is managed from it:
+`just desktop` opens Pirsig as a desktop app built with [Tauri 2](https://v2.tauri.app); the
+same app runs on Android. Those are its two targets for now. The whole brain is managed from
+it:
 
 | Section | What you can do |
 |---|---|
@@ -32,14 +33,35 @@ commands, and the same UI in a browser while `just dev` runs. The page is plain 
 and ES modules (`dist/`), with no build step and no dependencies; it builds the DOM from text,
 so nothing a note holds is ever parsed as HTML.
 
-The brain is the one in `config/development.yaml`: the app runs in `PIRSIG_HOME` when set, else
-in the current folder when it holds Pirsig's `config/`, else in the checkout it was built from.
-Any process on this machine can reach the API's port while the app runs, as with `just dev`.
+## Where the brain lives
+
+| Run as | Folder the app runs in | Brain on first launch |
+|---|---|---|
+| `just desktop` (a checkout) | `PIRSIG_HOME` when set, else the current folder when it holds Pirsig's `config/`, else (debug builds) the checkout it was built from | the checkout's, untouched |
+| `Pirsig.app` (`just desktop-build`) | its data folder, `~/Library/Application Support/io.github.h0ffmann.pirsig` | `[apps.macos] seed`, default `"template"`: the fork state of `[template] repo` |
+| Android (`just android`) | its data folder on the phone | `[apps.android] seed`, default `"empty"` |
+
+An app with no checkout unpacks what it was built with into its data folder on every launch,
+the config (`config/development.yaml`) and the page (`desktop/dist`), and writes
+`pirsig.toml` there once; that copy is yours to edit (another `[template] repo`, `seed =
+"empty"`, the window size). Seeding happens only when the brain is empty, needs one HTTPS
+request (no `git`), and if it fails the app opens on an empty brain; `psg bootstrap repo` does
+the same by hand. Any process on the machine can reach the API's port while the app runs, as
+with `just dev`.
+
+## Build
+
+| | |
+|---|---|
+| macOS | `just desktop-build`: `Pirsig.app` and a `.dmg` in `src-tauri/target/release/bundle/`, unsigned (right-click → Open the first time). |
+| Android | The [Android prerequisites](https://v2.tauri.app/start/prerequisites/#android): Android Studio's SDK and NDK, `JAVA_HOME` on JDK 17, `ANDROID_HOME` and `NDK_HOME`, and `rustup target add aarch64-linux-android`. Then `just android-dev` (a device or emulator) or `just android` (an APK, unsigned for release). The project Android Studio opens is `src-tauri/gen/android`. |
 
 | Path | What |
 |---|---|
-| `src-tauri/src/main.rs` | starts the API, then the window |
-| `src-tauri/tauri.conf.json` | app id, CSP, `bundle.active: false` (no installers yet) |
+| `src-tauri/src/lib.rs` | finds or unpacks the app's folder, seeds an empty brain, starts the API, then the window; Android's entry point |
+| `src-tauri/src/main.rs` | the macOS entry point: calls `lib.rs` |
+| `src-tauri/tauri.conf.json` | app id, CSP, bundles (`app`, `dmg`), Android's minimum SDK |
+| `src-tauri/gen/android` | the Android project (Gradle), from `tauri android init` |
 | `dist/index.html`, `dist/app.css` | the page and its styles (light and dark) |
 | `dist/js/api.js`, `ui.js`, `md.js` | the API client, a small DOM and dialog toolkit, the Markdown renderer |
 | `dist/js/views/*.js` | one module per section |
@@ -56,6 +78,6 @@ install `libwebkit2gtk-4.1-dev` and its friends first
 
 ## Next
 
-1. Installers: `bundle.active: true`, icons for every platform, signing, a release workflow,
-   and the brain in the platform's app-data folder for an installed app.
+1. Signing and a release workflow: a notarised `.dmg`, and a signed APK or AAB for the Play
+   Store.
 2. The Figma designs, through the Figma MCP server this repository configures.
