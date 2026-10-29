@@ -22,8 +22,8 @@ it:
 ```
 pirsig-desktop (Tauri)                        the same in a browser
   ├─ Pirsig's REST API (Loco), 127.0.0.1:<free port>     `just dev` → localhost:5150
-  │    └─ serves desktop/dist (the UI) at /
-  └─ a window on http://127.0.0.1:<port>/
+  │    └─ serves desktop/dist (the UI) at /, and the phone UI at /mobile/
+  └─ a window on http://127.0.0.1:<port>/ (macOS) or …/mobile/ (Android)
 ```
 
 The app starts the Loco app from the `zettelkasten` crate in-process, on a free port of
@@ -32,6 +32,30 @@ The app starts the Loco app from the `zettelkasten` crate in-process, on a free 
 commands, and the same UI in a browser while `just dev` runs. The page is plain HTML, CSS
 and ES modules (`dist/`), with no build step and no dependencies; it builds the DOM from text,
 so nothing a note holds is ever parsed as HTML.
+
+## The phone UI
+
+On Android the window opens `/mobile/`: a UI made for one hand, written in Rust with
+[Leptos](https://leptos.dev) and compiled to WebAssembly (`crates/pirsig-mobile`). It talks to
+the same API, so a phone and a laptop see the same brain. It follows the mobile design drawn in
+[OpenPencil](https://github.com/open-pencil/open-pencil) (`docs/design/pirsig-mobile.fig`) screen for screen: Today, Notes, a
+note, the slip-box, PARA, a project, More, and the capture sheet. The sections it does not have
+yet (Hippos, feeds, Plasticity, Readiness, editing a note) open the full page, which works at
+phone width too.
+
+| From the design | In the crate |
+|---|---|
+| the `Pirsig` variables, light and dark (`design_to_tokens`) | `style/tokens.css`, generated; the app sets `data-pirsig="dark"` from the system theme |
+| the frames' auto-layout: padding, gaps, sizes, radii | `style/app.css`, each rule named after its frame |
+| the Lucide icons (`export_svg` at 24px) | `src/icons.rs`, generated |
+| the frames (01 Today … 08 More) | `src/screens/`, one module per screen; `src/ui.rs` the shared pieces |
+
+Fonts are Inter and JetBrains Mono, bundled (`fonts/`, SIL OFL), since the page loads nothing
+from elsewhere. `scripts/build-mobile-ui.sh` (`just mobile-ui`) builds the crate into
+`dist/mobile/`, which is not committed; Tauri runs it before every build, so the app embeds it.
+`src-tauri/gen/android`'s `MainActivity.kt` keeps the page between the system bars, with the
+design's colours behind them. To see the phone UI in a browser: `just mobile-ui`, `just dev`,
+then open <http://localhost:5150/mobile/> at phone width.
 
 ## Where the brain lives
 
@@ -53,18 +77,21 @@ with `just dev`.
 
 | | |
 |---|---|
+| Both | The [wasm-bindgen CLI](https://github.com/wasm-bindgen/wasm-bindgen) of the version `crates/pirsig-mobile` pins, for the phone UI: `cargo install wasm-bindgen-cli --version 0.2.129 --locked`. |
 | macOS | `just desktop-build`: `Pirsig.app` and a `.dmg` in `src-tauri/target/release/bundle/`, unsigned (right-click → Open the first time). |
 | Android | The [Android prerequisites](https://v2.tauri.app/start/prerequisites/#android): Android Studio's SDK and NDK, `JAVA_HOME` on JDK 17, `ANDROID_HOME` and `NDK_HOME`, and `rustup target add aarch64-linux-android`. Then `just android-dev` (a device or emulator) or `just android` (an APK, unsigned for release). The project Android Studio opens is `src-tauri/gen/android`. |
 
 | Path | What |
 |---|---|
-| `src-tauri/src/lib.rs` | finds or unpacks the app's folder, seeds an empty brain, starts the API, then the window; Android's entry point |
+| `src-tauri/src/lib.rs` | finds or unpacks the app's folder, seeds an empty brain, starts the API, then the window (`/mobile/` on Android); Android's entry point |
+| `src-tauri/gen/android/…/MainActivity.kt` | edge to edge, with the page padded clear of the system bars and the keyboard |
 | `src-tauri/src/main.rs` | the macOS entry point: calls `lib.rs` |
 | `src-tauri/tauri.conf.json` | app id, CSP, bundles (`app`, `dmg`), Android's minimum SDK |
 | `src-tauri/gen/android` | the Android project (Gradle), from `tauri android init` |
 | `dist/index.html`, `dist/app.css` | the page and its styles (light and dark) |
 | `dist/js/api.js`, `ui.js`, `md.js` | the API client, a small DOM and dialog toolkit, the Markdown renderer |
 | `dist/js/views/*.js` | one module per section |
+| `../crates/pirsig-mobile` | the phone UI (Leptos, WebAssembly), built into `dist/mobile/` |
 | `e2e/brain.spec.mjs` | the end-to-end story, every section, on a fresh brain |
 
 ## Tests
@@ -80,4 +107,5 @@ install `libwebkit2gtk-4.1-dev` and its friends first
 
 1. Signing and a release workflow: a notarised `.dmg`, and a signed APK or AAB for the Play
    Store.
-2. The Figma designs, through the Figma MCP server this repository configures.
+2. The rest of the phone UI in Rust: Hippos, feeds, Plasticity, Readiness and the note
+   editor, each drawn in OpenPencil first.

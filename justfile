@@ -115,6 +115,11 @@ android-dev:
 android:
     cd desktop && npm ci && npx tauri android build --apk --target aarch64
 
+# Build the phone UI (crates/pirsig-mobile, Leptos to WebAssembly) into desktop/dist/mobile;
+# then `just dev` serves it at http://localhost:5150/mobile/
+mobile-ui *args:
+    scripts/build-mobile-ui.sh {{args}}
+
 # The UI end to end in WebKit, on a fresh throwaway brain (Playwright)
 desktop-e2e:
     cd desktop && npm ci && npx playwright install webkit && npx playwright test
