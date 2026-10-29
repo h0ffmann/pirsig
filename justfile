@@ -3,6 +3,9 @@
 
 set dotenv-load := true
 
+# rustup's cargo first, so rust-toolchain.toml wins over a Homebrew or distro cargo
+export PATH := env("CARGO_HOME", home_directory() / ".cargo") / "bin:" + env("PATH")
+
 psg := "cargo run -q --bin psg --"
 
 default:
