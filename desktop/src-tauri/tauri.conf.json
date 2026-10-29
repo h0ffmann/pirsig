@@ -4,7 +4,9 @@
   "version": "0.1.0",
   "identifier": "io.github.h0ffmann.pirsig",
   "build": {
-    "frontendDist": "../dist"
+    "frontendDist": "../dist",
+    "beforeDevCommand": "bash ../scripts/build-mobile-ui.sh",
+    "beforeBuildCommand": "bash ../scripts/build-mobile-ui.sh"
   },
   "app": {
     "withGlobalTauri": false,

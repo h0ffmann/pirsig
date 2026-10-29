@@ -1,7 +1,8 @@
 //! Pirsig as an app, on macOS and Android. The app runs Pirsig's own REST API
 //! (the Loco app, on a free port of 127.0.0.1) and opens a window on it; the
 //! API also serves the page (`desktop/dist`), so the window and the API share
-//! an origin. See `desktop/README.md`.
+//! an origin. On Android the window opens `/mobile/`, the phone UI built from
+//! `crates/pirsig-mobile`. See `desktop/README.md`.
 
 use std::{
     error::Error,
@@ -154,7 +155,9 @@ pub fn run() {
                 app_handle.exit(0);
             });
             app.manage(runtime);
-            let url = format!("http://127.0.0.1:{port}/").parse()?;
+            // a phone gets its own page (crates/pirsig-mobile, built into dist/mobile)
+            let page = if cfg!(mobile) { "mobile/" } else { "" };
+            let url = format!("http://127.0.0.1:{port}/{page}").parse()?;
             let window = WebviewWindowBuilder::new(app, "main", WebviewUrl::External(url));
             #[cfg(desktop)]
             let window = window

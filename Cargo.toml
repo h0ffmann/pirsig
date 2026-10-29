@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/obsidian-painter", "crates/pirsig-drawings", "crates/pirsig-github"]
+members = ["crates/obsidian-painter", "crates/pirsig-drawings", "crates/pirsig-github", "crates/pirsig-mobile"]
 # the Tauri shell builds on its own (it needs a webview); see desktop/README.md
 exclude = ["desktop/src-tauri"]
 
@@ -74,4 +74,7 @@ insta = { version = "1.34", features = ["redactions", "yaml", "filters"] }
 
 # the Obsidian plugin ships this crate as WebAssembly: small beats fast
 [profile.release.package.obsidian-painter]
+opt-level = "s"
+
+[profile.release.package.pirsig-mobile]
 opt-level = "s"

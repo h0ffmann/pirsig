@@ -7,4 +7,7 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <!-- the mobile design's tokens (crates/pirsig-mobile/style/tokens.css), light -->
+    <color name="pirsig_bg">#FFF7F6F3</color>
+    <color name="pirsig_panel">#FFFFFFFF</color>
 </resources>
