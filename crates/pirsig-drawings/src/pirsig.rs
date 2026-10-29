@@ -1,182 +1,156 @@
-//! The Pirsig drawing: a head in one line, after Picasso's one-line drawings, whose brain is a
-//! zettelkasten: one folded line of thought, notes (dots) on it, and links between them.
+//! The Pirsig logo: 無 (*mu*, "no thing") brushed in its twelve strokes, in the standard order.
+//! Pirsig answers yes-or-no questions with *mu* in *Zen and the Art of
+//! Motorcycle Maintenance* (chapter 26).
+//!
+//! Each stroke is a brush line through hand-placed points with a width at each point, so it
+//! presses in, carries, and lifts the way a brush does: horizontals and verticals stop firmly
+//! (*tome*), the first stroke sweeps out to a point (*harai*), and the fire dots (灬) swell as
+//! they fall. The stroke order follows KanjiVG; the points are drawn here.
 
-use std::f64::consts::PI;
+use crate::pen::{brush, Drawing, Mark, P};
 
-use crate::pen::{dot, link, stroke, Drawing, Mark, P};
+/// A stroke in a 0–100 box: (x, y, brush width at that point).
+type Stroke = &'static [(f64, f64, f64)];
 
-/// The head, facing right, from the nape round the skull and down the face to the throat.
-const HEAD: &[P] = &[
-    (96.0, 236.0),
-    (100.0, 206.0),
-    (96.0, 184.0),
-    (80.0, 160.0),
-    (70.0, 126.0),
-    (72.0, 88.0),
-    (92.0, 50.0),
-    (128.0, 24.0),
-    (172.0, 16.0),
-    (214.0, 28.0),
-    (240.0, 56.0),
-    (250.0, 86.0),
-    (251.0, 104.0),
-    (248.0, 112.0),
-    (260.0, 132.0),
-    (268.0, 146.0),
-    (254.0, 150.0),
-    (256.0, 160.0),
-    (251.0, 166.0),
-    (256.0, 174.0),
-    (249.0, 184.0),
-    (252.0, 198.0),
-    (236.0, 210.0),
-    (212.0, 212.0),
-    (204.0, 236.0),
+/// The twelve strokes of 無, in writing order.
+const MU: [Stroke; 12] = [
+    // 1 ㇒ the falling stroke at the top left: pressed in, swept out to a point
+    &[
+        (41.0, 12.0, 7.0),
+        (39.5, 17.0, 7.0),
+        (34.0, 24.5, 5.2),
+        (26.5, 31.5, 3.0),
+        (19.5, 36.0, 1.0),
+    ],
+    // 2 ㇐ the short top horizontal, rising a little, stopped at the end
+    &[
+        (36.5, 27.0, 6.0),
+        (40.0, 25.6, 4.8),
+        (56.0, 23.6, 3.0),
+        (71.0, 21.8, 3.2),
+        (77.5, 21.4, 5.4),
+        (79.0, 22.8, 6.0),
+    ],
+    // 3 ㇐ the long horizontal that the verticals hang from
+    &[
+        (11.5, 51.0, 7.0),
+        (16.0, 49.8, 5.4),
+        (40.0, 48.2, 3.4),
+        (70.0, 46.4, 3.3),
+        (92.0, 45.4, 5.4),
+        (96.5, 46.8, 7.0),
+    ],
+    // 4–7 ㇑ the four verticals, left to right, through the long horizontal
+    &[
+        (31.5, 37.5, 7.0),
+        (32.6, 41.0, 5.8),
+        (33.6, 54.0, 5.0),
+        (34.4, 66.0, 6.0),
+    ],
+    &[
+        (46.2, 33.0, 7.0),
+        (47.3, 37.0, 5.8),
+        (47.6, 52.0, 5.0),
+        (47.9, 65.5, 6.0),
+    ],
+    &[
+        (62.0, 31.5, 7.0),
+        (62.7, 35.5, 5.8),
+        (62.4, 50.0, 5.0),
+        (61.8, 64.8, 6.0),
+    ],
+    &[
+        (77.8, 32.0, 7.0),
+        (78.4, 36.5, 5.8),
+        (77.0, 50.0, 5.0),
+        (75.2, 64.0, 5.6),
+    ],
+    // 8 ㇐ the bottom horizontal, closing the frame
+    &[
+        (18.0, 69.0, 7.0),
+        (22.5, 68.2, 5.4),
+        (50.0, 66.4, 3.4),
+        (80.0, 65.0, 3.3),
+        (89.0, 65.0, 5.4),
+        (91.5, 66.4, 7.0),
+    ],
+    // 9–12 ㇔ fire 灬: the first dot falls to the left, the other three to the right
+    &[
+        (24.5, 81.5, 3.0),
+        (23.0, 86.5, 5.4),
+        (20.0, 92.0, 6.2),
+        (16.0, 96.5, 2.8),
+    ],
+    &[
+        (38.5, 79.5, 2.4),
+        (41.8, 83.2, 5.0),
+        (44.6, 88.8, 7.0),
+        (45.6, 93.0, 6.0),
+    ],
+    &[
+        (57.8, 78.5, 2.4),
+        (61.6, 82.4, 5.0),
+        (65.0, 88.4, 7.0),
+        (66.2, 92.2, 6.0),
+    ],
+    &[
+        (80.5, 78.6, 2.4),
+        (84.8, 82.8, 5.0),
+        (88.8, 89.4, 7.4),
+        (90.6, 93.8, 6.4),
+    ],
 ];
 
-/// The brain's outline: a closed line around an ellipse, swelling into lobes.
-fn brain_outline() -> Vec<P> {
-    let (cx, cy, rx, ry) = (156.0, 80.0, 58.0, 42.0);
-    (0..28)
-        .map(|i| {
-            let a = 2.0 * PI * f64::from(i) / 28.0;
-            let r = 0.04f64.mul_add(
-                (13.0 * a).sin(),
-                0.07f64.mul_add(7.0f64.mul_add(a, 0.4).sin(), 1.0),
-            );
-            ((r * rx).mul_add(a.cos(), cx), (r * ry).mul_add(a.sin(), cy))
-        })
-        .collect()
+/// The canvas, square, with the kanji in its middle.
+const SIDE: f64 = 240.0;
+/// The kanji's box on the canvas: centre and scale of the 0–100 box.
+const CENTRE: P = (SIDE / 2.0, SIDE / 2.0);
+const SCALE: f64 = 2.2;
+/// How heavy the brush is: the widths of [`MU`] times this.
+const BRUSH: f64 = 2.2;
+
+fn place((x, y): P) -> P {
+    (
+        (x - 55.0).mul_add(SCALE, CENTRE.0),
+        (y - 55.0).mul_add(SCALE, CENTRE.1),
+    )
 }
-
-/// The folds (gyri and sulci), each one line, drawn by hand.
-const FOLDS: &[&[P]] = &[
-    &[
-        (171.0, 39.9),
-        (164.4, 55.2),
-        (172.8, 68.5),
-        (162.5, 83.8),
-        (169.1, 97.2),
-    ],
-    &[
-        (113.0, 104.8),
-        (135.4, 96.2),
-        (157.9, 101.0),
-        (178.5, 92.4),
-        (195.3, 98.1),
-    ],
-    &[
-        (195.3, 47.5),
-        (187.8, 60.9),
-        (200.0, 70.5),
-        (194.4, 83.8),
-        (204.6, 89.5),
-    ],
-    &[
-        (139.2, 41.8),
-        (145.7, 56.1),
-        (133.5, 64.7),
-        (143.8, 78.1),
-        (129.8, 85.7),
-    ],
-    &[(105.5, 64.7), (118.6, 72.4), (110.2, 85.7)],
-    &[(133.5, 113.4), (150.4, 109.6), (161.6, 116.3)],
-    &[(178.5, 74.3), (186.9, 81.9), (179.4, 87.6)],
-    &[(118.6, 49.5), (122.3, 59.0)],
-];
-
-/// A cubist eye: seen from the front, set in a face seen from the side.
-const EYE: &[P] = &[
-    (220.0, 110.0),
-    (231.0, 104.0),
-    (243.0, 110.0),
-    (231.0, 116.0),
-    (220.0, 110.0),
-];
-
-/// The ear, a spiral.
-fn ear() -> Vec<P> {
-    let c = (134.0, 146.0);
-    (0..=18)
-        .map(|i| {
-            let t = f64::from(i) / 18.0;
-            let a = 2.2f64.mul_add(PI * t, 0.6 * PI);
-            let r = 14.0f64.mul_add(1.0 - t, 2.0);
-            (
-                r.mul_add(a.cos(), c.0) - 2.0,
-                (r * 1.25).mul_add(a.sin(), c.1),
-            )
-        })
-        .collect()
-}
-
-/// The signature, `psg`, written small at the bottom right.
-const Z: &[P] = &[
-    (262.0, 214.0),
-    (274.0, 213.0),
-    (262.0, 226.0),
-    (276.0, 225.0),
-];
-const T: &[P] = &[
-    (282.0, 207.0),
-    (281.0, 220.0),
-    (285.0, 226.0),
-    (290.0, 222.0),
-];
-const T_BAR: &[P] = &[(277.0, 213.0), (288.0, 212.0)];
-const K: &[P] = &[(295.0, 204.0), (294.0, 226.0)];
-const K_ARM: &[P] = &[(305.0, 212.0), (296.0, 218.0), (306.0, 226.0)];
 
 #[must_use]
 pub fn drawing() -> Drawing {
-    // Notes sit on the folds; links jump between folds, as links between notes do.
-    let notes: Vec<P> = [
-        (0, 2),
-        (1, 2),
-        (2, 2),
-        (3, 2),
-        (4, 1),
-        (5, 1),
-        (6, 1),
-        (1, 3),
-    ]
-    .iter()
-    .map(|&(f, i)| FOLDS[f][i])
-    .collect();
-    let links = [
-        (3, 0, -0.15),
-        (0, 2, 0.15),
-        (4, 3, 0.12),
-        (1, 5, -0.2),
-        (6, 7, 0.2),
-        (0, 6, -0.15),
-        (3, 1, 0.12),
-    ];
-
-    let mut marks: Vec<Mark> = vec![
-        stroke(HEAD, false, 3.2),
-        stroke(&brain_outline(), true, 2.2),
-        stroke(EYE, false, 2.0),
-        dot((232.0, 110.0), 7.0),
-        stroke(&ear(), false, 2.0),
-    ];
-    for fold in FOLDS {
-        marks.push(stroke(fold, false, 1.8));
-    }
-    for (a, b, bend) in links {
-        marks.push(link(notes[a], notes[b], bend, 1.0));
-    }
-    for n in notes {
-        marks.push(dot(n, 9.0));
-    }
-    for s in [Z, T, T_BAR, K, K_ARM] {
-        marks.push(stroke(s, false, 1.6));
+    let mut marks: Vec<Mark> = vec![];
+    for s in MU {
+        let pts: Vec<P> = s.iter().map(|&(x, y, _)| place((x, y))).collect();
+        let widths: Vec<f64> = s.iter().map(|&(_, _, w)| w * BRUSH).collect();
+        marks.extend(brush(&pts, &widths));
     }
     Drawing {
-        w: 320.0,
-        h: 240.0,
-        label: "The Pirsig logo: a head in one line whose brain is a zettelkasten, by @h0ffmann, rendered from its Desmos expressions",
-        desc: "Blue: the geometry, cubic Béziers through hand-placed points. Orange: each expression of pirsig.desmos.json, sampled.",
+        w: SIDE,
+        h: SIDE,
+        label: "The Pirsig logo: the kanji 無 (mu, no thing) brushed in its twelve strokes, by @h0ffmann",
+        desc: "Drawn from the Desmos expressions of pirsig.desmos.json: cubic Béziers through hand-placed points, each piece at its brush width.",
         marks,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::MU;
+
+    #[test]
+    fn mu_has_its_twelve_strokes_in_order() {
+        assert_eq!(MU.len(), 12);
+        // the four verticals go left to right, and hang across the long horizontal
+        let long_y = MU[2][2].1;
+        for pair in MU[3..7].windows(2) {
+            assert!(pair[0][0].0 < pair[1][0].0);
+        }
+        for v in &MU[3..7] {
+            assert!(v[0].1 < long_y && v[v.len() - 1].1 > long_y);
+        }
+        // the first fire dot falls left, the others right
+        let dx = |s: &[(f64, f64, f64)]| s[s.len() - 1].0 - s[0].0;
+        assert!(dx(MU[8]) < 0.0);
+        assert!(MU[9..].iter().all(|s| dx(s) > 0.0));
     }
 }

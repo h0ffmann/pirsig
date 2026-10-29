@@ -1,0 +1,35 @@
+name: Bug
+description: Something in Pirsig does not work as documented.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what you expected
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: The commands (`psg ...`), API calls or clicks, in order.
+      render: shell
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Commit or version
+      placeholder: "git rev-parse --short HEAD"
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where
+      options: [psg CLI, REST API, desktop app, importer (GitHub, arXiv, RSS, Obsidian), Claude Code plugin, other]
+  - type: checkboxes
+    id: private
+    attributes:
+      label: Privacy
+      options:
+        - label: The report holds no private notes, tokens or personal data (a security problem goes to SECURITY.md instead).
+          required: true

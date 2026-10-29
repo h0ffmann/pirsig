@@ -72,6 +72,14 @@ fork-state:
 brain-reset *args:
     GH_TOKEN=$(gh auth token) {{psg}} gh --overwrite --private minimal {{args}}
 
+# Make a copy of the template yours: just adopt <owner> [<repo>] (URLs, app id, owners, contacts)
+adopt owner repo="":
+    scripts/adopt.sh {{owner}} {{repo}}
+
+# Is this repository ready to be copied as a GitHub template? (offline; see docs/template-readiness.md)
+template-check:
+    scripts/template-check.sh
+
 # Write your brain to brain/, without #private notes: the fork state others start from
 fork-export:
     {{psg}} fork export brain

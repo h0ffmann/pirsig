@@ -1,23 +1,16 @@
 <div align="center">
 
-<table>
-<tr>
-<td align="center"><img alt="The Pirsig logo: a head in one line whose brain is a zettelkasten, by @h0ffmann" src="docs/drawings/pirsig.svg" width="320"/></td>
-<td align="center"><a href="https://www.desmos.com/calculator/4vxpt3qrjp"><img alt="Brain, a Desmos graph" src="https://saved-work.desmos.com/calc_thumbs/production/4vxpt3qrjp.png" width="320"/></a></td>
-</tr>
-<tr>
-<td align="center"><sub><i>The Pirsig logo</i>, Matheus Hoffmann (<a href="https://github.com/h0ffmann">@h0ffmann</a>), 2026</sub></td>
-<td align="center"><sub><a href="https://www.desmos.com/calculator/4vxpt3qrjp"><i>Brain</i></a>, a Desmos graph; author not shown ⚠</sub></td>
-</tr>
-<tr>
-<td align="center"><sub>Desmos source: <a href="docs/drawings/pirsig.desmos.json"><code>pirsig.desmos.json</code></a></sub></td>
-<td align="center"><sub>Desmos source: <a href="https://www.desmos.com/calculator/4vxpt3qrjp"><code>desmos.com/calculator/4vxpt3qrjp</code></a></sub></td>
-</tr>
-</table>
-
-</div>
+<img alt="無 (mu, no thing), the Pirsig logo: the kanji brushed in its twelve strokes, drawn from Desmos equations, by @h0ffmann" src="docs/drawings/pirsig.svg" width="200"/>
 
 # Pirsig
+
+<sub>無 · <i>mu</i> · a second brain · <a href="#pirsig-in-a-minute">in a minute</a> · <a href="#ways-to-run-pirsig">run it</a> · <a href="docs/drawings/README.md">the logo, in Desmos</a> · <a href="#license">license</a></sub>
+
+[![ci](https://github.com/h0ffmann/pirsig/actions/workflows/ci.yaml/badge.svg)](https://github.com/h0ffmann/pirsig/actions/workflows/ci.yaml)
+[![license: MPL-2.0](https://img.shields.io/badge/license-MPL--2.0-1682D4?style=flat-square)](#license)
+[![logo: Desmos](https://img.shields.io/badge/logo-Desmos-FF4F00?style=flat-square)](docs/drawings/pirsig.desmos.json)
+
+</div>
 
 A second brain from the future: PARA and a Zettelkasten slip-box in one place. Pirsig is a
 [Loco](https://loco.rs) app in Rust. A desktop app, a REST API and a terminal CLI, `psg`,
@@ -27,6 +20,12 @@ share one model layer, so the rules are the same wherever you work.
 > [*Zen and the Art of Motorcycle Maintenance*](https://en.wikipedia.org/wiki/Zen_and_the_Art_of_Motorcycle_Maintenance)
 > (1974) and *Lila* (1991). He is my favorite author and a great inspiration to all of my
 > work. On 24 April 2027 it will be ten years without him.
+>
+> The logo is 無, *mu*, "no thing": in chapter 26 of *Zen and the Art of Motorcycle
+> Maintenance*, Pirsig takes it from Zen as the answer that is neither yes nor no, and writes
+> that "science grows by its mu answers more than by its yes or no answer" (p. 413 in the
+> edition [LitCharts](https://www.litcharts.com/lit/zen-and-the-art-of-motorcycle-maintenance/symbols/mu)
+> cites; see [docs/drawings](docs/drawings/README.md)).
 
 ## Pirsig in a minute
 
@@ -79,6 +78,24 @@ where you come in and the outside tools that draw the result.
 the figure; `src/cli/mod.rs`, `src/controllers/`, `src/figures/`.
 
 </details>
+
+## Use this template
+
+This repository is a GitHub template: **Use this template → Create a new repository**, and
+make the new repository **private**, because your brain is personal data. Then:
+
+```sh
+git clone git@github.com:<you>/<brain>.git && cd <brain>
+just adopt <you> <brain>   # its URLs, app id, owners and contacts become yours; review with git diff
+just brain-reset           # your own GitHub in the brain (or: just fork-state, to start from mine)
+git commit -am "Adopt Pirsig" && git push
+```
+
+To take later versions of Pirsig, add this repository as `upstream`:
+`git remote add upstream https://github.com/h0ffmann/pirsig.git`, then
+`git pull upstream main --allow-unrelated-histories` the first time and `git pull upstream main`
+after that. `just template-check` says whether a copy is still fit to be a template itself;
+[docs/template-readiness.md](docs/template-readiness.md) is the full survey.
 
 ## Start from my brain, or from yours
 
@@ -282,7 +299,12 @@ the vendored archify, and `just figure-check` says whether a PNG is stale.
   `just dev`, `just check` (fmt, clippy and tests, as CI). `just` lists them all.
 - **Server.** `cargo loco start` serves the API and the UI on http://localhost:5150. Rust 1.94
   or newer; `rust-toolchain.toml` pins it, so rustup installs it on the first `cargo` command.
-- **Drawing.** The logo at the top is rendered from its Desmos expressions by
+- **Drawing.** The logo at the top is 無 drawn from its Desmos expressions by
   `cargo run -p pirsig-drawings --bin pirsig-art`; see [docs/drawings](docs/drawings/README.md).
 - **Use cases.** [docs/use-cases.md](docs/use-cases.md) builds a brain out of one person's
   GitHub repositories, with a sample slip-box in [`examples/slipbox/`](examples/slipbox/).
+
+## License
+
+Pirsig is licensed under the [Mozilla Public License 2.0](LICENSE) (MPL-2.0): use it, change it and
+ship it, and share your changes to its files under the same license.

@@ -95,13 +95,17 @@ The house style is the one-line drawing after Picasso, as in
 
 ## The render
 
-The SVG has two layers, as in `piabrota/alerts`:
+The SVG people see is ink, as in [picasso](https://github.com/h0ffmann/picasso)'s drawings:
+`#1f2328` on light pages and `#e6edf3` on dark ones, through `prefers-color-scheme` in the
+SVG's own `<style>`. `pirsig-art check` writes the check render, in two layers as in
+`piabrota/alerts`:
 
 - **Blue** (`#1682D4`): the geometry, drawn as exact SVG paths.
 - **Orange** (`#FF4F00`, thin): each Desmos expression, read back from its LaTeX and sampled. Where
   they agree the orange line runs inside the blue one, which proves the Desmos file is the picture.
 
-If the orange line leaves the blue one anywhere, the LaTeX is wrong: fix the pen, not the drawing.
+A test does the same in numbers: no expression may stray 0.01 from its line. If one does, the
+LaTeX is wrong: fix the pen, not the drawing.
 
 ## Outside this repository
 

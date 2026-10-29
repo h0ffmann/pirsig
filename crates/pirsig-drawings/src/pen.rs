@@ -13,9 +13,12 @@ use serde_json::{json, Value};
 /// A point in SVG coordinates (y down).
 pub type P = (f64, f64);
 
-/// The blue of the drawing, the same as in piabrota/alerts.
+/// The ink of the drawing, light and dark, as in h0ffmann/picasso's drawings.
+pub const INK: &str = "#1f2328";
+pub const INK_DARK: &str = "#e6edf3";
+/// The blue of the check render (`pirsig-art check`), the same as in piabrota/alerts.
 pub const BLUE: &str = "#1682D4";
-/// The orange of the Desmos layer.
+/// The orange of the Desmos layer in the check render.
 pub const ORANGE: &str = "#FF4F00";
 
 #[derive(Debug, Clone, Copy)]
@@ -50,6 +53,7 @@ pub enum Mark {
         dashed: bool,
     },
     /// A filled dot. `size` is the Desmos `pointSize`.
+    #[allow(dead_code)] // the logo has none; other drawings do
     Dot { at: P, size: f64 },
 }
 
@@ -84,9 +88,77 @@ pub fn stroke(pts: &[P], closed: bool, width: f64) -> Mark {
     }
 }
 
+/// Pieces each segment of a brush stroke is cut into, so its width changes smoothly.
+const PIECES: usize = 4;
+
+impl Bezier {
+    /// The point at `t`.
+    fn at(&self, t: f64) -> P {
+        let [p0, p1, p2, p3] = self.0;
+        let u = 1.0 - t;
+        let f = |a: f64, b: f64, c: f64, d: f64| {
+            (u * u * u).mul_add(
+                a,
+                (3.0 * u * u * t).mul_add(b, (3.0 * u * t * t).mul_add(c, t * t * t * d)),
+            )
+        };
+        (f(p0.0, p1.0, p2.0, p3.0), f(p0.1, p1.1, p2.1, p3.1))
+    }
+
+    /// The same curve between `t0` and `t1`, as a Bézier of its own.
+    fn part(&self, t0: f64, t1: f64) -> Self {
+        let [p0, p1, p2, p3] = self.0;
+        let h = t1 - t0;
+        // derivative at t, for the control points of the piece
+        let d = |t: f64| -> P {
+            let u = 1.0 - t;
+            let g = |a: f64, b: f64, c: f64, e: f64| {
+                3.0 * (u * u).mul_add(b - a, (2.0 * u * t).mul_add(c - b, t * t * (e - c)))
+            };
+            (g(p0.0, p1.0, p2.0, p3.0), g(p0.1, p1.1, p2.1, p3.1))
+        };
+        let (a, b) = (self.at(t0), self.at(t1));
+        let (da, db) = (d(t0), d(t1));
+        Self([
+            a,
+            (da.0.mul_add(h / 3.0, a.0), da.1.mul_add(h / 3.0, a.1)),
+            (db.0.mul_add(-h / 3.0, b.0), db.1.mul_add(-h / 3.0, b.1)),
+            b,
+        ])
+    }
+}
+
+/// A brush stroke through `pts`: the same smooth line as [`stroke`], whose width follows
+/// `widths` (one per point) as a brush presses down and lifts. Each segment is cut into
+/// [`PIECES`] Béziers, each drawn at the width of its middle.
+///
+/// # Panics
+/// When `widths` and `pts` differ in length.
+#[must_use]
+pub fn brush(pts: &[P], widths: &[f64]) -> Vec<Mark> {
+    assert_eq!(pts.len(), widths.len(), "one width per point");
+    let Mark::Line { beziers, .. } = stroke(pts, false, 1.0) else {
+        return vec![];
+    };
+    let mut out = vec![];
+    for (i, b) in beziers.iter().enumerate() {
+        for j in 0..PIECES {
+            let (t0, t1) = (j as f64 / PIECES as f64, (j + 1) as f64 / PIECES as f64);
+            let mid = (t0 + t1) / 2.0;
+            out.push(Mark::Line {
+                beziers: vec![b.part(t0, t1)],
+                width: (widths[i + 1] - widths[i]).mul_add(mid, widths[i]),
+                dashed: false,
+            });
+        }
+    }
+    out
+}
+
 /// A gently bent, dashed link from `a` to `b`: `bend` moves the middle sideways, as a share of
 /// the length.
 #[must_use]
+#[allow(dead_code)] // the logo has none; other drawings do
 pub fn link(a: P, b: P, bend: f64, width: f64) -> Mark {
     let (dx, dy) = (b.0 - a.0, b.1 - a.1);
     let m = (
@@ -104,6 +176,7 @@ pub fn link(a: P, b: P, bend: f64, width: f64) -> Mark {
 }
 
 #[must_use]
+#[allow(dead_code)] // the logo has none; other drawings do
 pub const fn dot(at: P, size: f64) -> Mark {
     Mark::Dot { at, size }
 }
@@ -198,13 +271,9 @@ impl Drawing {
         })
     }
 
-    /// The drawing as SVG: the geometry in blue and, on top, each Desmos expression sampled in
-    /// orange. Where the two agree, the orange line runs inside the blue one.
-    ///
-    /// # Errors
-    /// When an expression of [`Self::desmos`] cannot be read back.
-    pub fn svg(&self) -> Result<String, String> {
-        let mut blue = vec![];
+    /// The geometry as SVG elements: a path per line, a circle per dot.
+    fn shapes(&self, dot_attrs: &str) -> Vec<String> {
+        let mut out = vec![];
         for mark in &self.marks {
             match mark {
                 Mark::Line {
@@ -233,25 +302,51 @@ impl Drawing {
                     } else {
                         ""
                     };
-                    blue.push(format!(
+                    out.push(format!(
                         "<path d=\"{d}\" stroke-width=\"{}\"{dash}/>",
                         num(*width)
                     ));
                 }
-                Mark::Dot { at, size } => blue.push(format!(
-                    "<circle cx=\"{}\" cy=\"{}\" r=\"{}\" fill=\"{BLUE}\" stroke=\"none\"/>",
+                Mark::Dot { at, size } => out.push(format!(
+                    "<circle cx=\"{}\" cy=\"{}\" r=\"{}\" {dot_attrs}/>",
                     num(at.0),
                     num(at.1),
                     num(size / 3.0)
                 )),
             }
         }
-        let orange = self.desmos_layer()?;
+        out
+    }
+
+    /// The drawing as SVG, in ink, as h0ffmann/picasso draws: near black on light pages, near
+    /// white on dark ones (`prefers-color-scheme`).
+    #[must_use]
+    pub fn svg(&self) -> String {
         let (w, h, label, desc) = (num(self.w), num(self.h), self.label, self.desc);
-        Ok(format!(
+        format!(
             r#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="{w}" height="{h}" role="img" aria-label="{label}">
   <title>{label}</title>
   <desc>{desc}</desc>
+  <style>.l{{fill:none;stroke:{INK};stroke-linecap:round;stroke-linejoin:round}}.d{{fill:{INK};stroke:none}}@media (prefers-color-scheme:dark){{.l{{stroke:{INK_DARK}}}.d{{fill:{INK_DARK}}}}}</style>
+  <g class="l">
+    {}
+  </g>
+</svg>"#,
+            self.shapes(r#"class="d""#).join("\n    ")
+        )
+    }
+
+    /// The check render: the geometry in blue and, on top, each Desmos expression sampled in
+    /// orange. Where the two agree, the orange line runs inside the blue one.
+    ///
+    /// # Errors
+    /// When an expression of [`Self::desmos`] cannot be read back.
+    pub fn check_svg(&self) -> Result<String, String> {
+        let blue = self.shapes(&format!(r#"fill="{BLUE}" stroke="none""#));
+        let orange = self.desmos_layer()?;
+        let (w, h, label) = (num(self.w), num(self.h), self.label);
+        Ok(format!(
+            r#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="{w}" height="{h}" role="img" aria-label="{label}, with its Desmos expressions over it">
   <g fill="none" stroke="{BLUE}" stroke-linecap="round" stroke-linejoin="round">
     {}
   </g>
@@ -262,6 +357,51 @@ impl Drawing {
             blue.join("\n    "),
             orange.join("\n    ")
         ))
+    }
+
+    /// How far, at most, any Desmos expression strays from the line it stands for: each one is
+    /// read back from its LaTeX and compared with its Bézier at eleven points.
+    ///
+    /// # Errors
+    /// When an expression cannot be read back, or there are not as many as lines and dots.
+    #[cfg_attr(not(test), allow(dead_code))] // run by the tests
+    pub fn check(&self) -> Result<f64, String> {
+        let state = self.desmos();
+        let list = state["expressions"]["list"]
+            .as_array()
+            .ok_or("no expressions")?;
+        let mut expressions = list.iter();
+        let mut worst = 0.0_f64;
+        for mark in &self.marks {
+            let wanted: Vec<Box<dyn Fn(f64) -> P>> = match mark {
+                Mark::Line { beziers, .. } => beziers
+                    .iter()
+                    .map(|b| {
+                        let b = *b;
+                        Box::new(move |t| b.at(t)) as Box<dyn Fn(f64) -> P>
+                    })
+                    .collect(),
+                Mark::Dot { at, .. } => {
+                    let at = *at;
+                    vec![Box::new(move |_| at)]
+                }
+            };
+            for f in wanted {
+                let e = expressions.next().ok_or("fewer expressions than lines")?;
+                let latex = e["latex"].as_str().ok_or("no latex")?;
+                let (fx, fy) = parse_pair(latex).ok_or_else(|| format!("cannot read {latex}"))?;
+                for i in 0..=10 {
+                    let t = f64::from(i) / 10.0;
+                    let (x, y) = f(t);
+                    let (dx, dy) = (eval(&fx, t) - x, self.h - eval(&fy, t) - y);
+                    worst = worst.max(dx.hypot(dy));
+                }
+            }
+        }
+        if expressions.next().is_some() {
+            return Err("more expressions than lines".into());
+        }
+        Ok(worst)
     }
 
     /// Reads each expression of the Desmos state back and samples it.
@@ -357,6 +497,17 @@ mod tests {
         let s = poly([12.5, -3.0, 0.0, 0.25]);
         assert_eq!(s, "12.5-3t+0.25t^{3}");
         assert_eq!(parse_poly(&s), Some(vec![12.5, -3.0, 0.0, 0.25]));
+    }
+
+    #[test]
+    fn a_part_is_the_same_curve() {
+        let b = Bezier([(0.0, 0.0), (10.0, 30.0), (40.0, -10.0), (50.0, 20.0)]);
+        let part = b.part(0.25, 0.75);
+        for k in 0..=4 {
+            let s = f64::from(k) / 4.0;
+            let (p, q) = (part.at(s), b.at(0.5f64.mul_add(s, 0.25)));
+            assert!((p.0 - q.0).abs() < 1e-9 && (p.1 - q.1).abs() < 1e-9);
+        }
     }
 
     #[test]

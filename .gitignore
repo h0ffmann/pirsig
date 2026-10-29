@@ -27,3 +27,6 @@ graphify-out/
 node_modules/
 test-results/
 playwright-report/
+
+# Claude Code settings of one machine (personal plugins, MCP choices)
+.claude/settings.local.json
