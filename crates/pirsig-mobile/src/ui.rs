@@ -159,17 +159,26 @@ pub fn Chevron() -> impl IntoView {
 
 /// A note in a list: zid, title, kind, and its tags or when it changed.
 pub fn note_row(n: &Note, trail: Option<String>) -> AnyView {
+    row_of(n, trail, false)
+}
+
+/// A note waiting in the inbox: when it changed, whatever its tags.
+pub fn inbox_row(n: &Note) -> AnyView {
+    row_of(n, None, true)
+}
+
+fn row_of(n: &Note, trail: Option<String>, aged: bool) -> AnyView {
     let c = ctx();
-    let meta = if n.tags.is_empty() {
-        dates::ago(&n.updated_at, c.now, c.today)
-    } else {
+    let tagged = !aged && !n.tags.is_empty();
+    let meta = if tagged {
         n.tags
             .iter()
             .map(|t| format!("#{t}"))
             .collect::<Vec<_>>()
             .join(" ")
+    } else {
+        dates::ago(&n.updated_at, c.now, c.today)
     };
-    let tagged = !n.tags.is_empty();
     view! {
         <a class="row note-row press" href=Route::Note(n.zid.clone()).href()>
             <span class="zid mono">{n.zid.clone()}</span>

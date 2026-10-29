@@ -91,6 +91,8 @@ pub struct ProjectNote {
     pub title: String,
     pub kind: String,
     pub context: Option<String>,
+    #[serde(default)]
+    pub tags: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]

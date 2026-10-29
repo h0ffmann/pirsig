@@ -200,7 +200,7 @@ pub fn task_row(t: &Task, project: Option<String>) -> AnyView {
         });
     };
     let due = t.due_on.as_deref().map(|d| {
-        let label = dates::due(d, c.today);
+        let label = dates::due_short(d, c.today);
         let late = dates::days_until(d, c.today).is_some_and(|n| n <= 0) && !done;
         view! { <span class="due-label" class:today=late>{label}</span> }
     });
@@ -307,7 +307,12 @@ fn project(d: ProjectData) -> impl IntoView {
                         <span class="title">{n.title.clone()}</span>
                         <div class="meta">
                             <Pill kind=n.kind.clone() />
-                            {n.context.clone().map(|c| view! { <span>{c}</span> })}
+                            {if n.tags.is_empty() {
+                                n.context.clone().map(|c| view! { <span>{c}</span> }).into_any()
+                            } else {
+                                let tags = n.tags.iter().map(|t| format!("#{t}")).collect::<Vec<_>>().join(" ");
+                                view! { <span class="tags">{tags}</span> }.into_any()
+                            }}
                         </div>
                     </div>
                     <Chevron />

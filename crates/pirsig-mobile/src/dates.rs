@@ -103,6 +103,17 @@ pub fn due(date: &str, today: Day) -> String {
     }
 }
 
+/// As [`due`], but a date within a year of `today` drops its year: "10 Apr".
+#[must_use]
+pub fn due_short(date: &str, today: Day) -> String {
+    match (Day::parse(date), days_until(date, today)) {
+        (Some(d), Some(n)) if d != today && n.abs() < 365 => {
+            format!("{} {}", d.day, d.month_name())
+        }
+        _ => due(date, today),
+    }
+}
+
 /// Days from `today` until `date`; negative when it has passed.
 #[must_use]
 pub fn days_until(date: &str, today: Day) -> Option<i64> {
@@ -165,6 +176,9 @@ mod tests {
         assert_eq!(due("2026-10-29", TODAY), "Today");
         assert_eq!(due("2026-12-15", TODAY), "15 Dec");
         assert_eq!(due("2027-04-18", TODAY), "18 Apr 2027");
+        assert_eq!(due_short("2027-04-10", TODAY), "10 Apr");
+        assert_eq!(due_short("2026-10-29", TODAY), "Today");
+        assert_eq!(due_short("2028-04-10", TODAY), "10 Apr 2028");
     }
 
     #[test]

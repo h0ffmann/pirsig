@@ -105,7 +105,10 @@ fn App() -> impl IntoView {
                 Route::More => view! { <More /> }.into_any(),
             }}
         </main>
-        <TabBar on=Signal::derive(move || route.get().tab()) />
+        // a note reads full height, as the design's Note frame has no tab bar
+        <Show when=move || !matches!(route.get(), Route::Note(_))>
+            <TabBar on=Signal::derive(move || route.get().tab()) />
+        </Show>
         <Show when=move || ctx.capture.get()>
             <CaptureSheet />
         </Show>

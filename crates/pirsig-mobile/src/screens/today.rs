@@ -7,7 +7,7 @@ use crate::{
     api, dates, icons,
     model::{Area, Note, Project, Readiness, Stats},
     route::{Route, SlipTab},
-    ui::{ctx, note_row, Card, Failed, Header, Ic, IconLink, Loading, Section},
+    ui::{ctx, inbox_row, Card, Failed, Header, Ic, IconLink, Loading, Section},
 };
 
 #[derive(Clone)]
@@ -85,7 +85,10 @@ fn body(d: Data) -> impl IntoView {
             .unwrap_or_default()
     };
     let inbox_count = d.inbox.len();
-    let inbox = d.inbox.iter().take(3).map(|n| note_row(n, None)).collect();
+    // the ones touched last first: what was on your mind
+    let mut recent: Vec<&Note> = d.inbox.iter().collect();
+    recent.sort_by(|a, b| b.updated_at.cmp(&a.updated_at));
+    let inbox = recent.into_iter().take(3).map(inbox_row).collect();
     let projects = active
         .iter()
         .take(5)

@@ -206,7 +206,7 @@ button { cursor: pointer; }
 
 /* Capture sheet: scrim; sheet px 20 pt 10 gap 14, r 20 on top; handle 40×5 */
 .scrim { position: fixed; inset: 0; background: var(--color-scrim); z-index: 10; animation: fade 160ms ease-out; }
-.sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 11; display: flex; flex-direction: column; gap: 14px; padding: 10px 20px 24px; background: var(--color-panel); border-radius: var(--radius-sheet) var(--radius-sheet) 0 0; max-height: 92dvh; overflow-y: auto; animation: rise 200ms cubic-bezier(0.2, 0, 0, 1); }
+.sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 11; display: flex; flex-direction: column; gap: 14px; padding: 10px 20px 24px; background: var(--color-panel); border-radius: var(--radius-sheet) var(--radius-sheet) 0 0; min-height: min(472px, 92dvh); max-height: 92dvh; overflow-y: auto; animation: rise 200ms cubic-bezier(0.2, 0, 0, 1); }
 .handle { align-self: center; width: 40px; height: 5px; border-radius: 3px; background: var(--color-line); }
 .sheet-bar { display: flex; align-items: center; justify-content: space-between; font-size: 16px; }
 .sheet-bar .title { font-weight: 650; }

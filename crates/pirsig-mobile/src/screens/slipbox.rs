@@ -84,7 +84,12 @@ fn body(tab: SlipTab, stats: &Stats, data: Data) -> impl IntoView {
             (intro, view! { <Card rows=rows empty=empty /> }.into_any())
         }
         Data::Tree(entries) => {
-            let rows = entries.iter().map(tree_row).collect();
+            // fleeting notes wait in the Inbox tab; the tree is the slip-box proper
+            let rows = entries
+                .iter()
+                .filter(|n| n.kind != "fleeting")
+                .map(tree_row)
+                .collect();
             (
                 "Every note in Folgezettel order: a continuation sits under the note it continues.",
                 view! { <Card rows=rows empty="No notes yet." /> }.into_any(),
