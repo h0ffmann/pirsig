@@ -232,6 +232,7 @@ psg plast go -d music   # one domain
 | RSS/Atom feeds in, as resources | `psg rss add URL -a AREA`, `psg rss pull` | `/api/feeds` |
 | The slip-box out, as RSS | `psg rss out -o feed.xml` | `GET /api/slipbox/feed.xml` |
 | arXiv papers in: cited, filed, deduplicated | `psg arxiv add ID... [--note]`, `psg arxiv search QUERY` | `POST /api/ingest/arxiv` |
+| Videos in: a timed reading made of literature notes, with figures | the `video-indexer` agent; `just videos` shows them | |
 | Methodology readiness | `psg ready` | `GET /api/readiness` |
 
 `psg ready` checks the brain against PARA, the Zettelkasten method and the channels, and says

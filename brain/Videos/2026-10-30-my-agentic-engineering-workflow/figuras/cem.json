@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "diagram_type": "tree",
+  "meta": {
+    "title": "A parte humana limita o ganho",
+    "subtitle": "Um dia de 8 horas.",
+    "quality_profile": "showcase",
+    "output": "x.html"
+  },
+  "layout": {
+    "direction": "right",
+    "nodeW": 190
+  },
+  "nodes": [
+    {
+      "id": "t",
+      "label": "Um dia de trabalho",
+      "sublabel": "exemplo de David"
+    },
+    {
+      "id": "a",
+      "label": "Só à mão",
+      "parent": "t",
+      "sublabel": "8 h"
+    },
+    {
+      "id": "b",
+      "label": "Metade com agentes",
+      "parent": "t",
+      "sublabel": "4 h 10 min"
+    },
+    {
+      "id": "c",
+      "label": "Tudo com agentes",
+      "parent": "t",
+      "sublabel": "20 min ⚠"
+    },
+    {
+      "id": "a1",
+      "label": "Base da comparação",
+      "parent": "a"
+    },
+    {
+      "id": "b1",
+      "label": "48% a menos",
+      "parent": "b",
+      "sublabel": "sobram 4 h humanas"
+    },
+    {
+      "id": "c1",
+      "label": "24 vezes mais rápido",
+      "parent": "c",
+      "sublabel": "cálculo nosso ⚠"
+    }
+  ]
+}

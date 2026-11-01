@@ -1,0 +1,113 @@
+{
+  "schema_version": 3,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "O caminho de uma tarefa até a produção",
+    "quality_profile": "showcase",
+    "legend": {
+      "mode": "hidden"
+    },
+    "output": "x.html"
+  },
+  "mainPath": [
+    "tarefa",
+    "construir",
+    "outrolab",
+    "triagem",
+    "producao"
+  ],
+  "states": [
+    {
+      "id": "tarefa",
+      "type": "start",
+      "label": "Tarefa",
+      "sublabel": "bug: reproduzir antes"
+    },
+    {
+      "id": "construir",
+      "type": "active",
+      "label": "Construir",
+      "sublabel": "Opus, testes, telas"
+    },
+    {
+      "id": "outrolab",
+      "type": "decision",
+      "label": "Outro lab",
+      "sublabel": "revisa uma vez"
+    },
+    {
+      "id": "triagem",
+      "type": "decision",
+      "label": "Triagem",
+      "sublabel": "real ou exagero?"
+    },
+    {
+      "id": "producao",
+      "type": "success",
+      "label": "Produção",
+      "sublabel": "loops vigiam depois"
+    },
+    {
+      "id": "risco",
+      "type": "waiting",
+      "label": "Skills de risco",
+      "sublabel": "mudança grande"
+    },
+    {
+      "id": "total",
+      "type": "waiting",
+      "label": "Revisão total",
+      "sublabel": "mudança enorme"
+    }
+  ],
+  "transitions": [
+    {
+      "id": "t1",
+      "from": "tarefa",
+      "to": "construir",
+      "label": "pronta"
+    },
+    {
+      "id": "t2",
+      "from": "construir",
+      "to": "outrolab",
+      "label": "média"
+    },
+    {
+      "id": "t3",
+      "from": "outrolab",
+      "to": "triagem",
+      "label": "achados"
+    },
+    {
+      "id": "t4",
+      "from": "triagem",
+      "to": "producao",
+      "label": "ok"
+    },
+    {
+      "id": "t5",
+      "from": "tarefa",
+      "to": "risco",
+      "label": "risco"
+    },
+    {
+      "id": "t6",
+      "from": "risco",
+      "to": "construir",
+      "label": "decidido"
+    },
+    {
+      "id": "t7",
+      "from": "outrolab",
+      "to": "total",
+      "label": "enorme"
+    },
+    {
+      "id": "t8",
+      "from": "total",
+      "to": "triagem",
+      "label": "lista"
+    }
+  ]
+}

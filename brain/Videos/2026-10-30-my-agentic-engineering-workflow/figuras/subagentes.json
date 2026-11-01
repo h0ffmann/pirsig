@@ -1,0 +1,91 @@
+{
+  "schema_version": 3,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "Quando usar subagentes",
+    "quality_profile": "showcase",
+    "legend": {
+      "mode": "hidden"
+    },
+    "output": "x.html"
+  },
+  "mainPath": [
+    "claro",
+    "blocos",
+    "conhece",
+    "sub"
+  ],
+  "states": [
+    {
+      "id": "claro",
+      "type": "start",
+      "label": "Claro e paralelo?",
+      "sublabel": "sem surpresas"
+    },
+    {
+      "id": "blocos",
+      "type": "decision",
+      "label": "Blocos iguais?",
+      "sublabel": "sempre o mesmo processo"
+    },
+    {
+      "id": "conhece",
+      "type": "decision",
+      "label": "Saída conhecida?",
+      "sublabel": "entrada e formato"
+    },
+    {
+      "id": "sub",
+      "type": "success",
+      "label": "Usar subagentes",
+      "sublabel": "Opus e 10 a 20 Haiku"
+    },
+    {
+      "id": "topo",
+      "type": "active",
+      "label": "Um agente de topo",
+      "sublabel": "fronteira, esforço máximo"
+    }
+  ],
+  "transitions": [
+    {
+      "id": "t1",
+      "from": "claro",
+      "to": "blocos",
+      "label": "sim"
+    },
+    {
+      "id": "t2",
+      "from": "blocos",
+      "to": "conhece",
+      "label": "sim"
+    },
+    {
+      "id": "t3",
+      "from": "conhece",
+      "to": "sub",
+      "label": "sim"
+    },
+    {
+      "id": "t4",
+      "from": "claro",
+      "to": "topo",
+      "label": "não",
+      "variant": "security"
+    },
+    {
+      "id": "t5",
+      "from": "blocos",
+      "to": "topo",
+      "label": "não",
+      "variant": "security"
+    },
+    {
+      "id": "t6",
+      "from": "conhece",
+      "to": "topo",
+      "label": "dúvida",
+      "variant": "security"
+    }
+  ]
+}

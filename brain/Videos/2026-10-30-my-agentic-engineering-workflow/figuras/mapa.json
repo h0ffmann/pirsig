@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "diagram_type": "tree",
+  "meta": {
+    "title": "Mapa do vídeo",
+    "subtitle": "Quatro temas em 86 minutos.",
+    "quality_profile": "showcase",
+    "output": "x.html"
+  },
+  "layout": {
+    "direction": "right",
+    "nodeW": 190
+  },
+  "nodes": [
+    {
+      "id": "v",
+      "label": "O vídeo",
+      "sublabel": "86 minutos"
+    },
+    {
+      "id": "a",
+      "label": "Processo",
+      "parent": "v",
+      "sublabel": "36 min"
+    },
+    {
+      "id": "b",
+      "label": "Infraestrutura",
+      "parent": "v",
+      "sublabel": "29 min"
+    },
+    {
+      "id": "c",
+      "label": "Visão",
+      "parent": "v",
+      "sublabel": "12 min"
+    },
+    {
+      "id": "d",
+      "label": "Base",
+      "parent": "v",
+      "sublabel": "9 min"
+    },
+    {
+      "id": "a1",
+      "label": "Loops",
+      "parent": "a",
+      "sublabel": "18 min"
+    },
+    {
+      "id": "a2",
+      "label": "Revisão",
+      "parent": "a",
+      "sublabel": "13 min"
+    },
+    {
+      "id": "a3",
+      "label": "Subagentes",
+      "parent": "a",
+      "sublabel": "5 min"
+    },
+    {
+      "id": "b1",
+      "label": "Nuvem",
+      "parent": "b",
+      "sublabel": "13 min"
+    },
+    {
+      "id": "b2",
+      "label": "Inferência própria",
+      "parent": "b",
+      "sublabel": "10 min"
+    },
+    {
+      "id": "b3",
+      "label": "ADE",
+      "parent": "b",
+      "sublabel": "6 min"
+    },
+    {
+      "id": "c1",
+      "label": "Software que melhora",
+      "parent": "c",
+      "sublabel": "8 min"
+    },
+    {
+      "id": "c2",
+      "label": "Revoluções",
+      "parent": "c",
+      "sublabel": "4 min"
+    },
+    {
+      "id": "d1",
+      "label": "Modelos",
+      "parent": "d",
+      "sublabel": "4 min"
+    },
+    {
+      "id": "d2",
+      "label": "Os 100%",
+      "parent": "d",
+      "sublabel": "3 min"
+    },
+    {
+      "id": "d3",
+      "label": "O que aprender",
+      "parent": "d",
+      "sublabel": "2 min"
+    }
+  ]
+}

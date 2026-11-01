@@ -8,6 +8,9 @@ What changes in Pirsig, newest first. The format follows
 
 ### Added
 
+- Videos in the brain: `just video-fetch`, `video-check`, `video-notes` and `just videos`, and the
+  `video-indexer` agent. Each video becomes a timed reading made of literature notes, with its
+  figures on one local page.
 - `pirsig.toml`: how a copy runs — the template repository a brain is bootstrapped from, the
   fork state's folder, the defaults of `psg gh`, and what the apps start from. Every key is
   optional; unknown keys are an error.
