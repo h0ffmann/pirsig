@@ -1,0 +1,76 @@
+{
+  "schema_version": 3,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "Das sessões a dois loops",
+    "quality_profile": "showcase",
+    "legend": {
+      "mode": "hidden"
+    },
+    "output": "x.html"
+  },
+  "mainPath": [
+    "sessoes",
+    "haiku",
+    "habitos",
+    "seguro"
+  ],
+  "states": [
+    {
+      "id": "sessoes",
+      "type": "start",
+      "label": "Sessões",
+      "sublabel": "cerca de 3.000"
+    },
+    {
+      "id": "haiku",
+      "type": "active",
+      "label": "31 subagentes Haiku",
+      "sublabel": "o Opus divide o trabalho"
+    },
+    {
+      "id": "habitos",
+      "type": "decision",
+      "label": "Dois hábitos",
+      "sublabel": "repetidos por você"
+    },
+    {
+      "id": "seguro",
+      "type": "success",
+      "label": "10% seguros",
+      "sublabel": "o loop age sozinho"
+    },
+    {
+      "id": "resto",
+      "type": "waiting",
+      "label": "90% com julgamento",
+      "sublabel": "o loop propõe e espera"
+    }
+  ],
+  "transitions": [
+    {
+      "id": "t1",
+      "from": "sessoes",
+      "to": "haiku",
+      "label": "31 fatias"
+    },
+    {
+      "id": "t2",
+      "from": "haiku",
+      "to": "habitos",
+      "label": "padrões"
+    },
+    {
+      "id": "t3",
+      "from": "habitos",
+      "to": "seguro",
+      "label": "óbvio"
+    },
+    {
+      "id": "t4",
+      "from": "habitos",
+      "to": "resto",
+      "label": "pede gosto"
+    }
+  ]
+}

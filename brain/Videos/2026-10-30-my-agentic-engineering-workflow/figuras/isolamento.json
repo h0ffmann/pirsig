@@ -1,0 +1,103 @@
+{
+  "schema_version": 3,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "Quatro degraus de isolamento",
+    "quality_profile": "showcase",
+    "legend": {
+      "mode": "hidden"
+    },
+    "output": "x.html"
+  },
+  "mainPath": [
+    "checkout",
+    "worktrees",
+    "vm",
+    "sandbox"
+  ],
+  "states": [
+    {
+      "id": "checkout",
+      "type": "start",
+      "label": "Mesmo checkout",
+      "sublabel": "agentes juntos"
+    },
+    {
+      "id": "worktrees",
+      "type": "active",
+      "label": "Worktrees",
+      "sublabel": "uma cópia por agente"
+    },
+    {
+      "id": "vm",
+      "type": "active",
+      "label": "Uma VM",
+      "sublabel": "fora do notebook"
+    },
+    {
+      "id": "sandbox",
+      "type": "success",
+      "label": "Um sandbox por agente",
+      "sublabel": "isolado, na nuvem"
+    },
+    {
+      "id": "conflito",
+      "type": "failure",
+      "label": "Conflito",
+      "sublabel": "mesmos arquivos"
+    },
+    {
+      "id": "disco",
+      "type": "failure",
+      "label": "Máquina cheia",
+      "sublabel": "disco, CPU, janelas"
+    },
+    {
+      "id": "esgota",
+      "type": "failure",
+      "label": "Esgota",
+      "sublabel": "com 5 a 10 agentes"
+    }
+  ],
+  "transitions": [
+    {
+      "id": "t1",
+      "from": "checkout",
+      "to": "worktrees",
+      "label": "separa"
+    },
+    {
+      "id": "t2",
+      "from": "worktrees",
+      "to": "vm",
+      "label": "libera"
+    },
+    {
+      "id": "t3",
+      "from": "vm",
+      "to": "sandbox",
+      "label": "divide"
+    },
+    {
+      "id": "t4",
+      "from": "checkout",
+      "to": "conflito",
+      "label": "limite",
+      "variant": "security"
+    },
+    {
+      "id": "t5",
+      "from": "worktrees",
+      "to": "disco",
+      "label": "limite",
+      "variant": "security"
+    },
+    {
+      "id": "t6",
+      "from": "vm",
+      "to": "esgota",
+      "label": "limite",
+      "variant": "security"
+    }
+  ]
+}

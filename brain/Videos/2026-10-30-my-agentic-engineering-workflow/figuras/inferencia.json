@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "diagram_type": "tree",
+  "meta": {
+    "title": "Fronteira ou modelo local?",
+    "subtitle": "A escolha depende da tarefa.",
+    "quality_profile": "showcase",
+    "output": "x.html"
+  },
+  "layout": {
+    "direction": "right",
+    "nodeW": 190
+  },
+  "nodes": [
+    {
+      "id": "t",
+      "label": "Qual é a tarefa?",
+      "sublabel": "sem absolutismo"
+    },
+    {
+      "id": "f",
+      "label": "Modelo de fronteira",
+      "parent": "t",
+      "sublabel": "o padrão de David"
+    },
+    {
+      "id": "l",
+      "label": "Modelo local",
+      "parent": "t",
+      "sublabel": "privacidade e autonomia"
+    },
+    {
+      "id": "f1",
+      "label": "Código difícil",
+      "parent": "f"
+    },
+    {
+      "id": "f2",
+      "label": "Revisão cruzada",
+      "parent": "f"
+    },
+    {
+      "id": "f3",
+      "label": "Loops de produção",
+      "parent": "f"
+    },
+    {
+      "id": "l1",
+      "label": "Contratos e dados",
+      "parent": "l"
+    },
+    {
+      "id": "l2",
+      "label": "Saúde e assuntos privados",
+      "parent": "l"
+    },
+    {
+      "id": "l3",
+      "label": "Plano B em crise",
+      "parent": "l"
+    }
+  ]
+}

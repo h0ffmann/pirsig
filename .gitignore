@@ -33,3 +33,6 @@ playwright-report/
 
 # Claude Code settings of one machine (personal plugins, MCP choices)
 .claude/settings.local.json
+
+# Video transcripts are other people's words, verbatim: local only (scripts/videos.mjs)
+brain/Videos/*/transcript.*

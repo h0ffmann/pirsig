@@ -35,6 +35,7 @@ explicit steps.
 | Obsidian | `psg obsidian export ./vault`, `psg obsidian import ./vault --dry-run` |
 | to know what needs attention | `psg ready` |
 | a mind that works as a rhizome | the `hippo` skill (`psg hippo`) |
+| a video indexed | the `video-indexer` agent; `just videos` shows them all on one page |
 
 ## How to work
 

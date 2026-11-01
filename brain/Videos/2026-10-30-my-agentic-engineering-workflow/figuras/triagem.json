@@ -1,0 +1,96 @@
+{
+  "schema_version": 3,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "O que acontece com um achado de revisão",
+    "quality_profile": "showcase",
+    "legend": {
+      "mode": "hidden"
+    },
+    "output": "x.html"
+  },
+  "mainPath": [
+    "achado",
+    "notas",
+    "julga",
+    "corrigido"
+  ],
+  "states": [
+    {
+      "id": "achado",
+      "type": "start",
+      "label": "Achado",
+      "sublabel": "veio da revisão"
+    },
+    {
+      "id": "notas",
+      "type": "active",
+      "label": "Duas notas",
+      "sublabel": "frequência e gravidade"
+    },
+    {
+      "id": "julga",
+      "type": "decision",
+      "label": "Opus julga",
+      "sublabel": "real ou exagero?"
+    },
+    {
+      "id": "corrigido",
+      "type": "success",
+      "label": "Corrigido",
+      "sublabel": "e entregue"
+    },
+    {
+      "id": "descartado",
+      "type": "failure",
+      "label": "Descartado",
+      "sublabel": "nunca vai ocorrer"
+    },
+    {
+      "id": "opiniao",
+      "type": "waiting",
+      "label": "Segunda opinião",
+      "sublabel": "outro modelo"
+    }
+  ],
+  "transitions": [
+    {
+      "id": "t1",
+      "from": "achado",
+      "to": "notas",
+      "label": "1 a 10"
+    },
+    {
+      "id": "t2",
+      "from": "notas",
+      "to": "julga",
+      "label": "volta ao Opus"
+    },
+    {
+      "id": "t3",
+      "from": "julga",
+      "to": "corrigido",
+      "label": "obrigatório"
+    },
+    {
+      "id": "t4",
+      "from": "julga",
+      "to": "descartado",
+      "label": "exagero",
+      "variant": "security"
+    },
+    {
+      "id": "t5",
+      "from": "julga",
+      "to": "opiniao",
+      "label": "dúvida"
+    },
+    {
+      "id": "t6",
+      "from": "opiniao",
+      "to": "julga",
+      "label": "resposta",
+      "variant": "dashed"
+    }
+  ]
+}
