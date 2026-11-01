@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400">
+<text x="170" y="18" text-anchor="start" class="m">0:00</text>
+<text x="700" y="18" text-anchor="end" class="m">1:25:40</text>
+<text x="160" y="46" text-anchor="end">1 Modelos</text>
+<rect x="170" y="41" width="530" height="1" class="bar-m"/>
+<rect x="170.0" y="32" width="26.8" height="20" class="bar-g"/>
+<text x="202.80933852140078" y="47" text-anchor="start" class="m">4 min</text>
+<text x="160" y="79" text-anchor="end">2 Aprender</text>
+<rect x="170" y="74" width="530" height="1" class="bar-m"/>
+<rect x="196.8" y="65" width="14.4" height="20" class="bar-g"/>
+<text x="217.24513618677042" y="80" text-anchor="start" class="m">2 min</text>
+<text x="160" y="112" text-anchor="end">3 Revisão</text>
+<rect x="170" y="107" width="530" height="1" class="bar-m"/>
+<rect x="211.2" y="98" width="80.4" height="20" class="bar-a"/>
+<text x="297.67315175097275" y="113" text-anchor="start" class="m">13 min</text>
+<text x="160" y="145" text-anchor="end">4 Os 100%</text>
+<rect x="170" y="140" width="530" height="1" class="bar-m"/>
+<rect x="291.7" y="131" width="17.5" height="20" class="bar-g"/>
+<text x="315.2023346303502" y="146" text-anchor="start" class="m">3 min</text>
+<text x="160" y="178" text-anchor="end">5 Subagentes</text>
+<rect x="170" y="173" width="530" height="1" class="bar-m"/>
+<rect x="309.2" y="164" width="27.8" height="20" class="bar-g"/>
+<text x="343.0428015564202" y="179" text-anchor="start" class="m">5 min</text>
+<text x="160" y="211" text-anchor="end">6 Nuvem</text>
+<rect x="170" y="206" width="530" height="1" class="bar-m"/>
+<rect x="337.0" y="197" width="77.3" height="20" class="bar-a"/>
+<text x="420.3774319066148" y="212" text-anchor="start" class="m">13 min</text>
+<text x="160" y="244" text-anchor="end">7 ADE</text>
+<rect x="170" y="239" width="530" height="1" class="bar-m"/>
+<rect x="414.4" y="230" width="37.1" height="20" class="bar-g"/>
+<text x="457.49805447470817" y="245" text-anchor="start" class="m">6 min</text>
+<text x="160" y="277" text-anchor="end">8 Loops</text>
+<rect x="170" y="272" width="530" height="1" class="bar-m"/>
+<rect x="451.5" y="263" width="114.5" height="20" class="bar-a"/>
+<text x="571.9533073929961" y="278" text-anchor="start" class="m">19 min</text>
+<text x="160" y="310" text-anchor="end">9 Revoluções</text>
+<rect x="170" y="305" width="530" height="1" class="bar-m"/>
+<rect x="566.0" y="296" width="24.7" height="20" class="bar-g"/>
+<text x="596.7003891050583" y="311" text-anchor="start" class="m">4 min</text>
+<text x="160" y="343" text-anchor="end">10 Autoaprimoramento</text>
+<rect x="170" y="338" width="530" height="1" class="bar-m"/>
+<rect x="590.7" y="329" width="47.4" height="20" class="bar-g"/>
+<text x="644.1322957198444" y="344" text-anchor="start" class="m">8 min</text>
+<text x="160" y="376" text-anchor="end">11 Inferência</text>
+<rect x="170" y="371" width="530" height="1" class="bar-m"/>
+<rect x="638.1" y="362" width="61.9" height="20" class="bar-g"/>
+<text x="632.1322957198444" y="377" text-anchor="end" class="m">10 min</text>
+</svg>

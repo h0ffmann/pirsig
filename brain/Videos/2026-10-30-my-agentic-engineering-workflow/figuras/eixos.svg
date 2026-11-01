@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400">
+<rect x="110" y="20" width="280" height="160" rx="7" class="bx-w"/>
+<text x="250" y="96.5" text-anchor="middle">Corrigir se sobrar tempo</text>
+<text x="250" y="112.5" text-anchor="middle">grave, mas raro</text>
+<rect x="390" y="20" width="280" height="160" rx="7" class="bx-r"/>
+<text x="530" y="96.5" text-anchor="middle" class="h">Corrigir antes de entregar</text>
+<text x="530" y="112.5" text-anchor="middle" class="h">grave e frequente</text>
+<rect x="110" y="180" width="280" height="160" rx="7" class="bx"/>
+<text x="250" y="256.5" text-anchor="middle">Ignorar</text>
+<text x="250" y="272.5" text-anchor="middle">o exemplo típico de exagero</text>
+<rect x="390" y="180" width="280" height="160" rx="7" class="bx-w"/>
+<text x="530" y="256.5" text-anchor="middle">Decidir pelo contexto</text>
+<text x="530" y="272.5" text-anchor="middle">leve e frequente</text>
+<text x="390" y="366" text-anchor="middle" class="h">Frequência: nota de 1 a 10 →</text>
+<text x="60" y="180" text-anchor="middle" class="h" transform="rotate(-90 60 180)">Gravidade: nota de 1 a 10 →</text>
+</svg>

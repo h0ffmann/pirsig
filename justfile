@@ -53,6 +53,24 @@ psg *args:
 install:
     cargo install --path . --bin psg --locked
 
+# --- videos ----------------------------------------------------------------
+
+# Fetch a video's metadata and transcript: just video-fetch URL (the rest: .claude/agents/video-indexer.md)
+video-fetch url:
+    node scripts/videos.mjs fetch "{{url}}"
+
+# Coverage of the video, reading time and house style of one video's folder
+video-check dir:
+    node scripts/videos.mjs check "{{dir}}"
+
+# Turn a folder's leitura.markdown into psg notes, and copy them to brain/
+video-notes dir:
+    node scripts/videos.mjs notes "{{dir}}"
+
+# Every video and its figures, on one page: just videos [port]
+videos port="8765":
+    node scripts/videos.mjs serve {{port}}
+
 # --- development -----------------------------------------------------------
 
 # API server on http://localhost:5150

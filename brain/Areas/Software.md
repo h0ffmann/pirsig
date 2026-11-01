@@ -10,6 +10,7 @@ Code: GitHub repositories and the software they hold
 
 ## Resources
 
+- [[Resources/My Agentic Engineering Workflow (after 15,700 sessions)|My Agentic Engineering Workflow (after 15,700 sessions)]]
 - [[Resources/h0ffmannakka-bank|h0ffmann/akka-bank]]
 - [[Resources/h0ffmannawesome-agentic-ai|h0ffmann/awesome-agentic-ai]]
 - [[Resources/h0ffmannawesome-prediction-markets|h0ffmann/awesome-prediction-markets]]

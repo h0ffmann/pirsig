@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 620">
+<rect x="240" y="10" width="240" height="34" rx="7" class="bx-a"/>
+<text x="360" y="31.5" text-anchor="middle">Uma tarefa, uma thread</text>
+<path d="M360 44 L360 68" class="ln"/>
+<polygon class="hd" points="360,68 363.3,60.7 356.7,60.7"/>
+<rect x="280" y="68" width="160" height="34" rx="7" class="bx-w"/>
+<text x="360" y="89.5" text-anchor="middle">É um bug?</text>
+<path d="M280 85 L130 85 L130 118" class="ln"/>
+<polygon class="hd" points="130,118 133.3,110.7 126.7,110.7"/>
+<text x="200" y="79" text-anchor="middle" class="m">sim</text>
+<path d="M440 85 L590 85 L590 118" class="ln"/>
+<polygon class="hd" points="590,118 593.3,110.7 586.7,110.7"/>
+<text x="520" y="79" text-anchor="middle" class="m">não</text>
+<rect x="30" y="118" width="200" height="50" rx="7" class="bx"/>
+<text x="130" y="139.5" text-anchor="middle">Agente reproduz o bug</text>
+<text x="130" y="155.5" text-anchor="middle">como usuário real</text>
+<rect x="490" y="118" width="200" height="50" rx="7" class="bx-w"/>
+<text x="590" y="139.5" text-anchor="middle">Grande ou arriscada?</text>
+<text x="590" y="155.5" text-anchor="middle">skills 4x4 e de risco</text>
+<path d="M130 168 L130 196 L300 196 L300 214" class="ln"/>
+<polygon class="hd" points="300,214 303.3,206.7 296.7,206.7"/>
+<path d="M590 168 L590 196 L420 196 L420 214" class="ln"/>
+<polygon class="hd" points="420,214 423.3,206.7 416.7,206.7"/>
+<rect x="240" y="214" width="240" height="34" rx="7" class="bx-a"/>
+<text x="360" y="235.5" text-anchor="middle">Opus 5.5 constrói</text>
+<path d="M360 248 L360 270" class="ln"/>
+<polygon class="hd" points="360,270 363.3,262.7 356.7,262.7"/>
+<rect x="190" y="270" width="340" height="34" rx="7" class="bx"/>
+<text x="360" y="291.5" text-anchor="middle">Testes, tipos e capturas de tela do app real</text>
+<path d="M360 304 L360 326" class="ln"/>
+<polygon class="hd" points="360,326 363.3,318.7 356.7,318.7"/>
+<rect x="280" y="326" width="160" height="34" rx="7" class="bx-w"/>
+<text x="360" y="347.5" text-anchor="middle">Tamanho?</text>
+<path d="M280 343 L120 343 L120 382" class="ln"/>
+<polygon class="hd" points="120,382 123.3,374.7 116.7,374.7"/>
+<text x="200" y="337" text-anchor="middle" class="m">pequena</text>
+<path d="M360 360 L360 382" class="ln"/>
+<polygon class="hd" points="360,382 363.3,374.7 356.7,374.7"/>
+<text x="392" y="375" text-anchor="middle" class="m">normal</text>
+<path d="M440 343 L600 343 L600 382" class="ln"/>
+<polygon class="hd" points="600,382 603.3,374.7 596.7,374.7"/>
+<text x="520" y="337" text-anchor="middle" class="m">enorme</text>
+<rect x="30" y="382" width="180" height="50" rx="7" class="bx"/>
+<text x="120" y="403.5" text-anchor="middle">Sem revisão</text>
+<text x="120" y="419.5" text-anchor="middle">de outro modelo</text>
+<rect x="260" y="382" width="200" height="50" rx="7" class="bx-a"/>
+<text x="360" y="403.5" text-anchor="middle">Revisão pelo outro</text>
+<text x="360" y="419.5" text-anchor="middle">laboratório (uma vez)</text>
+<rect x="510" y="382" width="180" height="50" rx="7" class="bx-r"/>
+<text x="600" y="403.5" text-anchor="middle">Revisão total</text>
+<text x="600" y="419.5" text-anchor="middle">todos os laboratórios</text>
+<path d="M360 432 L360 454" class="ln"/>
+<polygon class="hd" points="360,454 363.3,446.7 356.7,446.7"/>
+<path d="M600 432 L600 444 L420 444 L420 454" class="ln"/>
+<polygon class="hd" points="420,454 423.3,446.7 416.7,446.7"/>
+<rect x="210" y="454" width="300" height="40" rx="7" class="bx-w"/>
+<text x="360" y="478.5" text-anchor="middle">Opus: problema real ou exagero?</text>
+<path d="M120 432 L120 566 L270 566" class="ln"/>
+<polygon class="hd" points="270,566 262.7,562.7 262.7,569.3"/>
+<path d="M360 494 L360 516" class="ln"/>
+<polygon class="hd" points="360,516 363.3,508.7 356.7,508.7"/>
+<rect x="270" y="516" width="180" height="34" rx="7" class="bx"/>
+<text x="360" y="537.5" text-anchor="middle">Corrigir o obrigatório</text>
+<path d="M360 550 L360 566" class="ln"/>
+<polygon class="hd" points="360,566 363.3,558.7 356.7,558.7"/>
+<rect x="270" y="566" width="180" height="34" rx="7" class="bx-ok"/>
+<text x="360" y="587.5" text-anchor="middle">Produção</text>
+<path d="M450 583 L530 583" class="ln"/>
+<polygon class="hd" points="530,583 522.7,579.7 522.7,586.3"/>
+<rect x="530" y="562" width="170" height="42" rx="7" class="bx-ok"/>
+<text x="615" y="579.5" text-anchor="middle">Loops: efeitos</text>
+<text x="615" y="595.5" text-anchor="middle">colaterais e segurança</text>
+</svg>

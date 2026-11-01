@@ -1,0 +1,90 @@
+{
+  "mapa": {
+    "title": "Mapa do vídeo: três partes ocupam mais da metade",
+    "alt": "Barras horizontais na ordem do vídeo. As partes de revisão, nuvem e loops são as maiores, com cerca de 13, 13 e 19 minutos.",
+    "takeaway": "Revisão, nuvem e loops somam cerca de 44 dos 86 minutos. O vídeo é sobre processo, mais que sobre modelos.",
+    "read": "Cada linha é uma parte deste texto. A posição mostra quando a parte acontece. O comprimento mostra a duração. As três maiores estão em azul.",
+    "missing": "O peso de cada tema dentro das partes. Menções ao Cloudroom aparecem em quase todas.",
+    "evidence": "Marcas de tempo das notas em `leitura.markdown`; durações arredondadas por cálculo do indexador."
+  },
+  "revisao": {
+    "title": "O caminho de uma tarefa até a produção",
+    "alt": "Fluxograma: uma tarefa passa por bug ou risco, é construída pelo Opus, testada, revisada conforme o tamanho, triada pelo Opus e entregue, com loops depois da entrega.",
+    "takeaway": "O rigor cresce com o tamanho da mudança. O passo central é um segundo laboratório revisar, uma única vez.",
+    "read": "Siga as setas de cima para baixo. Caixas amarelas são decisões. A caixa azul de revisão é o caso comum. A caixa vermelha é rara, algumas vezes por semana.",
+    "missing": "A segunda opinião opcional e a repetição de revisão depois de muitos achados. David não diz com clareza o que acontece em mudança pequena depois dos testes: a seta para produção é leitura do indexador ⚠.",
+    "evidence": "Notas de 00:09:30 a 00:19:40 do vídeo. David mostra um diagrama próprio; este desenho foi refeito a partir da fala."
+  },
+  "eixos": {
+    "title": "Dois eixos separam o problema real do exagero",
+    "alt": "Quadrante de frequência por gravidade. O canto grave e frequente deve ser corrigido. O canto leve e raro deve ser ignorado.",
+    "takeaway": "Um achado grave e raro não pesa o mesmo que um achado grave e frequente.",
+    "read": "Cada achado da revisão recebe duas notas e cai em um quadrante.",
+    "missing": "Limiares. David não dá notas de corte. As quatro ações são leitura do indexador ⚠; David só caracteriza o caso grave e frequente e o caso grave e raro.",
+    "evidence": "Nota de 00:16:40 a 00:18:30 do vídeo."
+  },
+  "cem": {
+    "title": "A parte humana limita o ganho total",
+    "alt": "Três barras de tempo: 8 horas à mão, 4 horas e 10 minutos com metade para agentes, e 20 minutos com tudo para agentes.",
+    "takeaway": "Passar metade aos agentes acelera menos de 2 vezes. O trabalho humano que sobra domina o total.",
+    "read": "O comprimento da barra é o tempo total. Vermelho é trabalho humano. Azul é trabalho de agentes.",
+    "missing": "Revisão e decisão humanas, que nunca somem por inteiro. A barra de 20 minutos supõe a mesma taxa de 4 h para 10 min em todo o trabalho.",
+    "evidence": "8 h, 4 h e 10 min vêm da nota de 00:19:40 a 00:21:30. Os 48% e os 20 minutos são cálculo do indexador. David fala em cerca de 45%."
+  },
+  "subagentes": {
+    "title": "Quase toda pergunta leva a não usar subagentes",
+    "alt": "Árvore de decisão com três perguntas. Um não em qualquer pergunta leva a um agente de topo. Três respostas sim levam a um Opus com vários Haiku em paralelo.",
+    "takeaway": "Subagentes exigem três respostas sim. Um único não leva ao agente de topo.",
+    "read": "Comece no alto. Cada seta à esquerda é um não ou uma dúvida.",
+    "missing": "Custo real em tokens. David cita pagar 5 vezes mais para ir 2 vezes mais rápido, sem medição ⚠.",
+    "evidence": "Notas de 00:22:30 a 00:27:00 do vídeo."
+  },
+  "isolamento": {
+    "title": "A escada do isolamento de agentes",
+    "alt": "Quatro degraus: mesmo checkout, worktrees, uma máquina virtual e um sandbox por agente. Cada degrau resolve o problema do anterior.",
+    "takeaway": "Cada degrau resolve o limite do anterior. O último degrau é o único que escala, segundo David.",
+    "read": "Desça a escada. Vermelho quebra, amarelo tem limite, verde é a arquitetura que David defende.",
+    "missing": "Custo da nuvem, latência e os casos em que o local vence. David vende essa arquitetura.",
+    "evidence": "Notas de 00:29:40 a 00:32:20 do vídeo."
+  },
+  "madeira": {
+    "title": "O critério da madeira e da catedral",
+    "alt": "Duas colunas. Cortar madeira é repetitivo e vai para agentes. Construir a catedral é criativo e fica com a pessoa.",
+    "takeaway": "Um loop serve para a coluna da esquerda. A coluna da direita é o trabalho que sobra para a pessoa.",
+    "read": "Compare as duas colunas e classifique cada tarefa sua em uma delas.",
+    "missing": "O meio: muita tarefa mistura as duas colunas. A divisão 10/90 trata desse caso.",
+    "evidence": "Nota de 00:48:20 a 00:50:10 do vídeo; exemplos das notas de 00:50:10 a 00:53:40."
+  },
+  "scan": {
+    "title": "Do histórico de sessões a dois loops, com a divisão 10/90",
+    "alt": "Fluxo: as sessões passam por um Opus e 31 subagentes Haiku, que acham dois hábitos. Cada hábito se divide em 10% autônomos e 90% que esperam a pessoa.",
+    "takeaway": "O primeiro loop nasce do próprio histórico, e o agente só age sozinho na fatia segura.",
+    "read": "Siga as setas. Verde roda sozinho. Amarelo espera a pessoa.",
+    "missing": "Como o scan mede o que é seguro. O vídeo não explica esse critério ⚠. Os números são de uma única rodada.",
+    "evidence": "Notas de 00:53:40 a 00:59:10 do vídeo."
+  },
+  "revolucoes": {
+    "title": "Da tarefa para a máquina, quatro vezes",
+    "alt": "Linha do tempo: tecelagem na década de 1830, linha de montagem em 1913, computação em 1946 e software hoje. Em cada ponto as pessoas deixam a tarefa e passam a operar uma máquina.",
+    "takeaway": "O padrão de David é sempre o mesmo: a pessoa deixa de executar e passa a operar o sistema.",
+    "read": "Cada ponto mostra de que tarefa as pessoas saíram e o que passaram a fazer.",
+    "missing": "Empregos perdidos e os longos períodos de transição. O ponto final é uma previsão de David, não um fato.",
+    "evidence": "Nota de 01:04:00 a 01:06:00 do vídeo. Datas citadas por David, sem checagem externa ⚠."
+  },
+  "autoaprimoramento": {
+    "title": "Como um relato de bug vira uma correção entregue",
+    "alt": "Fluxo circular: um relato entra por CLI e Postgres, um loop abre uma thread, um agente investiga. Ruído é arquivado. Um relato real vira issue, espera aprovação de David, é corrigido, revisado e entregue.",
+    "takeaway": "O agente faz o filtro e o trabalho, mas uma pessoa ainda decide. Só um caso simples pode pular essa decisão.",
+    "read": "Comece no alto à esquerda. A caixa vermelha é o único ponto humano. A linha tracejada fecha o ciclo: o produto entregue gera os próximos relatos.",
+    "missing": "O atalho de bugs simples, que vão direto à produção, e o sistema de reputação.",
+    "evidence": "Notas de 01:08:00 a 01:15:40 do vídeo. David mostra um diagrama próprio; este desenho foi refeito a partir da fala."
+  },
+  "inferencia": {
+    "title": "Quando usar a fronteira e quando usar o local",
+    "alt": "Duas colunas. Fronteira para trabalho difícil. Local para dados privados, perguntas sem filtro e proteção em crises.",
+    "takeaway": "David usa fronteira como padrão e reserva o local para privacidade e autonomia.",
+    "read": "Compare as colunas e escolha pela tarefa.",
+    "missing": "Custo por token e comparação de qualidade. O número de 90% da qualidade da fronteira não tem medição ⚠.",
+    "evidence": "Notas de 01:15:40 a 01:24:20 do vídeo."
+  }
+}

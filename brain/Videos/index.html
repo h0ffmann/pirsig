@@ -1,0 +1,837 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vídeos do cérebro</title>
+<style>
+:root {
+  --bg: #fbfaf7; --panel: #ffffff; --ink: #1f2328; --muted: #5d6570; --line: #d9d6cf;
+  --accent: #1682d4; --accent-soft: #dcecf9; --ok: #1b7f5c; --ok-soft: #d9f0e6;
+  --risk: #bc2318; --risk-soft: #f9e0dd; --warn: #9a6400; --warn-soft: #f8ecd2;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #15181c; --panel: #1d2126; --ink: #e8e6e1; --muted: #a0a7b0; --line: #363c44;
+    --accent: #5fb3f0; --accent-soft: #17344a; --ok: #58c9a0; --ok-soft: #173a2e;
+    --risk: #f08a80; --risk-soft: #46211e; --warn: #e3b25c; --warn-soft: #3d2f15;
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 17px/1.65 ui-serif, Georgia, "Iowan Old Style", serif;
+}
+main { max-width: 760px; margin: 0 auto; padding: 32px 16px 96px; }
+h1 { font: 700 30px/1.2 ui-sans-serif, system-ui, sans-serif; margin: 0 0 8px; }
+h4 { font: 650 18px/1.35 ui-sans-serif, system-ui, sans-serif; margin: 0 0 2px; }
+.lede, .meta, .links, .time, .fig-title, summary, button, figcaption, details details {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+.lede { color: var(--muted); font-size: 15px; }
+.tools { display: flex; gap: 8px; margin: 12px 0 20px; }
+button {
+  background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 6px;
+  padding: 6px 12px; font-size: 14px; cursor: pointer;
+}
+button:hover { border-color: var(--accent); }
+code {
+  font: 0.86em ui-monospace, SFMono-Regular, Menlo, monospace;
+  background: var(--accent-soft); padding: 1px 4px; border-radius: 4px;
+}
+a { color: var(--accent); }
+details.video {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+  padding: 16px; margin-bottom: 16px;
+}
+details.video > summary { cursor: pointer; }
+.video-title { display: block; font-size: 20px; font-weight: 700; line-height: 1.3; }
+.meta { display: block; color: var(--muted); font-size: 14px; margin-top: 4px; }
+.links { font-size: 14px; color: var(--muted); }
+details.part { border-top: 1px solid var(--line); padding: 10px 0; }
+details.part > summary { cursor: pointer; font-weight: 650; font-size: 17px; padding: 4px 0; }
+.note { margin: 24px 0 28px; }
+.time { display: block; font-size: 13px; margin-bottom: 8px; text-decoration: none; }
+.warn { color: var(--warn); }
+figure { margin: 28px 0; padding: 12px; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; }
+figure details { font-size: 14.5px; margin-top: 8px; }
+figure summary { cursor: pointer; color: var(--muted); font-size: 14px; }
+figure details p { margin: 8px 0; }
+.fig-title { font-weight: 650; font-size: 15px; margin-bottom: 8px; }
+.svg svg { display: block; width: 100%; height: auto; }
+.svg text {
+  font-family: ui-sans-serif, system-ui, sans-serif; fill: var(--ink); font-size: 13px;
+}
+.svg text.m { fill: var(--muted); font-size: 12px; }
+.svg text.h { font-weight: 700; }
+.svg text.a { fill: var(--accent); }
+.svg text.ok { fill: var(--ok); }
+.svg text.r { fill: var(--risk); }
+.svg text.w { fill: var(--warn); }
+.svg .bx { fill: var(--panel); stroke: var(--line); stroke-width: 1.2; }
+.svg .bx-a { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.2; }
+.svg .bx-ok { fill: var(--ok-soft); stroke: var(--ok); stroke-width: 1.2; }
+.svg .bx-r { fill: var(--risk-soft); stroke: var(--risk); stroke-width: 1.2; }
+.svg .bx-w { fill: var(--warn-soft); stroke: var(--warn); stroke-width: 1.2; }
+.svg .ln { stroke: var(--muted); stroke-width: 1.4; fill: none; }
+.svg .ln-d { stroke: var(--muted); stroke-width: 1.2; fill: none; stroke-dasharray: 4 4; }
+.svg .hd { fill: var(--muted); stroke: none; }
+.svg .bar-a { fill: var(--accent); }
+.svg .bar-r { fill: var(--risk); }
+.svg .bar-ok { fill: var(--ok); }
+.svg .bar-g { fill: var(--muted); }
+.svg .bar-m { fill: var(--line); }
+@media (max-width: 520px) { body { font-size: 16px; } main { padding: 20px 16px 64px; } }
+</style></head>
+<body><main>
+<h1>Vídeos do cérebro</h1>
+<p class="lede">1 vídeo indexado. Abra um vídeo, depois uma parte.
+Página gerada por <code>just videos</code>.</p>
+<div class="tools"><button id="open">Abrir tudo</button><button id="close">Recolher tudo</button></div>
+<details class="video" open>
+<summary><span class="video-title">My Agentic Engineering Workflow (after 15,700 sessions)</span>
+<span class="meta">David Ondrej · 2026-10-30 · 01:25:40 · leitura de ~30 min · 11 figuras</span></summary>
+<p class="links"><a href="https://www.youtube.com/watch?v=F8rc-ULd4_4">Abrir o vídeo</a> · nota <code>66</code>: <code>psg note -s 66</code></p>
+<details class="part" open><summary>Como ler este texto</summary>
+<p>Este texto indexa o vídeo "My Agentic Engineering Workflow (after 15,700 sessions)", publicado por David Ondrej em 2026-10-30. O vídeo dura 1 h 25 min 40 s. O texto cobre o vídeo do início ao fim, na ordem da fala.</p>
+<p><strong>Quem fala.</strong> Todo o texto relata o que David diz. Uma frase sem atribuição é fala de David, e não um fato checado. Um comentário nosso começa com <code>Leitura do indexador:</code>.</p>
+<p><strong>Marcas.</strong> Cada nota termina com o trecho do vídeo que a sustenta. O indexador leu a legenda inteira. A marca <code>(v)</code> diz que a nota confere com a legenda. A marca não diz que David está certo. O sinal <code><span class="warn" title="não checado">⚠</span></code> aponta um nome ou um número duvidoso. A lista completa está na última parte.</p>
+<p><strong>Conflito de interesse.</strong> David criou o Cloudroom e vende esse produto no vídeo. Leia com essa informação à mão todo elogio ao Cloudroom e toda crítica aos concorrentes.</p>
+<p><strong>Vocabulário.</strong> Estes termos têm um sentido fixo neste texto.</p>
+<ul><li><strong>Agente:</strong> um modelo de IA que usa ferramentas e trabalha em ciclos até concluir uma tarefa.</li><li><strong>Harness:</strong> o programa que roda o agente, como Claude Code, Codex, Pi, Hermes e OpenCode.</li><li><strong>Modelo de fronteira:</strong> o modelo mais capaz de um laboratório em um dado momento.</li><li><strong>Thread:</strong> uma sessão de conversa com um agente.</li><li><strong>Subagente:</strong> um agente que outro agente inicia para executar uma parte do trabalho.</li><li><strong>Agente na nuvem:</strong> um agente que roda em uma máquina remota, e não no computador da pessoa.</li><li><strong>Sandbox:</strong> um ambiente isolado que pertence a um único agente.</li><li><strong>Worktree:</strong> uma cópia de trabalho de um repositório Git na mesma máquina.</li><li><strong>Skill:</strong> um arquivo de instruções que o agente carrega para executar um procedimento.</li><li><strong>Loop:</strong> um agente agendado que repete uma tarefa sem pedido humano.</li><li><strong>ADE:</strong> ambiente de desenvolvimento com agentes, o aplicativo em que a pessoa comanda as threads.</li></ul>
+<figure id="fig-mapa"><figcaption class="fig-title">Mapa do vídeo: três partes ocupam mais da metade</figcaption>
+<div class="svg" role="img" aria-label="Barras horizontais na ordem do vídeo. As partes de revisão, nuvem e loops são as maiores, com cerca de 13, 13 e 19 minutos."><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400">
+<text x="170" y="18" text-anchor="start" class="m">0:00</text>
+<text x="700" y="18" text-anchor="end" class="m">1:25:40</text>
+<text x="160" y="46" text-anchor="end">1 Modelos</text>
+<rect x="170" y="41" width="530" height="1" class="bar-m"/>
+<rect x="170.0" y="32" width="26.8" height="20" class="bar-g"/>
+<text x="202.80933852140078" y="47" text-anchor="start" class="m">4 min</text>
+<text x="160" y="79" text-anchor="end">2 Aprender</text>
+<rect x="170" y="74" width="530" height="1" class="bar-m"/>
+<rect x="196.8" y="65" width="14.4" height="20" class="bar-g"/>
+<text x="217.24513618677042" y="80" text-anchor="start" class="m">2 min</text>
+<text x="160" y="112" text-anchor="end">3 Revisão</text>
+<rect x="170" y="107" width="530" height="1" class="bar-m"/>
+<rect x="211.2" y="98" width="80.4" height="20" class="bar-a"/>
+<text x="297.67315175097275" y="113" text-anchor="start" class="m">13 min</text>
+<text x="160" y="145" text-anchor="end">4 Os 100%</text>
+<rect x="170" y="140" width="530" height="1" class="bar-m"/>
+<rect x="291.7" y="131" width="17.5" height="20" class="bar-g"/>
+<text x="315.2023346303502" y="146" text-anchor="start" class="m">3 min</text>
+<text x="160" y="178" text-anchor="end">5 Subagentes</text>
+<rect x="170" y="173" width="530" height="1" class="bar-m"/>
+<rect x="309.2" y="164" width="27.8" height="20" class="bar-g"/>
+<text x="343.0428015564202" y="179" text-anchor="start" class="m">5 min</text>
+<text x="160" y="211" text-anchor="end">6 Nuvem</text>
+<rect x="170" y="206" width="530" height="1" class="bar-m"/>
+<rect x="337.0" y="197" width="77.3" height="20" class="bar-a"/>
+<text x="420.3774319066148" y="212" text-anchor="start" class="m">13 min</text>
+<text x="160" y="244" text-anchor="end">7 ADE</text>
+<rect x="170" y="239" width="530" height="1" class="bar-m"/>
+<rect x="414.4" y="230" width="37.1" height="20" class="bar-g"/>
+<text x="457.49805447470817" y="245" text-anchor="start" class="m">6 min</text>
+<text x="160" y="277" text-anchor="end">8 Loops</text>
+<rect x="170" y="272" width="530" height="1" class="bar-m"/>
+<rect x="451.5" y="263" width="114.5" height="20" class="bar-a"/>
+<text x="571.9533073929961" y="278" text-anchor="start" class="m">19 min</text>
+<text x="160" y="310" text-anchor="end">9 Revoluções</text>
+<rect x="170" y="305" width="530" height="1" class="bar-m"/>
+<rect x="566.0" y="296" width="24.7" height="20" class="bar-g"/>
+<text x="596.7003891050583" y="311" text-anchor="start" class="m">4 min</text>
+<text x="160" y="343" text-anchor="end">10 Autoaprimoramento</text>
+<rect x="170" y="338" width="530" height="1" class="bar-m"/>
+<rect x="590.7" y="329" width="47.4" height="20" class="bar-g"/>
+<text x="644.1322957198444" y="344" text-anchor="start" class="m">8 min</text>
+<text x="160" y="376" text-anchor="end">11 Inferência</text>
+<rect x="170" y="371" width="530" height="1" class="bar-m"/>
+<rect x="638.1" y="362" width="61.9" height="20" class="bar-g"/>
+<text x="632.1322957198444" y="377" text-anchor="end" class="m">10 min</text>
+</svg></div>
+<details><summary>Como ler esta figura</summary>
+<p><strong>Conclusão.</strong> Revisão, nuvem e loops somam cerca de 44 dos 86 minutos. O vídeo é sobre processo, mais que sobre modelos.</p>
+<p><strong>Como ler.</strong> Cada linha é uma parte deste texto. A posição mostra quando a parte acontece. O comprimento mostra a duração. As três maiores estão em azul.</p>
+<p><strong>O que não mostra.</strong> O peso de cada tema dentro das partes. Menções ao Cloudroom aparecem em quase todas.</p>
+<p><strong>Evidência.</strong> Marcas de tempo das notas em <code>leitura.markdown</code>; durações arredondadas por cálculo do indexador.</p></details></figure>
+</details>
+<details class="part"><summary>Parte 1: A promessa e os modelos</summary>
+
+<section class="note"><h4>David promete mostrar o fluxo que desenvolveu em mais de 2.500 horas</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=0s">00:00:00–00:00:50</a>
+<p>David programa com IA há quatro anos. A conta de David soma mais de 2.500 horas e três startups de IA. David também entrevistou pessoas conhecidas nessa área: o CEO da Vercel, o CTO da Supabase, o CTO da Fireworks e Matt PCO <span class="warn" title="não checado">⚠</span>. Para David, programar com IA parece trapaça quando a pessoa domina o método.</p>
+<p>O vídeo promete cinco respostas. Quais modelos, harnesses e assinaturas compensam agora. Como David revisa código para entregar direto em produção. Quando usar subagentes. Quando usar agentes na nuvem. Quais loops fazem boa parte do trabalho diário.</p>
+<p>Este vídeo atualiza outro, feito dois meses antes, que chegou perto de 200.000 visualizações. David afirma que muita coisa mudou nesse intervalo.</p></section>
+<section class="note"><h4>Opus 5.5 e Astra são os dois únicos modelos na fronteira real</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=50s">00:00:50–00:02:00</a>
+<p>O modelo que David mais usa é o Opus 5.5, da Anthropic. David considera esse modelo o melhor do mundo e também rápido. Fable 5.5 pode chegar em breve. Enquanto isso, David roda o Opus no Claude Code. Quando o limite das duas assinaturas acaba, David roda o mesmo modelo em outro harness, como o Cursor CLI.</p>
+<p>Na OpenAI, a escolha fica entre Astra e Soul <span class="warn" title="não checado">⚠</span>. David prefere o Astra, porque esse modelo tem "cheiro de modelo grande". David acrescenta que a OpenAI está atrás e precisa lançar um modelo melhor.</p>
+<p>Google, Meta e Kimi <span class="warn" title="não checado">⚠</span> fazem bons modelos, e David ainda usa esses modelos. Mas David não coloca nenhum deles na fronteira real. Esse lugar é só de Opus e Astra.</p></section>
+<section class="note"><h4>O harness importa cada vez menos quando o modelo é forte</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=120s">00:02:00–00:02:30</a>
+<p>David usa vários harnesses: Pi, Claude Code, Hermes e OpenCode. Mesmo assim, David vê o harness perder importância. Em um evento no escritório da Anthropic, dois engenheiros da empresa contaram a David o que esperam da próxima geração de modelos. A lição principal foi esta: dê a um modelo forte acesso ao terminal e à internet, e o harness quase deixa de importar. O resultado seria parecido no Claude Code, no Devin ou no Droid.</p></section>
+<section class="note"><h4>A assinatura Claude Max de US$ 200 por mês dá o melhor retorno agora</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=150s">00:02:30–00:03:30</a>
+<p>David ordena as assinaturas por retorno. Os planos Claude de US$ 100 e US$ 200 por mês ficam em primeiro lugar, bem à frente do Codex. O plano ChatGPT Pro fica em segundo lugar, com limites que mudam a toda hora.</p>
+<p>Com uma única escolha, David ficaria com o Claude Max de US$ 200, sem disputa.</p>
+<p>Quem tem pouco dinheiro pode assinar o OpenCode Go, de US$ 10. Os produtos da Cursor e da SpaceX AI servem para quem gosta do Grogbot <span class="warn" title="não checado">⚠</span>. David chama o Google de piada, mas vê promessa no Argon e no Carbon <span class="warn" title="não checado">⚠</span>. O Carbon pode ser o melhor modelo do mundo, porém ainda não saiu.</p></section>
+<section class="note"><h4>David usa só o Cloudroom, um ADE próprio, gratuito e aberto</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=210s">00:03:30–00:04:20</a>
+<p>No lugar de ADE, David usa apenas o Cloudroom. David criou esse aplicativo. O produto é gratuito, tem código aberto e está em cloudroom.dev. David afirma que o Cloudroom é o único aplicativo de código com IA que oferece agentes na nuvem no plano gratuito <span class="warn" title="não checado">⚠</span>. A pessoa pode escolher o modelo e usar as assinaturas que já paga, tanto no local quanto na nuvem.</p>
+<p>Leitura do indexador: esta é a primeira de várias menções ao produto. A alegação "o único no mundo" não foi checada.</p></section></details>
+<details class="part"><summary>Parte 2: O que aprender</summary>
+
+<section class="note"><h4>O engenheiro de agentes deve pensar como arquiteto, e não decorar sintaxe</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=260s">00:04:20–00:05:50</a>
+<p>Para David, decorar sintaxe de Python ou TypeScript já não vale a pena. Reconhecer se um trecho é C++ ou Rust é um truque bonito, mas sem valor. Vale entender as ideias altas: o que é uma linguagem com tipos, por que Rust é rápido, como Rust protege a memória.</p>
+<p>A competência certa é pensar como arquiteto de software. David recomenda um vídeo de Mark Richards sobre esse tema. O arquiteto olha uma tela e formula hipóteses. A página abriu na hora? Talvez exista pré-carregamento, cache ou carregamento otimista. O profissional precisa de muita largura e de pouca profundidade em cada item.</p></section>
+<section class="note"><h4>Basta conhecer os conceitos de software, porque o modelo escreve a função</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=350s">00:05:50–00:06:40</a>
+<p>David mostra uma lista de conceitos: compromissos de projeto, cache, observabilidade, raio de explosão, acoplamento e coesão. Quem constrói software deve saber o que esses termos significam. A pessoa não precisa ser especialista. A pessoa também não precisa escrever a função do zero, porque o Opus 5.5 escreve essa função. O essencial é saber que o conceito existe.</p>
+<p>Para cada conceito desconhecido, David sugere 30 minutos de estudo. O melhor professor é a própria IA. David diz que usar IA para aprender é um dos melhores previsores de sucesso que já viu. David também anuncia um tema para o fim do vídeo: o software que melhora a si mesmo conforme os usuários crescem.</p></section></details>
+<details class="part"><summary>Parte 3: Como David revisa e entrega</summary>
+<p>Esta é a parte que David considera a mais valiosa. David pediu ao Opus que analisasse todas as sessões e desenhasse o processo real.</p>
+<section class="note"><h4>Quem trabalha com IA precisa medir a produtividade para não se enganar</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=400s">00:06:40–00:08:00</a>
+<p>David diz que entrega centenas de mudanças por dia em produção. O gráfico do GitHub mostra pouca atividade até março e abril de 2026, e depois uma aceleração. Em setembro e outubro, com os agentes na nuvem, David passou a 100 a 200 contribuições por dia. Um segundo gráfico, feito pelo Opus a partir dos dados do GitHub, mostra 700 commits em produção por semana. David descreve a curva como exponencial.</p></section>
+<section class="note"><h4>Cada thread deve carregar uma única tarefa</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=480s">00:08:00–00:09:30</a>
+<p>David pergunta ao Cloudroom quantas threads estão abertas. A resposta é 550, depois de chegar a mais de 800 no dia anterior. Com esse volume, a pergunta central é como saber se o código é bom, sem bugs e sem falhas de segurança. Revisar ficou cada vez mais importante.</p>
+<p>A primeira regra é separar o trabalho. Uma thread nova recebe uma única tarefa, como um chamado claro no Jira. David mostra exemplos reais: uma thread investiga por que o OBS quebrou, outra prepara o vídeo, outra limpa o disco. Se um assunto novo aparece, David faz um fork para outra sessão.</p></section>
+<section class="note"><h4>Um bug deve ser reproduzido de ponta a ponta antes da correção</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=570s">00:09:30–00:11:00</a>
+<p>O fluxo começa com uma pergunta: a tarefa é um bug? Se for, o agente tenta reproduzir o problema como um usuário real. David não aceita correção baseada em descrição vaga. O agente pode rodar um teste, uma simulação ou um experimento para entender a falha.</p>
+<p>Depois o Opus 5.5 escreve a correção. Em seguida entram testes, checagem de tipos e, quando a interface muda, capturas de tela do aplicativo real.</p>
+<p>David considera as capturas de tela uma arma forte. David pede ao agente que imagine o aplicativo no estilo Windows 7 e mostre três versões. Nesse trecho, David também anuncia o suporte oficial ao Windows, lançado na véspera. Antes o Cloudroom só rodava em macOS e Linux.</p></section>
+<section class="note"><h4>Uma mudança grande ou arriscada aciona skills de decisão e de segurança</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=660s">00:11:00–00:12:50</a>
+<p>Se a tarefa não é um bug, a pergunta é outra: a mudança é grande ou arriscada? Nesse caso, David usa skills do repositório público davidondrej/skills.</p>
+<p>A skill 4x4 faz quatro blocos de quatro perguntas, 16 decisões no total. Os blocos são produto, desenho de software, uso prático e casos de borda. David só roda essa skill em mudanças grandes.</p>
+<p>A skill de mudanças arriscadas funciona como trava de segurança para erros que atingem clientes. Os agentes acionam essa skill sozinhos. A skill nasceu de um erro real: um filtro passou em todos os testes e, com dados reais, desligou 99% do recurso. David diz que as próprias skills costumam nascer de lições caras.</p>
+<p>David dá uma dica extra. Todo prompt frequente vira um atalho no Raycast ou nas substituições de texto do macOS. Quando o procedimento é maior que um prompt, vira skill. Em mudança pequena, o Opus apenas constrói.</p></section>
+<section class="note"><h4>A maioria dos testes escritos por agentes é lixo e deve ser evitada</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=770s">00:12:50–00:14:00</a>
+<p>David assume uma posição contrária: testes costumam ser superestimados. Segundo David, mais de 90% dos testes que os agentes escrevem são lixo. Esses testes incham o aplicativo, atrasam o trabalho e não verificam nada. O agente escreve o teste só para o teste passar.</p>
+<p>Testes ainda têm função. Se os agentes repetem o mesmo tipo de erro, David pede um ou dois testes estratégicos para impedir a repetição. Fora disso, David não quer centenas de milhares de linhas de teste.</p>
+<p>Os modelos já escrevem testes por conta própria, e cada geração melhora. Por isso, David manda o agente parar de escrever testes. Mesmo com essa ordem, o agente ainda escreve alguns. Para David, essa sobra costuma ser a quantidade certa.</p></section>
+<section class="note"><h4>Mudança média ou grande deve ser revisada pelo modelo de fronteira do outro laboratório</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=840s">00:14:00–00:15:50</a>
+<p>Depois de construir, David decide a revisão pelo tamanho da mudança. Em mudança normal, David roda a skill de revisão com GPT. O motivo é simples: quem escreveu foi o Opus.</p>
+<p>A regra exige modelos de fronteira. David avisa que o método não funciona com Haiku, Luna ou um modelo local de 27 B <span class="warn" title="não checado">⚠</span>. Quem só usa modelo barato vê falhas constantes e não entende como alguém entrega centenas de commits por dia. David usa Opus 5.5 em esforço extra alto ou máximo em tudo.</p>
+<p>A regra de revisão é cruzada. Quem constrói com Opus ou Fable revisa com o modelo de fronteira da OpenAI, em esforço extra alto ou máximo. Quem prefere GPT revisa com o Opus 5.5. David estima que esse único hábito reduz em cerca de 90% os bugs sérios, as quebras e o lixo <span class="warn" title="não checado">⚠</span>.</p></section>
+<section class="note"><h4>Revisar várias vezes seguidas gera falsos problemas</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=950s">00:15:50–00:16:40</a>
+<p>Para uma mudança enorme e arriscada, David tem a skill de revisão total. Essa skill usa Fable, Opus, Astra, Soul e Muse <span class="warn" title="não checado">⚠</span>, gasta muitos tokens e demora. O resultado é uma lista sem duplicatas com os achados mais sérios. David roda essa skill só algumas vezes por semana.</p>
+<p>No dia a dia, David constrói com o Opus e roda a revisão com GPT. Se a revisão encontra muita coisa, David corrige e talvez rode a revisão mais uma vez.</p>
+<p>O erro comum é repetir a revisão quatro vezes em sequência. Para David, isso produz lixo. Quando alguém manda um modelo achar bugs, o modelo acha algo, mesmo sem bug sério. O modelo pode até alucinar um problema, porque essa foi a tarefa recebida.</p></section>
+<section class="note"><h4>Cada achado recebe nota em frequência e gravidade, e o Opus decide o que é obrigatório</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=1000s">00:16:40–00:18:30</a>
+<p>Cada problema recebe uma nota de 1 a 10 em dois eixos: frequência e gravidade. O Astra acha casos de borda que podem ser graves, mas quase nunca acontecem. O problema real é o grave e frequente. A pessoa decide pelo próprio julgamento. Se a revisão acha seis problemas, a pessoa pode corrigir só os três mais sérios.</p>
+<p>O melhor caminho é devolver a lista ao Opus. O Astra encontrou cinco problemas? David pergunta ao Opus: "isto é um problema real, obrigatório, ou é exagero?". David chama essa pergunta de ótimo prompt. A resposta costuma ser concordar com quatro e descartar um.</p>
+<p>Se o problema é obrigatório, David aprova e o agente corrige. Na dúvida, David pede uma segunda opinião de outro modelo. Revisar de novo a correção é opcional e costuma atrasar. O rigor depende do contexto. Com milhares de clientes pagantes, a pessoa precisa de mais cuidado. No começo, a pessoa precisa construir rápido e aceitar quebrar coisas.</p>
+<figure id="fig-revisao"><figcaption class="fig-title">O caminho de uma tarefa até a produção</figcaption>
+<div class="svg" role="img" aria-label="Fluxograma: uma tarefa passa por bug ou risco, é construída pelo Opus, testada, revisada conforme o tamanho, triada pelo Opus e entregue, com loops depois da entrega."><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 620">
+<rect x="240" y="10" width="240" height="34" rx="7" class="bx-a"/>
+<text x="360" y="31.5" text-anchor="middle">Uma tarefa, uma thread</text>
+<path d="M360 44 L360 68" class="ln"/>
+<polygon class="hd" points="360,68 363.3,60.7 356.7,60.7"/>
+<rect x="280" y="68" width="160" height="34" rx="7" class="bx-w"/>
+<text x="360" y="89.5" text-anchor="middle">É um bug?</text>
+<path d="M280 85 L130 85 L130 118" class="ln"/>
+<polygon class="hd" points="130,118 133.3,110.7 126.7,110.7"/>
+<text x="200" y="79" text-anchor="middle" class="m">sim</text>
+<path d="M440 85 L590 85 L590 118" class="ln"/>
+<polygon class="hd" points="590,118 593.3,110.7 586.7,110.7"/>
+<text x="520" y="79" text-anchor="middle" class="m">não</text>
+<rect x="30" y="118" width="200" height="50" rx="7" class="bx"/>
+<text x="130" y="139.5" text-anchor="middle">Agente reproduz o bug</text>
+<text x="130" y="155.5" text-anchor="middle">como usuário real</text>
+<rect x="490" y="118" width="200" height="50" rx="7" class="bx-w"/>
+<text x="590" y="139.5" text-anchor="middle">Grande ou arriscada?</text>
+<text x="590" y="155.5" text-anchor="middle">skills 4x4 e de risco</text>
+<path d="M130 168 L130 196 L300 196 L300 214" class="ln"/>
+<polygon class="hd" points="300,214 303.3,206.7 296.7,206.7"/>
+<path d="M590 168 L590 196 L420 196 L420 214" class="ln"/>
+<polygon class="hd" points="420,214 423.3,206.7 416.7,206.7"/>
+<rect x="240" y="214" width="240" height="34" rx="7" class="bx-a"/>
+<text x="360" y="235.5" text-anchor="middle">Opus 5.5 constrói</text>
+<path d="M360 248 L360 270" class="ln"/>
+<polygon class="hd" points="360,270 363.3,262.7 356.7,262.7"/>
+<rect x="190" y="270" width="340" height="34" rx="7" class="bx"/>
+<text x="360" y="291.5" text-anchor="middle">Testes, tipos e capturas de tela do app real</text>
+<path d="M360 304 L360 326" class="ln"/>
+<polygon class="hd" points="360,326 363.3,318.7 356.7,318.7"/>
+<rect x="280" y="326" width="160" height="34" rx="7" class="bx-w"/>
+<text x="360" y="347.5" text-anchor="middle">Tamanho?</text>
+<path d="M280 343 L120 343 L120 382" class="ln"/>
+<polygon class="hd" points="120,382 123.3,374.7 116.7,374.7"/>
+<text x="200" y="337" text-anchor="middle" class="m">pequena</text>
+<path d="M360 360 L360 382" class="ln"/>
+<polygon class="hd" points="360,382 363.3,374.7 356.7,374.7"/>
+<text x="392" y="375" text-anchor="middle" class="m">normal</text>
+<path d="M440 343 L600 343 L600 382" class="ln"/>
+<polygon class="hd" points="600,382 603.3,374.7 596.7,374.7"/>
+<text x="520" y="337" text-anchor="middle" class="m">enorme</text>
+<rect x="30" y="382" width="180" height="50" rx="7" class="bx"/>
+<text x="120" y="403.5" text-anchor="middle">Sem revisão</text>
+<text x="120" y="419.5" text-anchor="middle">de outro modelo</text>
+<rect x="260" y="382" width="200" height="50" rx="7" class="bx-a"/>
+<text x="360" y="403.5" text-anchor="middle">Revisão pelo outro</text>
+<text x="360" y="419.5" text-anchor="middle">laboratório (uma vez)</text>
+<rect x="510" y="382" width="180" height="50" rx="7" class="bx-r"/>
+<text x="600" y="403.5" text-anchor="middle">Revisão total</text>
+<text x="600" y="419.5" text-anchor="middle">todos os laboratórios</text>
+<path d="M360 432 L360 454" class="ln"/>
+<polygon class="hd" points="360,454 363.3,446.7 356.7,446.7"/>
+<path d="M600 432 L600 444 L420 444 L420 454" class="ln"/>
+<polygon class="hd" points="420,454 423.3,446.7 416.7,446.7"/>
+<rect x="210" y="454" width="300" height="40" rx="7" class="bx-w"/>
+<text x="360" y="478.5" text-anchor="middle">Opus: problema real ou exagero?</text>
+<path d="M120 432 L120 566 L270 566" class="ln"/>
+<polygon class="hd" points="270,566 262.7,562.7 262.7,569.3"/>
+<path d="M360 494 L360 516" class="ln"/>
+<polygon class="hd" points="360,516 363.3,508.7 356.7,508.7"/>
+<rect x="270" y="516" width="180" height="34" rx="7" class="bx"/>
+<text x="360" y="537.5" text-anchor="middle">Corrigir o obrigatório</text>
+<path d="M360 550 L360 566" class="ln"/>
+<polygon class="hd" points="360,566 363.3,558.7 356.7,558.7"/>
+<rect x="270" y="566" width="180" height="34" rx="7" class="bx-ok"/>
+<text x="360" y="587.5" text-anchor="middle">Produção</text>
+<path d="M450 583 L530 583" class="ln"/>
+<polygon class="hd" points="530,583 522.7,579.7 522.7,586.3"/>
+<rect x="530" y="562" width="170" height="42" rx="7" class="bx-ok"/>
+<text x="615" y="579.5" text-anchor="middle">Loops: efeitos</text>
+<text x="615" y="595.5" text-anchor="middle">colaterais e segurança</text>
+</svg></div>
+<details><summary>Como ler esta figura</summary>
+<p><strong>Conclusão.</strong> O rigor cresce com o tamanho da mudança. O passo central é um segundo laboratório revisar, uma única vez.</p>
+<p><strong>Como ler.</strong> Siga as setas de cima para baixo. Caixas amarelas são decisões. A caixa azul de revisão é o caso comum. A caixa vermelha é rara, algumas vezes por semana.</p>
+<p><strong>O que não mostra.</strong> A segunda opinião opcional e a repetição de revisão depois de muitos achados. David não diz com clareza o que acontece em mudança pequena depois dos testes: a seta para produção é leitura do indexador <span class="warn" title="não checado">⚠</span>.</p>
+<p><strong>Evidência.</strong> Notas de 00:09:30 a 00:19:40 do vídeo. David mostra um diagrama próprio; este desenho foi refeito a partir da fala.</p></details></figure>
+<figure id="fig-eixos"><figcaption class="fig-title">Dois eixos separam o problema real do exagero</figcaption>
+<div class="svg" role="img" aria-label="Quadrante de frequência por gravidade. O canto grave e frequente deve ser corrigido. O canto leve e raro deve ser ignorado."><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400">
+<rect x="110" y="20" width="280" height="160" rx="7" class="bx-w"/>
+<text x="250" y="96.5" text-anchor="middle">Corrigir se sobrar tempo</text>
+<text x="250" y="112.5" text-anchor="middle">grave, mas raro</text>
+<rect x="390" y="20" width="280" height="160" rx="7" class="bx-r"/>
+<text x="530" y="96.5" text-anchor="middle" class="h">Corrigir antes de entregar</text>
+<text x="530" y="112.5" text-anchor="middle" class="h">grave e frequente</text>
+<rect x="110" y="180" width="280" height="160" rx="7" class="bx"/>
+<text x="250" y="256.5" text-anchor="middle">Ignorar</text>
+<text x="250" y="272.5" text-anchor="middle">o exemplo típico de exagero</text>
+<rect x="390" y="180" width="280" height="160" rx="7" class="bx-w"/>
+<text x="530" y="256.5" text-anchor="middle">Decidir pelo contexto</text>
+<text x="530" y="272.5" text-anchor="middle">leve e frequente</text>
+<text x="390" y="366" text-anchor="middle" class="h">Frequência: nota de 1 a 10 →</text>
+<text x="60" y="180" text-anchor="middle" class="h" transform="rotate(-90 60 180)">Gravidade: nota de 1 a 10 →</text>
+</svg></div>
+<details><summary>Como ler esta figura</summary>
+<p><strong>Conclusão.</strong> Um achado grave e raro não pesa o mesmo que um achado grave e frequente.</p>
+<p><strong>Como ler.</strong> Cada achado da revisão recebe duas notas e cai em um quadrante.</p>
+<p><strong>O que não mostra.</strong> Limiares. David não dá notas de corte. As quatro ações são leitura do indexador <span class="warn" title="não checado">⚠</span>; David só caracteriza o caso grave e frequente e o caso grave e raro.</p>
+<p><strong>Evidência.</strong> Nota de 00:16:40 a 00:18:30 do vídeo.</p></details></figure></section>
+<section class="note"><h4>A entrega termina com um loop que caça efeitos colaterais</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=1110s">00:18:30–00:19:40</a>
+<p>Quando nada falta corrigir, o trabalho vai para produção. O agente atualiza a branch com a <code>main</code>, e a CI roda as checagens.</p>
+<p>Depois da entrega, entram os loops de efeitos colaterais e de segurança. David explica o risco: mesmo com revisão, uma mudança rápida pode quebrar outra parte do código. Um único loop dedicado a esse risco pega 95% desses casos, segundo David <span class="warn" title="não checado">⚠</span>. Muitos problemas são corrigidos antes de chegar aos clientes.</p>
+<p>David avisa que este processo deve mudar em um mês.</p></section></details>
+<details class="part"><summary>Parte 4: A mentalidade dos 100%</summary>
+
+<section class="note"><h4>O ganho real só aparece quando agentes fazem 100% do trabalho</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=1180s">00:19:40–00:21:30</a>
+<p>David cita um artigo de Jacob <span class="warn" title="não checado">⚠</span> e diz que a maioria dos fundadores que conheceu em São Francisco ainda não abraçou a IA por inteiro.</p>
+<p>David explica com uma conta. Um trabalho toma 8 horas. A pessoa passa metade aos agentes. Os agentes fazem essas 4 horas em 10 a 20 minutos, mas as outras 4 horas continuam manuais. O total cai para cerca de 4 h 10 min. A pessoa sente que avançou, mas o ganho é modesto. David chama esse ganho de redução de cerca de 45%.</p>
+<p>O salto de 10, 20, 50 ou 100 vezes só aparece com 100%. Nesse caso, agentes escrevem e revisam todas as linhas.</p>
+<p>Leitura do indexador: a conta é uma versão da Lei de Amdahl. A parte lenta que sobra limita o ganho total. Pelos números de David, a redução é de 48%, e não de 45%. A figura mostra o cálculo.</p>
+<figure id="fig-cem"><figcaption class="fig-title">A parte humana limita o ganho total</figcaption>
+<div class="svg" role="img" aria-label="Três barras de tempo: 8 horas à mão, 4 horas e 10 minutos com metade para agentes, e 20 minutos com tudo para agentes."><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 270">
+<text x="180" y="33" text-anchor="end" class="h">Só à mão</text>
+<text x="180" y="50" text-anchor="end" class="m">100% humano</text>
+<rect x="190.0" y="20" width="490.0" height="34" class="bar-m"/>
+<text x="688" y="42" text-anchor="start"></text>
+<text x="435" y="42" text-anchor="middle" class="h">8 h</text>
+<text x="180" y="103" text-anchor="end" class="h">Metade</text>
+<text x="180" y="120" text-anchor="end" class="m">50% agentes</text>
+<rect x="190.0" y="90" width="245.0" height="34" class="bar-r"/>
+<rect x="435.0" y="90" width="10.2" height="34" class="bar-a"/>
+<text x="453.2083333333333" y="112" text-anchor="start">4 h 10 min (-48%)</text>
+<text x="180" y="173" text-anchor="end" class="h">Tudo</text>
+<text x="180" y="190" text-anchor="end" class="m">100% agentes</text>
+<rect x="190.0" y="160" width="20.4" height="34" class="bar-a"/>
+<text x="218.41666666666666" y="182" text-anchor="start">20 min, se a taxa se mantém ⚠</text>
+<rect x="190" y="232" width="14" height="14" class="bar-r"/>
+<text x="210" y="244" text-anchor="start" class="m">trabalho humano</text>
+<rect x="330" y="232" width="14" height="14" class="bar-a"/>
+<text x="350" y="244" text-anchor="start" class="m">trabalho de agentes</text>
+</svg></div>
+<details><summary>Como ler esta figura</summary>
+<p><strong>Conclusão.</strong> Passar metade aos agentes acelera menos de 2 vezes. O trabalho humano que sobra domina o total.</p>
+<p><strong>Como ler.</strong> O comprimento da barra é o tempo total. Vermelho é trabalho humano. Azul é trabalho de agentes.</p>
+<p><strong>O que não mostra.</strong> Revisão e decisão humanas, que nunca somem por inteiro. A barra de 20 minutos supõe a mesma taxa de 4 h para 10 min em todo o trabalho.</p>
+<p><strong>Evidência.</strong> 8 h, 4 h e 10 min vêm da nota de 00:19:40 a 00:21:30. Os 48% e os 20 minutos são cálculo do indexador. David fala em cerca de 45%.</p></details></figure></section>
+<section class="note"><h4>A pessoa é o gargalo enquanto escreve código à mão</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=1290s">00:21:30–00:22:30</a>
+<p>Quem usa IA em 50% ou 60% do trabalho segue como a peça mais lenta da máquina. David compara a decisão à pílula vermelha de Matrix.</p>
+<p>O resumo da mentalidade tem duas partes. Agentes corrigem todo erro que um usuário encontra. Agentes verificam o próprio trabalho sem humano no meio. David ainda trabalha nessa segunda parte, com loops.</p>
+<p>David prevê que, no último trimestre de 2026 e em 2027, quem rodar uma fábrica própria de software vai disparar à frente. Essa fábrica é uma série de loops sem humano. David conclui com uma frase forte: não importa se agentes quebram a produção. Importa que os agentes corrijam a falha sozinhos e depressa.</p>
+<p>Leitura do indexador: essa frase contradiz em parte a skill de mudanças arriscadas, que nasceu para proteger clientes. David não trata dessa tensão.</p></section></details>
+<details class="part"><summary>Parte 5: Subagentes</summary>
+
+<section class="note"><h4>Subagentes servem para trabalho claro, paralelo e divisível em partes previsíveis</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=1350s">00:22:30–00:24:00</a>
+<p>David cita um tuíte de Max <span class="warn" title="não checado">⚠</span>: orquestrar subagentes é a astrologia de quem programa por intuição. Muita gente se orgulha do número de subagentes, quando um único agente de topo faria melhor.</p>
+<p>Subagentes servem quando o trabalho é claro, paralelo e divisível em blocos previsíveis. Um exemplo é um escritório de advocacia com 2.000 documentos. Outro exemplo é a análise de milhares de sessões de agentes ou de uma pilha de PDFs. O processo é sempre o mesmo: ler e classificar.</p>
+<p>Nesse caso, um agente principal inteligente, como o Opus 5.5, inicia 10 ou 20 subagentes pequenos, como o Haiku 5.5. Os subagentes rodam em paralelo e devolvem os resultados.</p></section>
+<section class="note"><h4>Trabalho com surpresas exige o modelo mais forte, sem delegar</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=1440s">00:24:00–00:25:50</a>
+<p>A maior parte do trabalho não tem essa forma. Quem constrói algo novo encontra surpresas, becos sem saída e mudanças inesperadas. Descobrir a causa de um bug exige ler bastante e pensar. Para esse trabalho, David não usa subagentes.</p>
+<p>David descreve o desastre típico. Um modelo pequeno recebe um bug simples. Depois o modelo descobre que o bug está acoplado a outra parte do código, e que essa parte toca a cobrança. David quer um modelo forte em qualquer correção, recurso novo ou refatoração grande. Toda surpresa e toda chance de otimizar merecem o modelo mais inteligente com esforço máximo.</p></section>
+<section class="note"><h4>Na dúvida, a resposta sobre subagentes é não</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=1550s">00:25:50–00:27:00</a>
+<p>Subagentes só compensam quando a pessoa conhece a entrada, o processo e o formato da saída. A regra de David é curta: na dúvida, não use. A rotina de David é ter vários agentes de topo com modelo de fronteira, sem dividir o trabalho para ir mais rápido.</p>
+<p>David nunca usa os modos ultra do Codex ou de outras ferramentas. A pessoa não sabe o que acontece lá dentro e desperdiça tokens. Em alguns casos, a pessoa paga cinco vezes mais para terminar duas vezes mais rápido. Com assinaturas tão valiosas, gastar o limite cinco vezes mais depressa para ganhar 1,5 ou 2 vezes não compensa <span class="warn" title="não checado">⚠</span>.</p>
+<figure id="fig-subagentes"><figcaption class="fig-title">Quase toda pergunta leva a não usar subagentes</figcaption>
+<div class="svg" role="img" aria-label="Árvore de decisão com três perguntas. Um não em qualquer pergunta leva a um agente de topo. Três respostas sim levam a um Opus com vários Haiku em paralelo."><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400">
+<rect x="240" y="10" width="240" height="34" rx="7" class="bx-w"/>
+<text x="360" y="31.5" text-anchor="middle">O trabalho é claro e paralelo?</text>
+<path d="M240 27 L120 27 L120 310" class="ln"/>
+<polygon class="hd" points="120,310 123.3,302.7 116.7,302.7"/>
+<text x="170" y="21" text-anchor="middle" class="m">não ou dúvida</text>
+<path d="M360 44 L360 74" class="ln"/>
+<polygon class="hd" points="360,74 363.3,66.7 356.7,66.7"/>
+<text x="380" y="64" text-anchor="middle" class="m">sim</text>
+<rect x="240" y="74" width="240" height="34" rx="7" class="bx-w"/>
+<text x="360" y="95.5" text-anchor="middle">Divide em blocos iguais?</text>
+<path d="M240 91 L150 91 L150 310" class="ln"/>
+<polygon class="hd" points="150,310 153.3,302.7 146.7,302.7"/>
+<path d="M360 108 L360 138" class="ln"/>
+<polygon class="hd" points="360,138 363.3,130.7 356.7,130.7"/>
+<text x="380" y="128" text-anchor="middle" class="m">sim</text>
+<rect x="220" y="138" width="280" height="34" rx="7" class="bx-w"/>
+<text x="360" y="159.5" text-anchor="middle">Conhece entrada, processo e saída?</text>
+<path d="M220 155 L180 155 L180 310" class="ln"/>
+<polygon class="hd" points="180,310 183.3,302.7 176.7,302.7"/>
+<path d="M360 172 L360 202" class="ln"/>
+<polygon class="hd" points="360,202 363.3,194.7 356.7,194.7"/>
+<text x="380" y="192" text-anchor="middle" class="m">sim</text>
+<rect x="270" y="202" width="180" height="34" rx="7" class="bx-a"/>
+<text x="360" y="223.5" text-anchor="middle">Opus: agente principal</text>
+<path d="M310 236 L290 268" class="ln"/>
+<polygon class="hd" points="290,268 296.6,263.5 291.1,260.1"/>
+<path d="M360 236 L360 268" class="ln"/>
+<polygon class="hd" points="360,268 363.3,260.7 356.7,260.7"/>
+<path d="M410 236 L430 268" class="ln"/>
+<polygon class="hd" points="430,268 428.9,260.1 423.4,263.5"/>
+<rect x="240" y="268" width="80" height="34" rx="7" class="bx"/>
+<text x="280" y="289.5" text-anchor="middle">Haiku</text>
+<rect x="330" y="268" width="60" height="34" rx="7" class="bx"/>
+<text x="360" y="289.5" text-anchor="middle">Haiku</text>
+<rect x="400" y="268" width="80" height="34" rx="7" class="bx"/>
+<text x="440" y="289.5" text-anchor="middle">Haiku</text>
+<text x="360" y="324" text-anchor="middle" class="m">10 a 20 em paralelo</text>
+<rect x="30" y="310" width="190" height="60" rx="7" class="bx-ok"/>
+<text x="125" y="328.5" text-anchor="middle">Um agente de topo</text>
+<text x="125" y="344.5" text-anchor="middle">modelo de fronteira,</text>
+<text x="125" y="360.5" text-anchor="middle">esforço máximo</text>
+<text x="360" y="348" text-anchor="middle" class="m">Exemplos: 2.000 contratos, milhares de sessões, PDFs</text>
+</svg></div>
+<details><summary>Como ler esta figura</summary>
+<p><strong>Conclusão.</strong> Subagentes exigem três respostas sim. Um único não leva ao agente de topo.</p>
+<p><strong>Como ler.</strong> Comece no alto. Cada seta à esquerda é um não ou uma dúvida.</p>
+<p><strong>O que não mostra.</strong> Custo real em tokens. David cita pagar 5 vezes mais para ir 2 vezes mais rápido, sem medição <span class="warn" title="não checado">⚠</span>.</p>
+<p><strong>Evidência.</strong> Notas de 00:22:30 a 00:27:00 do vídeo.</p></details></figure></section></details>
+<details class="part"><summary>Parte 6: Nuvem contra local</summary>
+<p>David defende que quase todo agente deve rodar na nuvem. Aqui o interesse comercial pesa, porque o Cloudroom vende essa arquitetura.</p>
+<section class="note"><h4>Agentes na nuvem cresceram, mas as soluções fechadas prendem o usuário</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=1620s">00:27:00–00:29:40</a>
+<p>David mostra um gráfico da Cursor. No começo de 2026, cerca de 1 em cada 10 pull requests que chegavam à produção vinha de agentes na nuvem. No meio do ano, o valor era cerca de 50%. Agora caminha para 60% a 70% <span class="warn" title="não checado">⚠</span>.</p>
+<p>David adotou a nuvem mais tarde, por um motivo. Antes do Cloudroom, todas as soluções eram fechadas. A pessoa não podia inspecionar, hospedar por conta própria nem fazer fork. David afirma que o Cloudroom é o primeiro agente na nuvem de código aberto do mundo <span class="warn" title="não checado">⚠</span>. David também diz ter inventado a execução de qualquer harness como agente na nuvem <span class="warn" title="não checado">⚠</span>.</p>
+<p>O risco do fechado é a prisão ao fornecedor. A solução obriga o uso dos modelos e da assinatura da empresa. David dá um exemplo: quando a OpenAI retirou os modelos da Cursor, o Astra ficou indisponível ali por três semanas, justamente quando era o melhor modelo.</p></section>
+<section class="note"><h4>Worktrees evitam conflito, mas não liberam a máquina</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=1780s">00:29:40–00:30:50</a>
+<p>Agentes consomem CPU, memória e disco. No mesmo checkout, agentes alteram os mesmos arquivos e brigam entre si. O worktree resolve esse conflito, e David usou essa solução por algumas semanas.</p>
+<p>Sobram dois problemas. Cada worktree copia o checkout inteiro, que pode ter gigabytes, e o disco enche depressa. Além disso, todos os agentes continuam na mesma máquina. Um teste pesado, uma renderização ou um agente que clica na tela atrapalham a pessoa.</p>
+<p>Esse limite não incomoda quem roda dois ou três agentes. Mas David quer rodar 10, 20 ou 30 em paralelo. David tem um MacBook Pro M3 Max com 128 GB de memória, de cerca de US$ 7.000, e mesmo assim não consegue rodar mais de 50 agentes nessa máquina.</p></section>
+<section class="note"><h4>Cada agente deve ter o próprio sandbox isolado na nuvem</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=1850s">00:30:50–00:32:20</a>
+<p>David testou primeiro uma única máquina virtual. O resultado foi melhor que o local, mas 5 ou 10 agentes esgotaram a máquina.</p>
+<p>A solução vem do raciocínio por primeiros princípios. Uma empresa dá um computador a cada funcionário novo. Da mesma forma, cada agente deve receber o próprio sandbox. O agente tem recursos próprios e não interrompe os outros.</p>
+<p>Essa arquitetura dá dois ganhos. O primeiro é a escala: 10, 100 ou 1.000 agentes funcionam do mesmo jeito. O segundo é a segurança: um sandbox comprometido não contamina os outros e não chega ao MacBook da pessoa. David cita a onda de ataques e vazamentos dos últimos 7 a 14 dias <span class="warn" title="não checado">⚠</span> como motivo para trabalhar primeiro na nuvem.</p>
+<figure id="fig-isolamento"><figcaption class="fig-title">A escada do isolamento de agentes</figcaption>
+<div class="svg" role="img" aria-label="Quatro degraus: mesmo checkout, worktrees, uma máquina virtual e um sandbox por agente. Cada degrau resolve o problema do anterior."><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 330">
+<rect x="30" y="14" width="200" height="54" rx="7" class="bx-r"/>
+<text x="130" y="45.5" text-anchor="middle" class="h">Mesmo checkout</text>
+<text x="250" y="46" text-anchor="start">agentes alteram os mesmos arquivos</text>
+<path d="M100 68 L100 90" class="ln"/>
+<polygon class="hd" points="100,90 103.3,82.7 96.7,82.7"/>
+<rect x="60" y="90" width="200" height="54" rx="7" class="bx-w"/>
+<text x="160" y="121.5" text-anchor="middle" class="h">Worktrees</text>
+<text x="280" y="122" text-anchor="start">sem conflito; disco e máquina compartilhados</text>
+<path d="M130 144 L130 166" class="ln"/>
+<polygon class="hd" points="130,166 133.3,158.7 126.7,158.7"/>
+<rect x="90" y="166" width="200" height="54" rx="7" class="bx-w"/>
+<text x="190" y="197.5" text-anchor="middle" class="h">Uma VM ou VPS</text>
+<text x="310" y="198" text-anchor="start">sai do notebook; 5 a 10 agentes esgotam a máquina</text>
+<path d="M160 220 L160 242" class="ln"/>
+<polygon class="hd" points="160,242 163.3,234.7 156.7,234.7"/>
+<rect x="120" y="242" width="200" height="54" rx="7" class="bx-ok"/>
+<text x="220" y="273.5" text-anchor="middle" class="h">Um sandbox por agente</text>
+<text x="340" y="274" text-anchor="start">recursos próprios; falha não se espalha; escala</text>
+</svg></div>
+<details><summary>Como ler esta figura</summary>
+<p><strong>Conclusão.</strong> Cada degrau resolve o limite do anterior. O último degrau é o único que escala, segundo David.</p>
+<p><strong>Como ler.</strong> Desça a escada. Vermelho quebra, amarelo tem limite, verde é a arquitetura que David defende.</p>
+<p><strong>O que não mostra.</strong> Custo da nuvem, latência e os casos em que o local vence. David vende essa arquitetura.</p>
+<p><strong>Evidência.</strong> Notas de 00:29:40 a 00:32:20 do vídeo.</p></details></figure></section>
+<section class="note"><h4>David prevê 90% do trabalho na nuvem e 10% no local</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=1940s">00:32:20–00:34:00</a>
+<p>A previsão de David é esta: cerca de 90% das tarefas vão para a nuvem, e cerca de 10% ficam no local. O local serve para assuntos privados ou para organizar a pasta de downloads, sem enviar um grande volume de arquivos.</p>
+<p>David mostra os próprios dados. Mesmo depois de começar o Cloudroom, só 10% a 20% dos agentes de David rodavam na nuvem. Nas últimas três ou quatro semanas, a parte da nuvem passou de 50% e depois de 60%. David projeta 90% a 95%.</p>
+<p>David também explica quem resiste. Pessoas que juram trabalhar só no local tiveram uma experiência ruim com a nuvem. Faltavam skills, chaves de API, repositórios ou dependências. Para David, o trabalho dessas pessoas não é local por natureza.</p></section>
+<section class="note"><h4>O Cloudroom permite que o agente na nuvem leia arquivos do Mac</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=2040s">00:34:00–00:36:40</a>
+<p>David mostra como o Cloudroom ataca essas falhas. Uma tela de configuração define quais skills, servidores MCP e chaves de API entram em todo sandbox.</p>
+<p>O segundo recurso resolve o esquecimento. Um agente falha quando a pessoa pede algo e não anexa o arquivo. David dá um exemplo: "veja o PDF nos meus downloads e calcule quanto devo nesta fatura". David afirma que essa tarefa falharia em Codex, Claude Desktop e Cursor. No Cloudroom, o agente na nuvem pode alcançar o MacBook. A pessoa controla esse acesso em quatro níveis: desligado, somente leitura, perguntar e completo.</p>
+<p>David testa ao vivo. O agente conta os arquivos da pasta de downloads e soma o tamanho total, que é de 2,5 GB.</p></section>
+<section class="note"><h4>A nuvem só convence quando parece tão rápida quanto o local</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=2200s">00:36:40–00:38:20</a>
+<p>David aponta outro motivo de rejeição: em outros produtos, a máquina remota leva 10 a 30 segundos para iniciar <span class="warn" title="não checado">⚠</span>. No teste, o agente começou a raciocinar em cerca de 1 segundo, segundo David. O agente confirma que roda em um sandbox Linux na nuvem e que acessou a pasta do Mac. David diz que nenhum outro produto oferece esse acesso direto <span class="warn" title="não checado">⚠</span>.</p>
+<p>David pede também um número real. O Cloudroom informa 553 threads abertas. Dessas, 353 estão na nuvem, o que dá 64% contra 36%. David espera que essa parte se aproxime de 100%, porque o acesso direto elimina os motivos para ficar no local.</p></section>
+<section class="note"><h4>Agentes na nuvem trabalham com o notebook fechado</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=2300s">00:38:20–00:39:30</a>
+<p>David diz que devia ter citado antes a vantagem mais óbvia. Agentes na nuvem nunca param. Agentes seguem às 3h da manhã, durante um apagão ou em uma viagem de trem com sinal ruim. Agentes têm sempre internet e eletricidade. Para David, essa constância é a base de um negócio apoiado em agentes.</p></section></details>
+<details class="part"><summary>Parte 7: Como escolher um ADE</summary>
+<p>David lista os critérios de escolha. Todos os critérios favorecem o produto de David, então leia esta parte como argumento de venda.</p>
+<section class="note"><h4>Um ADE precisa aceitar todo harness de ponta, e por isso não pode vir de um laboratório</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=2370s">00:39:30–00:41:20</a>
+<p>O primeiro critério é ter todos os harnesses de ponta: Claude Code, Codex, Pi, Hermes, Droid, Devin, OpenCode e outros. O Claude Desktop serve para modelos da Anthropic e não oferece o resto. Nesse aplicativo, a pessoa não testa um DeepSeek novo nem roda a revisão com GPT. O Codex tem o problema inverso: tinha uma ótima interface no começo do ano, mas não roda Fable nem Opus.</p>
+<p>Por isso, David conclui que o ADE não pode vir de um laboratório. David responde também à pergunta sobre concorrência. A OpenAI e a Anthropic não abrem o código e nunca vão aceitar modelos alheios. O Cloudroom tem mais de 230 forks, cerca de duas semanas depois do lançamento <span class="warn" title="não checado">⚠</span>.</p></section>
+<section class="note"><h4>O ADE deve aceitar as assinaturas que a pessoa já paga</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=2480s">00:41:20–00:41:50</a>
+<p>O segundo critério é usar os tokens já pagos. Ferramentas de terceiros, como Cognition, Windsurf, Cursor e AM <span class="warn" title="não checado">⚠</span>, obrigam o uso de assinatura e harness próprios. David acha isso absurdo para quem já paga US$ 200 por mês ao Claude Max ou ao ChatGPT Pro.</p></section>
+<section class="note"><h4>Agentes devem controlar o ADE por linha de comando</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=2510s">00:41:50–00:45:30</a>
+<p>O terceiro critério é que agentes possam iniciar outros agentes. A demonstração tem duas partes. Na primeira, o Opus 5.5 divide as 553 threads entre 20 subagentes Haiku 5.5, locais, para classificar o trabalho. Na segunda, um agente inicia cinco threads de topo na nuvem, cada uma com Codex e GPT-6 Astra.</p>
+<p>Essas cinco threads não são subagentes. São agentes de topo, em outro harness e com outro modelo. David diz que o Claude Desktop não permite controlar threads por linha de comando.</p>
+<p>O Cloudroom tem a Room CLI, com uma skill própria. Com essa ferramenta, um agente lê qualquer thread, abre novas e arquiva antigas. David manda parar os 20 subagentes, e o agente principal interrompe todos. Depois David manda arquivar.</p>
+<p>A ideia geral é esta: o agente deve conseguir fazer tudo o que a pessoa faz. Clicar para abrir 20 threads é, para David, o trabalho em mina de carvão dos dias atuais.</p></section></details>
+<details class="part"><summary>Parte 8: Loops</summary>
+<p>Esta parte é a mais longa e traz o maior conselho do vídeo: a pessoa deve sair do meio do fluxo.</p>
+<section class="note"><h4>A fábrica de software nasce de um loop de cada vez</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=2730s">00:45:30–00:47:10</a>
+<p>Para ganhar a produtividade do gráfico, a pessoa precisa se retirar do processo. O caminho é achar as partes repetitivas e previsíveis do trabalho e transformar essas partes em loops.</p>
+<p>"Fábrica de software" é um termo que assusta, e David recomenda não tentar construir uma. A pessoa começa com loops pequenos e previsíveis para a tarefa mais chata. Com 10, 20 ou 30 loops ativos, a fábrica já existe.</p>
+<p>O salto recente de David veio daí. Nas últimas duas ou três semanas, David passou de 400 ou 500 contribuições por semana para 700, quase 1.000 na semana atual. David diz trabalhar das 9h às 22h ou 23h, sete dias por semana. As horas têm limite, e por isso David precisa automatizar.</p></section>
+<section class="note"><h4>Skills e loops alheios não devem ser copiados às cegas</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=2830s">00:47:10–00:48:20</a>
+<p>David pede que a pessoa pare de copiar skills e loops de outras pessoas. A regra vale para as skills do próprio David. Cada pessoa deve escolher duas, três ou quatro skills úteis, e só essas.</p>
+<p>O exemplo é Matt PCO <span class="warn" title="não checado">⚠</span>. Muita gente copia tudo que Matt PCO faz. David pergunta se o dia dessas pessoas é igual ao de Matt PCO. Skills e loops devem resolver problemas reais de quem usa. Pessoas diferentes têm rotinas parecidas, mas nunca iguais.</p></section>
+<section class="note"><h4>Automatize o corte de madeira e guarde para si a construção da catedral</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=2900s">00:48:20–00:50:10</a>
+<p>David explica o critério com Minecraft. Toda grande obra precisa de material. Cortar madeira é chato e repetitivo, e nenhuma pessoa ganha prestígio com isso. Construir uma catedral exige criatividade, planejamento e visão. A maioria dos jogadores nunca faz isso.</p>
+<p>Num jogo, quem automatiza a coleta é chamado de trapaceiro. Nos negócios, tudo que é legal vale. Quem automatiza 80% do trabalho e cresce mais rápido sente que trapaceia.</p>
+<p>O resultado é tempo para a catedral: invenção, planejamento e gosto. O corte de madeira fica com os agentes, de ponta a ponta.</p>
+<figure id="fig-madeira"><figcaption class="fig-title">O critério da madeira e da catedral</figcaption>
+<div class="svg" role="img" aria-label="Duas colunas. Cortar madeira é repetitivo e vai para agentes. Construir a catedral é criativo e fica com a pessoa."><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 300">
+<rect x="30" y="30" width="310" height="190" rx="7" class="bx-ok"/>
+<text x="185" y="129.5" text-anchor="middle"></text>
+<rect x="380" y="30" width="310" height="190" rx="7" class="bx-a"/>
+<text x="535" y="129.5" text-anchor="middle"></text>
+<text x="185" y="58" text-anchor="middle" class="h ok">Cortar madeira</text>
+<text x="535" y="58" text-anchor="middle" class="h a">Construir a catedral</text>
+<text x="185" y="90" text-anchor="middle">Chato e repetitivo</text>
+<text x="185" y="114" text-anchor="middle">Sempre claro o que fazer</text>
+<text x="185" y="138" text-anchor="middle">Bug fácil de reproduzir</text>
+<text x="185" y="162" text-anchor="middle">Varredura de segurança</text>
+<text x="185" y="186" text-anchor="middle">Relatórios diários</text>
+<text x="535" y="90" text-anchor="middle">Criativo e raro</text>
+<text x="535" y="114" text-anchor="middle">Planejamento e visão</text>
+<text x="535" y="138" text-anchor="middle">Invenção</text>
+<text x="535" y="162" text-anchor="middle">Gosto</text>
+<text x="535" y="186" text-anchor="middle">Decisões de produto</text>
+<text x="185" y="250" text-anchor="middle" class="h">Agente sozinho, de ponta a ponta</text>
+<text x="535" y="250" text-anchor="middle" class="h">A pessoa, com agentes</text>
+</svg></div>
+<details><summary>Como ler esta figura</summary>
+<p><strong>Conclusão.</strong> Um loop serve para a coluna da esquerda. A coluna da direita é o trabalho que sobra para a pessoa.</p>
+<p><strong>Como ler.</strong> Compare as duas colunas e classifique cada tarefa sua em uma delas.</p>
+<p><strong>O que não mostra.</strong> O meio: muita tarefa mistura as duas colunas. A divisão 10/90 trata desse caso.</p>
+<p><strong>Evidência.</strong> Nota de 00:48:20 a 00:50:10 do vídeo; exemplos das notas de 00:50:10 a 00:53:40.</p></details></figure></section>
+<section class="note"><h4>Dois modelos de laboratórios diferentes bastam para entregar um bug sem humano</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=3010s">00:50:10–00:51:30</a>
+<p>O melhor exemplo é o relatório de bug fácil de reproduzir. No painel de David, há 33 loops ativos. Esses loops somam cerca de 2.000 execuções por dia, e 86% rodam sozinhos.</p>
+<p>O fluxo é este. O Opus confirma que o bug é real. O GPT 6.1 Soul <span class="warn" title="não checado">⚠</span> faz uma revisão adversária: isso é um bug real ou exagero? O segundo modelo tenta reproduzir a falha. Se os dois modelos concordam que o bug afeta usuários e que a correção é clara e segura, a correção vai para produção sem humano.</p>
+<p>David também aceita humano no meio. Um recurso pedido por 70% dos clientes pagantes pode virar três variações, e a pessoa escolhe uma. Um loop pode ser autônomo, supervisionado ou condicional.</p></section>
+<section class="note"><h4>Loops devem alternar modelos, porque cada modelo enxerga falhas diferentes</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=3090s">00:51:30–00:53:40</a>
+<p>A maior parte dos loops de David roda com Opus 5.5 ou GPT 6.0 Soul <span class="warn" title="não checado">⚠</span>. O Sonnet entra quando David quer economizar. Alguns loops alternam entre modelos, e David explica o motivo.</p>
+<p>Pense em pedir opinião a cinco amigos inteligentes. Mesmo que um seja o mais inteligente, cada um vê algo diferente. O mesmo vale para Opus, Soul, Astra, Muse Wonder, Gemini Argon e Kimi 3.1 Pro <span class="warn" title="não checado">⚠</span>.</p>
+<p>O exemplo é a segurança web. Nenhum desenvolvedor revisa a segurança a cada quatro horas, mas um loop revisa. David responde também a quem defende o código escrito à mão. As falhas achadas agora vêm de código humano. Falhas de dia zero ficaram 12 anos escondidas, até que enxames de agentes encontraram essas falhas.</p></section>
+<section class="note"><h4>O primeiro loop é o mais difícil e deve sair das suas próprias sessões</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=3220s">00:53:40–00:55:20</a>
+<p>David explica por que as pessoas não adotam loops: o atrito inicial é grande. Com 30 loops, o 31º é fácil. O salto difícil vai de zero a dois.</p>
+<p>A resposta está no próprio trabalho. Quem usa Claude Code, Codex, Hermes, Pi ou OpenCode guarda um histórico de sessões. David chama esse histórico de mina de ouro. As sessões registram hábitos, prompts, sequências de skills e o modo de resolver problemas.</p>
+<p>Essa análise é barata. O recurso de scan do Cloudroom custa menos de 1% do limite semanal <span class="warn" title="não checado">⚠</span>. Isso acontece porque o scan divide o trabalho entre subagentes Haiku. David lembra que este é o caso ideal de subagentes: trabalho previsível e divisível.</p></section>
+<section class="note"><h4>O scan lê milhares de sessões e sugere dois loops feitos para a pessoa</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=3320s">00:55:20–00:57:50</a>
+<p>David roda o scan ao vivo. Um agente principal Opus 5.5 inicia subagentes Haiku. Neste caso, são 31 fatias de trabalho, sobre cerca de 3.000 sessões locais. O scan procura padrões repetidos e sugere um ou dois loops próprios da pessoa, e não de um influenciador.</p>
+<p>O scan não propõe automatizar tudo. Esse ponto é a inovação de David. A pessoa pode não confiar no agente para a maior parte do trabalho, porque essa parte pede gosto, contexto e julgamento. Por isso, o scan procura dentro de cada hábito um pedaço pequeno e seguro.</p></section>
+<section class="note"><h4>A divisão 10/90 deixa o agente agir só no pedaço seguro e óbvio</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=3470s">00:57:50–00:59:10</a>
+<p>David dá um nome ao método: divisão 10/90. O loop identifica os 10% mais seguros do trabalho e age sozinho nessa parte. Nos outros 90%, o loop analisa, pesquisa, apresenta o que faria e espera a opinião da pessoa.</p>
+<p>A vantagem é psicológica e prática. A pessoa liga os dois primeiros loops sem medo de ver lixo chegar à produção. Quando o loop não tem certeza, nada é entregue.</p>
+<figure id="fig-scan"><figcaption class="fig-title">Do histórico de sessões a dois loops, com a divisão 10/90</figcaption>
+<div class="svg" role="img" aria-label="Fluxo: as sessões passam por um Opus e 31 subagentes Haiku, que acham dois hábitos. Cada hábito se divide em 10% autônomos e 90% que esperam a pessoa."><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400">
+<rect x="30" y="14" width="150" height="50" rx="7" class="bx"/>
+<text x="105" y="35.5" text-anchor="middle">Sessões</text>
+<text x="105" y="51.5" text-anchor="middle">cerca de 3.000</text>
+<path d="M180 39 L226 39" class="ln"/>
+<polygon class="hd" points="226,39 218.7,35.7 218.7,42.3"/>
+<rect x="226" y="14" width="150" height="50" rx="7" class="bx-a"/>
+<text x="301" y="35.5" text-anchor="middle">Opus divide</text>
+<text x="301" y="51.5" text-anchor="middle">em 31 fatias</text>
+<path d="M376 39 L420 39" class="ln"/>
+<polygon class="hd" points="420,39 412.7,35.7 412.7,42.3"/>
+<rect x="420" y="14" width="270" height="50" rx="7" class="bx"/>
+<text x="555" y="35.5" text-anchor="middle">31 subagentes Haiku</text>
+<text x="555" y="51.5" text-anchor="middle">menos de 1% do limite semanal ⚠</text>
+<path d="M555 64 L555 104 L360 104 L360 124" class="ln"/>
+<polygon class="hd" points="360,124 363.3,116.7 356.7,116.7"/>
+<rect x="240" y="124" width="240" height="40" rx="7" class="bx-a"/>
+<text x="360" y="148.5" text-anchor="middle">Dois hábitos repetidos</text>
+<path d="M300 164 L180 204" class="ln"/>
+<polygon class="hd" points="180,204 188.0,204.8 185.9,198.6"/>
+<path d="M420 164 L540 204" class="ln"/>
+<polygon class="hd" points="540,204 534.1,198.6 532.0,204.8"/>
+<rect x="30" y="204" width="300" height="66" rx="7" class="bx-ok"/>
+<text x="180" y="233.5" text-anchor="middle" class="h">10% seguros e óbvios</text>
+<text x="180" y="249.5" text-anchor="middle" class="h">o loop age sozinho</text>
+<rect x="390" y="204" width="300" height="66" rx="7" class="bx-w"/>
+<text x="540" y="233.5" text-anchor="middle" class="h">90% com julgamento</text>
+<text x="540" y="249.5" text-anchor="middle" class="h">o loop analisa, propõe e espera</text>
+<path d="M180 270 L180 316" class="ln"/>
+<polygon class="hd" points="180,316 183.3,308.7 176.7,308.7"/>
+<path d="M540 270 L540 316" class="ln"/>
+<polygon class="hd" points="540,316 543.3,308.7 536.7,308.7"/>
+<rect x="70" y="316" width="220" height="40" rx="7" class="bx-ok"/>
+<text x="180" y="340.5" text-anchor="middle">Mudança entregue</text>
+<rect x="430" y="316" width="220" height="40" rx="7" class="bx-w"/>
+<text x="540" y="340.5" text-anchor="middle">Pessoa decide</text>
+<text x="360" y="386" text-anchor="middle" class="m">Exemplos no vídeo: checagem de versão, varredura de threads antigas, foco matinal</text>
+</svg></div>
+<details><summary>Como ler esta figura</summary>
+<p><strong>Conclusão.</strong> O primeiro loop nasce do próprio histórico, e o agente só age sozinho na fatia segura.</p>
+<p><strong>Como ler.</strong> Siga as setas. Verde roda sozinho. Amarelo espera a pessoa.</p>
+<p><strong>O que não mostra.</strong> Como o scan mede o que é seguro. O vídeo não explica esse critério <span class="warn" title="não checado">⚠</span>. Os números são de uma única rodada.</p>
+<p><strong>Evidência.</strong> Notas de 00:53:40 a 00:59:10 do vídeo.</p></details></figure></section>
+<section class="note"><h4>O changelog público é o teste contra quem ostenta números</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=3550s">00:59:10–01:00:00</a>
+<p>David dá um conselho contra a ostentação de PRs, commits e arquivos Markdown. David reage com ironia ao relato de Garry Tan <span class="warn" title="não checado">⚠</span> sobre meio milhão de arquivos Markdown. David pergunta o que esse número mede, além da quantidade de lixo.</p>
+<p>O teste é pedir o changelog público. O Cloudroom publica mudanças cerca de duas vezes por dia, segundo David. Quando alguém disser que roda bilhões de subagentes, a pessoa deve perguntar onde está o changelog e por que ele não é público.</p></section>
+<section class="note"><h4>Os loops sugeridos para David saíram de hábitos reais</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=3600s">01:00:00–01:04:00</a>
+<p>O scan de David conclui que a maior parte do trabalho repetido já roda em loops: triagem de feedback, efeitos colaterais, revisão de PRs e publicação.</p>
+<p>Mesmo assim, uma rodada anterior sugeriu dois loops novos. O primeiro é a checagem de versão, diariamente às 9h do horário do Pacífico. O segundo é a varredura de threads antigas, diariamente às 19h do mesmo horário. Essa varredura decide o que arquivar. A rodada atual repetiu a checagem de versão e trouxe o foco matinal. Esse loop nasceu de um hábito novo de David, o de desafixar threads, porque David acumula threads fixadas demais.</p>
+<p>David insiste que o scan não alucina e não copia a pilha de um influenciador. O método vale para marketing, vendas e pesquisa, porque todo trabalho tem partes repetíveis. A sensação de automatizar a primeira parte é libertadora. O tempo recuperado pode ir para trabalho melhor, para uma caminhada ou para a academia.</p></section></details>
+<details class="part"><summary>Parte 9: A lição das revoluções</summary>
+
+<section class="note"><h4>Em cada revolução, as pessoas pararam de fazer a tarefa e passaram a operar a máquina</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=3840s">01:04:00–01:06:00</a>
+<p>David ataca as crenças que limitam a pessoa. Uma crença diz que a IA é fraca. Outra diz que o trabalho da pessoa é especial demais. Uma terceira diz que tudo já acabou. Para David, as três são falsas.</p>
+<p>A história mostra o padrão. Na década de 1830, nas tecelagens, as pessoas pararam de tecer à mão e passaram a operar teares mecânicos. Em 1913, Henry Ford criou a linha de montagem. O trabalho deixou de ser construir cada carro e passou a ser operar a linha. Em 1946, andares inteiros de computadores humanos faziam contas à mão. Depois, as pessoas passaram a usar calculadoras e a programar a máquina.</p>
+<p>David conclui que nosso tempo não é tão diferente. O mesmo vai acontecer com tarefas que hoje parecem normais.</p>
+<figure id="fig-revolucoes"><figcaption class="fig-title">Da tarefa para a máquina, quatro vezes</figcaption>
+<div class="svg" role="img" aria-label="Linha do tempo: tecelagem na década de 1830, linha de montagem em 1913, computação em 1946 e software hoje. Em cada ponto as pessoas deixam a tarefa e passam a operar uma máquina."><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 230">
+<path d="M40 110 L680 110" class="ln"/>
+<circle cx="110" cy="110" r="6" class="bx-ok"/>
+<text x="110" y="40" text-anchor="middle" class="h">Década de 1830</text>
+<text x="110" y="62" text-anchor="middle">Tecelagem</text>
+<text x="110" y="82" text-anchor="middle" class="m"></text>
+<text x="110" y="140" text-anchor="middle" class="m">de tecer à mão</text>
+<text x="110" y="160" text-anchor="middle" class="m">↓</text>
+<text x="110" y="180" text-anchor="middle">a operar o tear</text>
+<circle cx="276" cy="110" r="6" class="bx-ok"/>
+<text x="276" y="40" text-anchor="middle" class="h">1913</text>
+<text x="276" y="62" text-anchor="middle">Linha de montagem</text>
+<text x="276" y="82" text-anchor="middle" class="m"></text>
+<text x="276" y="140" text-anchor="middle" class="m">de montar o carro</text>
+<text x="276" y="160" text-anchor="middle" class="m">↓</text>
+<text x="276" y="180" text-anchor="middle">a operar a linha</text>
+<circle cx="442" cy="110" r="6" class="bx-ok"/>
+<text x="442" y="40" text-anchor="middle" class="h">1946</text>
+<text x="442" y="62" text-anchor="middle">Computação</text>
+<text x="442" y="82" text-anchor="middle" class="m"></text>
+<text x="442" y="140" text-anchor="middle" class="m">de fazer contas à mão</text>
+<text x="442" y="160" text-anchor="middle" class="m">↓</text>
+<text x="442" y="180" text-anchor="middle">a programar a máquina</text>
+<circle cx="608" cy="110" r="6" class="bx-a"/>
+<text x="608" y="40" text-anchor="middle" class="h">Hoje</text>
+<text x="608" y="62" text-anchor="middle">Software</text>
+<text x="608" y="82" text-anchor="middle" class="m"></text>
+<text x="608" y="140" text-anchor="middle" class="m">de escrever o código</text>
+<text x="608" y="160" text-anchor="middle" class="m">↓</text>
+<text x="608" y="180" text-anchor="middle" class="a">a operar a fábrica ⚠</text>
+</svg></div>
+<details><summary>Como ler esta figura</summary>
+<p><strong>Conclusão.</strong> O padrão de David é sempre o mesmo: a pessoa deixa de executar e passa a operar o sistema.</p>
+<p><strong>Como ler.</strong> Cada ponto mostra de que tarefa as pessoas saíram e o que passaram a fazer.</p>
+<p><strong>O que não mostra.</strong> Empregos perdidos e os longos períodos de transição. O ponto final é uma previsão de David, não um fato.</p>
+<p><strong>Evidência.</strong> Nota de 01:04:00 a 01:06:00 do vídeo. Datas citadas por David, sem checagem externa <span class="warn" title="não checado">⚠</span>.</p></details></figure></section>
+<section class="note"><h4>Quem domina agentes passa a enxergar o trabalho manual ao redor</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=3960s">01:06:00–01:08:00</a>
+<p>Preencher formulários e pesquisar à mão parecem agora trabalho braçal a David. Pesquisar sem uma ferramenta como o DeepAPI é, para David, inaceitável. A descrição do vídeo traz um link para o DeepAPI. David não declara nessa fala se tem relação com o produto <span class="warn" title="não checado">⚠</span>.</p>
+<p>David lista as tarefas que já automatizou ou pode automatizar. Revisão de segurança do código a cada 3 horas. Relatório diário do funil. Monitor de tuítes sobre o produto. Lembrete de quem contatar. Relatórios de bug a cada minuto.</p>
+<p>Mesmo quando a decisão final é humana, a IA pode fazer 80% antes: desenhar, implementar, revisar e mostrar três interfaces. A pessoa entra para escolher, aprovar ou recusar.</p>
+<p>Para encerrar, David retoma o conselho sobre fábricas. No vídeo com Dex, Dex tentou construir uma fábrica durante quatro meses, e o resultado foi lixo e usuários irritados. O caminho é o inverso: um loop, depois outro. Marketing, prospecção e pesquisa também aceitam loops.</p></section></details>
+<details class="part"><summary>Parte 10: Software que melhora a si mesmo</summary>
+
+<section class="note"><h4>O objetivo é reduzir o tempo entre o problema do usuário e o desenvolvedor</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=4080s">01:08:00–01:10:30</a>
+<p>Todo bug relatado no Cloudroom passa por uma análise do Opus em 10 a 30 minutos. A análise separa bug legítimo de spam, porque agentes também enviam lixo a repositórios abertos.</p>
+<p>A entrada é simples. O usuário clica em "reportar bug" ou pede ao próprio agente que relate o problema. O agente também pode relatar sozinho um erro que encontrou. A ideia central é reduzir o atrito entre o problema e o desenvolvedor. A meta de David é corrigir em menos de 24 horas.</p>
+<p>David ainda não transformou esse fluxo em recurso para outros produtos.</p></section>
+<section class="note"><h4>Um relato vira thread, investigação somente leitura e, com aprovação, correção entregue</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=4230s">01:10:30–01:15:40</a>
+<p>O usuário fala em inglês simples com o agente: "o Cloudroom está lento hoje, avise David". O agente usa a Room CLI, e o relato cai em uma tabela no Postgres. Um loop olha essa tabela a cada minuto. Cada relato novo abre uma thread na nuvem, no espaço de trabalho de David e com inferência paga por David.</p>
+<p>Um agente investiga em modo somente leitura. Se o relato é ruído ou duplicata, a thread se arquiva sozinha. Um relato de versão antiga, já corrigido, também desaparece sem gastar tempo humano. Se o relato é real, vira uma issue no GitHub, com um resumo curto.</p>
+<p>Então o fluxo espera a decisão humana. David aprova ou recusa. Sem aprovação, a thread é arquivada. Com aprovação, o agente corrige, um modelo de fronteira de outro laboratório revisa, e a correção vai para produção.</p>
+<p>Pedidos de recurso seguem o mesmo fluxo, mas a decisão é sempre de produto e fica com a pessoa. Em casos simples e óbvios, a entrega pode ser direta, talvez com uma checagem de outro modelo.</p>
+<p>O sistema mantém uma reputação para quem contribui. Um spammer recebe análise mais rigorosa. David diz que é difícil enganar o Opus 5.5 em esforço alto. Com esse sistema, David promete correção em até 24 horas e, no pior caso, 48 horas <span class="warn" title="não checado">⚠</span>.</p>
+<figure id="fig-autoaprimoramento"><figcaption class="fig-title">Como um relato de bug vira uma correção entregue</figcaption>
+<div class="svg" role="img" aria-label="Fluxo circular: um relato entra por CLI e Postgres, um loop abre uma thread, um agente investiga. Ruído é arquivado. Um relato real vira issue, espera aprovação de David, é corrigido, revisado e entregue."><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 560">
+<rect x="20" y="14" width="150" height="50" rx="7" class="bx-a"/>
+<text x="95" y="35.5" text-anchor="middle">Usuário ou</text>
+<text x="95" y="51.5" text-anchor="middle">agente relata</text>
+<path d="M170 39 L212 39" class="ln"/>
+<polygon class="hd" points="212,39 204.7,35.7 204.7,42.3"/>
+<rect x="212" y="14" width="150" height="50" rx="7" class="bx"/>
+<text x="287" y="35.5" text-anchor="middle">Room CLI grava</text>
+<text x="287" y="51.5" text-anchor="middle">no Postgres</text>
+<path d="M362 39 L404 39" class="ln"/>
+<polygon class="hd" points="404,39 396.7,35.7 396.7,42.3"/>
+<rect x="404" y="14" width="150" height="50" rx="7" class="bx"/>
+<text x="479" y="35.5" text-anchor="middle">Loop checa</text>
+<text x="479" y="51.5" text-anchor="middle">a cada minuto</text>
+<path d="M554 39 L600 39 L600 84" class="ln"/>
+<polygon class="hd" points="600,84 603.3,76.7 596.7,76.7"/>
+<rect x="500" y="84" width="200" height="50" rx="7" class="bx-a"/>
+<text x="600" y="105.5" text-anchor="middle">Thread na nuvem</text>
+<text x="600" y="121.5" text-anchor="middle">de David</text>
+<path d="M600 134 L600 164" class="ln"/>
+<polygon class="hd" points="600,164 603.3,156.7 596.7,156.7"/>
+<rect x="480" y="164" width="240" height="50" rx="7" class="bx"/>
+<text x="600" y="185.5" text-anchor="middle">Agente investiga</text>
+<text x="600" y="201.5" text-anchor="middle">somente leitura</text>
+<path d="M480 189 L420 189" class="ln"/>
+<polygon class="hd" points="420,189 427.3,192.3 427.3,185.7"/>
+<rect x="240" y="168" width="180" height="42" rx="7" class="bx-w"/>
+<text x="330" y="193.5" text-anchor="middle">É real?</text>
+<path d="M240 189 L170 189" class="ln"/>
+<polygon class="hd" points="170,189 177.3,192.3 177.3,185.7"/>
+<text x="205" y="183" text-anchor="middle" class="m">não</text>
+<rect x="20" y="164" width="150" height="50" rx="7" class="bx-ok"/>
+<text x="95" y="185.5" text-anchor="middle">Arquiva</text>
+<text x="95" y="201.5" text-anchor="middle">sozinha</text>
+<path d="M330 210 L330 250" class="ln"/>
+<polygon class="hd" points="330,250 333.3,242.7 326.7,242.7"/>
+<text x="350" y="234" text-anchor="middle" class="m">sim</text>
+<rect x="220" y="250" width="220" height="50" rx="7" class="bx"/>
+<text x="330" y="271.5" text-anchor="middle">Issue no GitHub</text>
+<text x="330" y="287.5" text-anchor="middle">e resumo curto</text>
+<path d="M330 300 L330 330" class="ln"/>
+<polygon class="hd" points="330,330 333.3,322.7 326.7,322.7"/>
+<rect x="240" y="330" width="180" height="42" rx="7" class="bx-r"/>
+<text x="330" y="355.5" text-anchor="middle" class="h">David aprova?</text>
+<path d="M240 351 L95 351 L95 214" class="ln"/>
+<polygon class="hd" points="95,214 91.7,221.3 98.3,221.3"/>
+<text x="165" y="345" text-anchor="middle" class="m">não</text>
+<path d="M330 372 L330 402" class="ln"/>
+<polygon class="hd" points="330,402 333.3,394.7 326.7,394.7"/>
+<text x="350" y="392" text-anchor="middle" class="m">sim</text>
+<rect x="240" y="402" width="180" height="40" rx="7" class="bx"/>
+<text x="330" y="426.5" text-anchor="middle">Agente corrige</text>
+<path d="M330 442 L330 468" class="ln"/>
+<polygon class="hd" points="330,468 333.3,460.7 326.7,460.7"/>
+<rect x="190" y="468" width="280" height="40" rx="7" class="bx"/>
+<text x="330" y="492.5" text-anchor="middle">Outro laboratório revisa</text>
+<path d="M470 488 L530 488" class="ln"/>
+<polygon class="hd" points="530,488 522.7,484.7 522.7,491.3"/>
+<rect x="530" y="468" width="170" height="40" rx="7" class="bx-ok"/>
+<text x="615" y="492.5" text-anchor="middle">Produção</text>
+<path d="M615 508 L615 536 L8 536 L8 39 L20 39" class="ln-d"/>
+<polygon class="hd" points="20,39 12.7,35.7 12.7,42.3"/>
+<text x="300" y="530" text-anchor="middle" class="m">cada entrega gera os próximos relatos</text>
+</svg></div>
+<details><summary>Como ler esta figura</summary>
+<p><strong>Conclusão.</strong> O agente faz o filtro e o trabalho, mas uma pessoa ainda decide. Só um caso simples pode pular essa decisão.</p>
+<p><strong>Como ler.</strong> Comece no alto à esquerda. A caixa vermelha é o único ponto humano. A linha tracejada fecha o ciclo: o produto entregue gera os próximos relatos.</p>
+<p><strong>O que não mostra.</strong> O atalho de bugs simples, que vão direto à produção, e o sistema de reputação.</p>
+<p><strong>Evidência.</strong> Notas de 01:08:00 a 01:15:40 do vídeo. David mostra um diagrama próprio; este desenho foi refeito a partir da fala.</p></details></figure></section></details>
+<details class="part"><summary>Parte 11: Inferência própria</summary>
+<p>David fecha com hardware. A posição de David é moderada: a fronteira serve para o trabalho difícil, e o local serve para privacidade e autonomia.</p>
+<section class="note"><h4>Modelos locais têm valor, mas o debate público perdeu a nuance</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=4540s">01:15:40–01:17:00</a>
+<p>David usa modelos de fronteira quase sempre. Mesmo assim, mantém estrutura própria. David tem dois DGX Sparks e comprou mais dois. Quatro Sparks somam 512 GB de memória.</p>
+<p>David diz que ninguém tem uma opinião matizada. Um lado diz que dá para rodar algo como o Opus 5 em casa. O outro lado diz que hospedar por conta própria é inútil. David rejeita os dois.</p>
+<p>Para David, quem não tem computação local é "um escravo" da assinatura. Se a assinatura acabar, a pessoa fica sem IA.</p></section>
+<section class="note"><h4>Possuir hardware protege a pessoa, e o valor desse hardware cresce com o tempo</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=4620s">01:17:00–01:19:30</a>
+<p>David compara o hardware próprio a ter painéis solares ou uma horta em casa. Para David, o recurso mais valioso do futuro será o token de inteligência.</p>
+<p>Todo mês, o mesmo hardware roda modelos melhores. O que rodava nos dois Sparks seis meses atrás era fraco. Agora os dois rodam o DeepSeek V4.1 Flash <span class="warn" title="não checado">⚠</span>. Com quatro Sparks, David poderá rodar mais instâncias, ou um modelo maior, ou o mesmo modelo mais rápido.</p>
+<p>O preço do hardware sobe, mas o valor que o hardware produz sobe mais rápido. David cita gráficos da a16z <span class="warn" title="não checado">⚠</span>: GPUs de seis anos, como a A100, ainda ganham valor de saída de tokens, embora muita gente esperasse depreciação em três ou quatro anos.</p>
+<p>Essa proteção cobre um governo tirânico, a nacionalização de um laboratório ou outra crise. Talvez a pessoa não rode nada do tamanho do Fable ou do Astra, mas consegue rodar algo.</p></section>
+<section class="note"><h4>O modelo local serve para dados privados e para perguntas sem filtro</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=4770s">01:19:30–01:21:20</a>
+<p>O uso prático é a privacidade. A equipe de David envia contratos legais e dados de funcionários ao DeepSeek hospedado nos Sparks. Nenhum desses dados vai à OpenAI, à Anthropic ou ao Google. Para esses casos, um modelo com cerca de 90% da qualidade da fronteira basta <span class="warn" title="não checado">⚠</span>.</p>
+<p>O segundo uso são modelos sem restrição. David diz que ChatGPT e Claude dão respostas enviesadas em temas políticos e controversos, e que o Grok é um pouco melhor. Para uma pergunta honesta, David recorre a esses modelos.</p></section>
+<section class="note"><h4>A fronteira segue como regra para trabalho difícil, e o local exige investimento</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=4880s">01:21:20–01:23:30</a>
+<p>David traz um terceiro motivo. Em ataques famosos, os modelos de fronteira recusaram ajuda à vítima, e as pessoas recorreram a GLM ou DeepSeek para se defender <span class="warn" title="não checado">⚠</span>.</p>
+<p>A regra de uso continua clara. Para trabalho difícil, a pessoa deve usar o melhor modelo disponível. Para algo importante, sensível ou privado, deve ter a opção local.</p>
+<p>O obstáculo é o hardware. Um notebook comum limita tanto o modelo que a diferença para a fronteira desanima. David destaca o Mac Studio M5 Ultra de 512 GB, que teria a mesma memória de quatro Sparks e banda cinco ou seis vezes maior <span class="warn" title="não checado">⚠</span>. Quem investe milhares ou dezenas de milhares de dólares fica protegido de crises: uma guerra mundial <span class="warn" title="não checado">⚠</span>, a falência de um laboratório ou uma proibição de exportar tokens. Um assunto sensível, como a saúde de um filho, também pode ficar em casa.</p>
+<figure id="fig-inferencia"><figcaption class="fig-title">Quando usar a fronteira e quando usar o local</figcaption>
+<div class="svg" role="img" aria-label="Duas colunas. Fronteira para trabalho difícil. Local para dados privados, perguntas sem filtro e proteção em crises."><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 300">
+<rect x="30" y="14" width="310" height="42" rx="7" class="bx-a"/>
+<text x="185" y="39.5" text-anchor="middle" class="h">Modelo de fronteira</text>
+<rect x="380" y="14" width="310" height="42" rx="7" class="bx-ok"/>
+<text x="535" y="39.5" text-anchor="middle" class="h">Inferência local</text>
+<text x="185" y="90" text-anchor="middle">Trabalho difícil de código</text>
+<text x="185" y="116" text-anchor="middle">Revisão cruzada</text>
+<text x="185" y="142" text-anchor="middle">Loops de produção</text>
+<text x="185" y="168" text-anchor="middle">Qualquer tarefa com surpresas</text>
+<text x="535" y="90" text-anchor="middle">Contratos e dados de funcionários</text>
+<text x="535" y="116" text-anchor="middle">Saúde e assuntos privados</text>
+<text x="535" y="142" text-anchor="middle">Perguntas sem filtro</text>
+<text x="535" y="168" text-anchor="middle">Plano B em crise ou corte de acesso</text>
+<text x="360" y="222" text-anchor="middle" class="h">A escolha depende da tarefa, e não de um lado do debate</text>
+<text x="360" y="250" text-anchor="middle" class="m">Exemplo de David: 4 DGX Sparks somam 512 GB de memória</text>
+<text x="360" y="270" text-anchor="middle" class="m">Um notebook comum limita tanto o modelo que a opção local perde sentido</text>
+</svg></div>
+<details><summary>Como ler esta figura</summary>
+<p><strong>Conclusão.</strong> David usa fronteira como padrão e reserva o local para privacidade e autonomia.</p>
+<p><strong>Como ler.</strong> Compare as colunas e escolha pela tarefa.</p>
+<p><strong>O que não mostra.</strong> Custo por token e comparação de qualidade. O número de 90% da qualidade da fronteira não tem medição <span class="warn" title="não checado">⚠</span>.</p>
+<p><strong>Evidência.</strong> Notas de 01:15:40 a 01:24:20 do vídeo.</p></details></figure></section>
+<section class="note"><h4>Quem espera o preço do hardware cair vai esperar muito</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=5010s">01:23:30–01:24:20</a>
+<p>David diz que deve comprar o Mac Studio, que começa perto de US$ 22.000 a US$ 23.000 <span class="warn" title="não checado">⚠</span>. Os Sparks já custam 30% mais do que na compra anterior, feita meses atrás <span class="warn" title="não checado">⚠</span>. A previsão de David é de preços ainda mais altos.</p>
+<p>David encerra o tema com um pedido de bom senso. Use o local quando fizer sentido e a fronteira quando fizer sentido. David critica os absolutistas dos dois lados e diz que a maioria das pessoas não pensa com nuance.</p></section>
+<section class="note"><h4>David encerra com o convite para testar o Cloudroom</h4>
+<a class="time" href="https://www.youtube.com/watch?v=F8rc-ULd4_4&amp;t=5060s">01:24:20–01:25:40</a>
+<p>O fechamento é comercial. David repete que o Cloudroom é gratuito, aberto e disponível para Windows, macOS e Linux. David pede que a pessoa relate problemas pelo botão ou pelo agente, com a frase "report this to David". A pessoa pode usar o harness favorito com as assinaturas atuais. David termina com as duas alegações principais: o melhor ADE do mundo e a única ferramenta com agentes na nuvem no plano gratuito, para qualquer harness <span class="warn" title="não checado">⚠</span>.</p></section></details>
+<details class="part"><summary>O que não foi checado</summary>
+<p><strong>Status das notas.</strong> Todas as notas ficam com <code>status: unverified</code>. O indexador comparou cada nota com a legenda, mas não checou as afirmações de David em fontes independentes. O dono do cérebro decide o que vira nota permanente.</p>
+<p><strong>Legenda automática.</strong> O vídeo não tem legenda humana. O texto usa a legenda automática em inglês, e a legenda erra nomes. A descrição do vídeo confirma David Ondrej, Cloudroom e DeepAPI. As outras correções abaixo são leitura do indexador.</p>
+<ul><li><code>David Andre</code> virou David Ondrej, conforme o título do canal.</li><li><code>cloud room</code> virou Cloudroom, conforme a descrição.</li><li><code>Enthropic</code>, <code>cloth code</code>, <code>Versell</code>, <code>Superbase</code> e <code>A6Z</code> viraram Anthropic, Claude Code, Vercel, Supabase e a16z. Estas correções são prováveis, não confirmadas.</li><li><code>DJX Sparks</code> virou DGX Sparks. Correção provável.</li><li><code>Gary Tan</code> virou Garry Tan. Correção provável.</li></ul>
+<p><strong>Nomes mantidos com <span class="warn" title="não checado">⚠</span>.</strong> A grafia destes nomes não foi confirmada: Matt PCO, Jacob, Max, Dex, Kimi, Grogbot, AM, Soul, Astra, Luna, Muse, Muse Wonder, Carbon e DeepSeek V4.1 Flash. "27 B" na legenda provavelmente significa um modelo de 27 bilhões de parâmetros.</p>
+<p><strong>Números sem checagem.</strong> Horas de uso, commits por semana, 33 loops, 2.000 execuções por dia, 86% de autonomia, 95% de efeitos colaterais capturados e redução de 90% nos bugs são números declarados por David. O vídeo não mostra o método desses números. O título fala em 15.700 sessões, e a descrição fala em 10.540 commits por ano. O texto não reconcilia esses números com os 700 commits semanais, que dariam cerca de 36.400 por ano se a taxa fosse constante.</p>
+<p><strong>Alegações de pioneirismo.</strong> "Primeiro do mundo", "único no mundo" e "melhor ADE do mundo" são alegações comerciais. O indexador não pesquisou concorrentes.</p>
+<p><strong>Trecho duvidoso.</strong> Em 1:22:46, a legenda diz <code>World War II</code> em uma hipótese sobre o futuro. O texto escreve "uma guerra mundial".</p>
+<p><strong>Datas.</strong> Os preços, as versões de modelos e os estados de produto valem para a data do vídeo, 2026-10-30.</p>
+</details>
+</details>
+</main>
+<script>
+for (const [id, open] of [["open", true], ["close", false]])
+  document.getElementById(id).onclick = () =>
+    document.querySelectorAll("details.video, details.part").forEach((d) => (d.open = open));
+</script></body></html>

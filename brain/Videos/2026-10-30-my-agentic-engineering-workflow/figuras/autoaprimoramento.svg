@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 560">
+<rect x="20" y="14" width="150" height="50" rx="7" class="bx-a"/>
+<text x="95" y="35.5" text-anchor="middle">Usuário ou</text>
+<text x="95" y="51.5" text-anchor="middle">agente relata</text>
+<path d="M170 39 L212 39" class="ln"/>
+<polygon class="hd" points="212,39 204.7,35.7 204.7,42.3"/>
+<rect x="212" y="14" width="150" height="50" rx="7" class="bx"/>
+<text x="287" y="35.5" text-anchor="middle">Room CLI grava</text>
+<text x="287" y="51.5" text-anchor="middle">no Postgres</text>
+<path d="M362 39 L404 39" class="ln"/>
+<polygon class="hd" points="404,39 396.7,35.7 396.7,42.3"/>
+<rect x="404" y="14" width="150" height="50" rx="7" class="bx"/>
+<text x="479" y="35.5" text-anchor="middle">Loop checa</text>
+<text x="479" y="51.5" text-anchor="middle">a cada minuto</text>
+<path d="M554 39 L600 39 L600 84" class="ln"/>
+<polygon class="hd" points="600,84 603.3,76.7 596.7,76.7"/>
+<rect x="500" y="84" width="200" height="50" rx="7" class="bx-a"/>
+<text x="600" y="105.5" text-anchor="middle">Thread na nuvem</text>
+<text x="600" y="121.5" text-anchor="middle">de David</text>
+<path d="M600 134 L600 164" class="ln"/>
+<polygon class="hd" points="600,164 603.3,156.7 596.7,156.7"/>
+<rect x="480" y="164" width="240" height="50" rx="7" class="bx"/>
+<text x="600" y="185.5" text-anchor="middle">Agente investiga</text>
+<text x="600" y="201.5" text-anchor="middle">somente leitura</text>
+<path d="M480 189 L420 189" class="ln"/>
+<polygon class="hd" points="420,189 427.3,192.3 427.3,185.7"/>
+<rect x="240" y="168" width="180" height="42" rx="7" class="bx-w"/>
+<text x="330" y="193.5" text-anchor="middle">É real?</text>
+<path d="M240 189 L170 189" class="ln"/>
+<polygon class="hd" points="170,189 177.3,192.3 177.3,185.7"/>
+<text x="205" y="183" text-anchor="middle" class="m">não</text>
+<rect x="20" y="164" width="150" height="50" rx="7" class="bx-ok"/>
+<text x="95" y="185.5" text-anchor="middle">Arquiva</text>
+<text x="95" y="201.5" text-anchor="middle">sozinha</text>
+<path d="M330 210 L330 250" class="ln"/>
+<polygon class="hd" points="330,250 333.3,242.7 326.7,242.7"/>
+<text x="350" y="234" text-anchor="middle" class="m">sim</text>
+<rect x="220" y="250" width="220" height="50" rx="7" class="bx"/>
+<text x="330" y="271.5" text-anchor="middle">Issue no GitHub</text>
+<text x="330" y="287.5" text-anchor="middle">e resumo curto</text>
+<path d="M330 300 L330 330" class="ln"/>
+<polygon class="hd" points="330,330 333.3,322.7 326.7,322.7"/>
+<rect x="240" y="330" width="180" height="42" rx="7" class="bx-r"/>
+<text x="330" y="355.5" text-anchor="middle" class="h">David aprova?</text>
+<path d="M240 351 L95 351 L95 214" class="ln"/>
+<polygon class="hd" points="95,214 91.7,221.3 98.3,221.3"/>
+<text x="165" y="345" text-anchor="middle" class="m">não</text>
+<path d="M330 372 L330 402" class="ln"/>
+<polygon class="hd" points="330,402 333.3,394.7 326.7,394.7"/>
+<text x="350" y="392" text-anchor="middle" class="m">sim</text>
+<rect x="240" y="402" width="180" height="40" rx="7" class="bx"/>
+<text x="330" y="426.5" text-anchor="middle">Agente corrige</text>
+<path d="M330 442 L330 468" class="ln"/>
+<polygon class="hd" points="330,468 333.3,460.7 326.7,460.7"/>
+<rect x="190" y="468" width="280" height="40" rx="7" class="bx"/>
+<text x="330" y="492.5" text-anchor="middle">Outro laboratório revisa</text>
+<path d="M470 488 L530 488" class="ln"/>
+<polygon class="hd" points="530,488 522.7,484.7 522.7,491.3"/>
+<rect x="530" y="468" width="170" height="40" rx="7" class="bx-ok"/>
+<text x="615" y="492.5" text-anchor="middle">Produção</text>
+<path d="M615 508 L615 536 L8 536 L8 39 L20 39" class="ln-d"/>
+<polygon class="hd" points="20,39 12.7,35.7 12.7,42.3"/>
+<text x="300" y="530" text-anchor="middle" class="m">cada entrega gera os próximos relatos</text>
+</svg>

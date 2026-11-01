@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 230">
+<path d="M40 110 L680 110" class="ln"/>
+<circle cx="110" cy="110" r="6" class="bx-ok"/>
+<text x="110" y="40" text-anchor="middle" class="h">Década de 1830</text>
+<text x="110" y="62" text-anchor="middle">Tecelagem</text>
+<text x="110" y="82" text-anchor="middle" class="m"></text>
+<text x="110" y="140" text-anchor="middle" class="m">de tecer à mão</text>
+<text x="110" y="160" text-anchor="middle" class="m">↓</text>
+<text x="110" y="180" text-anchor="middle">a operar o tear</text>
+<circle cx="276" cy="110" r="6" class="bx-ok"/>
+<text x="276" y="40" text-anchor="middle" class="h">1913</text>
+<text x="276" y="62" text-anchor="middle">Linha de montagem</text>
+<text x="276" y="82" text-anchor="middle" class="m"></text>
+<text x="276" y="140" text-anchor="middle" class="m">de montar o carro</text>
+<text x="276" y="160" text-anchor="middle" class="m">↓</text>
+<text x="276" y="180" text-anchor="middle">a operar a linha</text>
+<circle cx="442" cy="110" r="6" class="bx-ok"/>
+<text x="442" y="40" text-anchor="middle" class="h">1946</text>
+<text x="442" y="62" text-anchor="middle">Computação</text>
+<text x="442" y="82" text-anchor="middle" class="m"></text>
+<text x="442" y="140" text-anchor="middle" class="m">de fazer contas à mão</text>
+<text x="442" y="160" text-anchor="middle" class="m">↓</text>
+<text x="442" y="180" text-anchor="middle">a programar a máquina</text>
+<circle cx="608" cy="110" r="6" class="bx-a"/>
+<text x="608" y="40" text-anchor="middle" class="h">Hoje</text>
+<text x="608" y="62" text-anchor="middle">Software</text>
+<text x="608" y="82" text-anchor="middle" class="m"></text>
+<text x="608" y="140" text-anchor="middle" class="m">de escrever o código</text>
+<text x="608" y="160" text-anchor="middle" class="m">↓</text>
+<text x="608" y="180" text-anchor="middle" class="a">a operar a fábrica ⚠</text>
+</svg>

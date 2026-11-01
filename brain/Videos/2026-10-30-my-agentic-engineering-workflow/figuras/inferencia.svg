@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 300">
+<rect x="30" y="14" width="310" height="42" rx="7" class="bx-a"/>
+<text x="185" y="39.5" text-anchor="middle" class="h">Modelo de fronteira</text>
+<rect x="380" y="14" width="310" height="42" rx="7" class="bx-ok"/>
+<text x="535" y="39.5" text-anchor="middle" class="h">Inferência local</text>
+<text x="185" y="90" text-anchor="middle">Trabalho difícil de código</text>
+<text x="185" y="116" text-anchor="middle">Revisão cruzada</text>
+<text x="185" y="142" text-anchor="middle">Loops de produção</text>
+<text x="185" y="168" text-anchor="middle">Qualquer tarefa com surpresas</text>
+<text x="535" y="90" text-anchor="middle">Contratos e dados de funcionários</text>
+<text x="535" y="116" text-anchor="middle">Saúde e assuntos privados</text>
+<text x="535" y="142" text-anchor="middle">Perguntas sem filtro</text>
+<text x="535" y="168" text-anchor="middle">Plano B em crise ou corte de acesso</text>
+<text x="360" y="222" text-anchor="middle" class="h">A escolha depende da tarefa, e não de um lado do debate</text>
+<text x="360" y="250" text-anchor="middle" class="m">Exemplo de David: 4 DGX Sparks somam 512 GB de memória</text>
+<text x="360" y="270" text-anchor="middle" class="m">Um notebook comum limita tanto o modelo que a opção local perde sentido</text>
+</svg>
