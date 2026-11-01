@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "diagram_type": "tree",
+  "meta": {
+    "title": "Madeira ou catedral?",
+    "subtitle": "Cada tarefa cai em um galho.",
+    "quality_profile": "showcase",
+    "output": "x.html"
+  },
+  "layout": {
+    "direction": "right",
+    "nodeW": 190
+  },
+  "nodes": [
+    {
+      "id": "t",
+      "label": "Seu trabalho",
+      "sublabel": "o critério do Minecraft"
+    },
+    {
+      "id": "m",
+      "label": "Cortar madeira",
+      "parent": "t",
+      "sublabel": "um loop faz sozinho"
+    },
+    {
+      "id": "c",
+      "label": "Construir a catedral",
+      "parent": "t",
+      "sublabel": "fica com você"
+    },
+    {
+      "id": "m1",
+      "label": "Bug fácil de reproduzir",
+      "parent": "m"
+    },
+    {
+      "id": "m2",
+      "label": "Varredura de segurança",
+      "parent": "m"
+    },
+    {
+      "id": "m3",
+      "label": "Relatórios diários",
+      "parent": "m"
+    },
+    {
+      "id": "c1",
+      "label": "Invenção",
+      "parent": "c"
+    },
+    {
+      "id": "c2",
+      "label": "Planejamento",
+      "parent": "c"
+    },
+    {
+      "id": "c3",
+      "label": "Gosto",
+      "parent": "c"
+    }
+  ]
+}

@@ -148,7 +148,7 @@ Se o problema é obrigatório, David aprova e o agente corrige. Na dúvida, Davi
 
 ![fig](revisao)
 
-![fig](eixos)
+![fig](triagem)
 
 ### [k=ship t=18:30-19:40] A entrega termina com um loop que caça efeitos colaterais
 -> loops-fabrica: o loop de efeitos colaterais é um exemplo de loop que compõe a fábrica

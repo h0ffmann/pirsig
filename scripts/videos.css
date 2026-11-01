@@ -48,32 +48,17 @@ details.part > summary { cursor: pointer; font-weight: 650; font-size: 17px; pad
 .note { margin: 24px 0 28px; }
 .time { display: block; font-size: 13px; margin-bottom: 8px; text-decoration: none; }
 .warn { color: var(--warn); }
-figure { margin: 28px 0; padding: 12px; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; }
+figure { margin: 28px 0; padding: 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
 figure details { font-size: 14.5px; margin-top: 8px; }
 figure summary { cursor: pointer; color: var(--muted); font-size: 14px; }
 figure details p { margin: 8px 0; }
 .fig-title { font-weight: 650; font-size: 15px; margin-bottom: 8px; }
-.svg svg { display: block; width: 100%; height: auto; }
-.svg text {
-  font-family: ui-sans-serif, system-ui, sans-serif; fill: var(--ink); font-size: 13px;
+.shot { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 8px; background: #02040f; }
+.shot img { display: block; margin: 0 auto; width: 100%; min-width: 720px; height: auto; cursor: zoom-in; }
+dialog#zoom { border: 0; padding: 0; background: transparent; max-width: 96vw; max-height: 96vh; }
+dialog#zoom::backdrop { background: rgb(0 0 0 / 0.86); }
+dialog#zoom img { display: block; max-width: 96vw; max-height: 96vh; cursor: zoom-out; border-radius: 8px; }
+@media (min-width: 1000px) {
+  figure { width: min(1100px, calc(100vw - 48px)); position: relative; left: 50%; transform: translateX(-50%); }
 }
-.svg text.m { fill: var(--muted); font-size: 12px; }
-.svg text.h { font-weight: 700; }
-.svg text.a { fill: var(--accent); }
-.svg text.ok { fill: var(--ok); }
-.svg text.r { fill: var(--risk); }
-.svg text.w { fill: var(--warn); }
-.svg .bx { fill: var(--panel); stroke: var(--line); stroke-width: 1.2; }
-.svg .bx-a { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.2; }
-.svg .bx-ok { fill: var(--ok-soft); stroke: var(--ok); stroke-width: 1.2; }
-.svg .bx-r { fill: var(--risk-soft); stroke: var(--risk); stroke-width: 1.2; }
-.svg .bx-w { fill: var(--warn-soft); stroke: var(--warn); stroke-width: 1.2; }
-.svg .ln { stroke: var(--muted); stroke-width: 1.4; fill: none; }
-.svg .ln-d { stroke: var(--muted); stroke-width: 1.2; fill: none; stroke-dasharray: 4 4; }
-.svg .hd { fill: var(--muted); stroke: none; }
-.svg .bar-a { fill: var(--accent); }
-.svg .bar-r { fill: var(--risk); }
-.svg .bar-ok { fill: var(--ok); }
-.svg .bar-g { fill: var(--muted); }
-.svg .bar-m { fill: var(--line); }
 @media (max-width: 520px) { body { font-size: 16px; } main { padding: 20px 16px 64px; } }

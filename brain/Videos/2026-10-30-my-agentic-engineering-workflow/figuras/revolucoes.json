@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "diagram_type": "tree",
+  "meta": {
+    "title": "Da tarefa para a máquina",
+    "subtitle": "Datas citadas por David.",
+    "quality_profile": "showcase",
+    "output": "x.html"
+  },
+  "layout": {
+    "direction": "right",
+    "nodeW": 190
+  },
+  "nodes": [
+    {
+      "id": "t",
+      "label": "Quatro viradas",
+      "sublabel": "o padrão de David"
+    },
+    {
+      "id": "a",
+      "label": "Década de 1830",
+      "parent": "t",
+      "sublabel": "parou: tecer à mão"
+    },
+    {
+      "id": "a1",
+      "label": "Operar o tear",
+      "parent": "a"
+    },
+    {
+      "id": "b",
+      "label": "1913",
+      "parent": "t",
+      "sublabel": "parou: montar cada carro"
+    },
+    {
+      "id": "b1",
+      "label": "Operar a linha",
+      "parent": "b"
+    },
+    {
+      "id": "c",
+      "label": "1946",
+      "parent": "t",
+      "sublabel": "parou: contas à mão"
+    },
+    {
+      "id": "c1",
+      "label": "Programar a máquina",
+      "parent": "c"
+    },
+    {
+      "id": "d",
+      "label": "Agora ⚠",
+      "parent": "t",
+      "sublabel": "para: escrever código"
+    },
+    {
+      "id": "d1",
+      "label": "Operar a fábrica ⚠",
+      "parent": "d"
+    }
+  ]
+}

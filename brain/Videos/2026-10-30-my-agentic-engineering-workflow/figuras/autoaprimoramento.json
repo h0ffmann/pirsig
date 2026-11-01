@@ -1,0 +1,104 @@
+{
+  "schema_version": 3,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "Como um relato vira correção",
+    "quality_profile": "showcase",
+    "legend": {
+      "mode": "hidden"
+    },
+    "output": "x.html"
+  },
+  "mainPath": [
+    "relatado",
+    "investigando",
+    "aguarda",
+    "corrigindo",
+    "producao"
+  ],
+  "states": [
+    {
+      "id": "relatado",
+      "type": "start",
+      "label": "Relatado",
+      "sublabel": "usuário ou agente"
+    },
+    {
+      "id": "investigando",
+      "type": "active",
+      "label": "Investigando",
+      "sublabel": "só leitura"
+    },
+    {
+      "id": "aguarda",
+      "type": "waiting",
+      "label": "Aguarda David",
+      "sublabel": "issue no GitHub"
+    },
+    {
+      "id": "corrigindo",
+      "type": "active",
+      "label": "Corrigindo",
+      "sublabel": "outro lab revisa"
+    },
+    {
+      "id": "producao",
+      "type": "success",
+      "label": "Em produção",
+      "sublabel": "para todos"
+    },
+    {
+      "id": "arquivada",
+      "type": "failure",
+      "label": "Arquivada",
+      "sublabel": "sem tempo humano"
+    }
+  ],
+  "transitions": [
+    {
+      "id": "t1",
+      "from": "relatado",
+      "to": "investigando",
+      "label": "loop: 1 min"
+    },
+    {
+      "id": "t2",
+      "from": "investigando",
+      "to": "aguarda",
+      "label": "é real"
+    },
+    {
+      "id": "t3",
+      "from": "aguarda",
+      "to": "corrigindo",
+      "label": "aprova"
+    },
+    {
+      "id": "t4",
+      "from": "corrigindo",
+      "to": "producao",
+      "label": "revisado"
+    },
+    {
+      "id": "t5",
+      "from": "investigando",
+      "to": "arquivada",
+      "label": "ruído",
+      "variant": "security"
+    },
+    {
+      "id": "t6",
+      "from": "aguarda",
+      "to": "arquivada",
+      "label": "recusa",
+      "variant": "security"
+    },
+    {
+      "id": "t7",
+      "from": "investigando",
+      "to": "corrigindo",
+      "label": "caso simples e óbvio",
+      "variant": "dashed"
+    }
+  ]
+}

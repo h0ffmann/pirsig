@@ -63,6 +63,10 @@ video-fetch url:
 video-check dir:
     node scripts/videos.mjs check "{{dir}}"
 
+# Draw a folder's figuras/*.json with Archify into figuras/*.png
+video-figures dir: figure-init
+    node scripts/videos.mjs figures "{{dir}}"
+
 # Turn a folder's leitura.markdown into psg notes, and copy them to brain/
 video-notes dir:
     node scripts/videos.mjs notes "{{dir}}"

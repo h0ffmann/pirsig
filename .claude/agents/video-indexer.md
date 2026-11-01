@@ -14,13 +14,13 @@ allowed-domains:
   - api.github.com
 allowed-terminal-tools:
   - yt-dlp             # through `just video-fetch` only, with --skip-download: no video or audio is kept
-  - just               # video-fetch, video-check, video-notes, videos
-  - node               # scripts/videos.mjs only
+  - just               # video-fetch, video-check, video-figures, video-notes, videos
+  - node               # scripts/videos.mjs and the pinned Archify (vendor/archify) only
   - psg                # target/debug/psg; `cargo build --bin psg` if it is missing
   - cargo              # build --bin psg only
   - gh                 # read gramatico; never writes to GitHub
   - git                # status and diff only; no commit, no push
-  - "Google Chrome"    # --headless, to look at the figures and the page
+  - "Google Chrome"    # --headless: draws the figures, and shows them to you
 ---
 
 You index one video into the person's second brain. Everything below is the policy: follow it in
@@ -29,7 +29,7 @@ order, and stop and report if a step cannot be done honestly.
 ## What done means
 
 1. `brain/Videos/<date>-<slug>/` holds `video.json`, `leitura.markdown`, `figuras.json`,
-   `figuras/*.svg` and the transcript.
+   `figuras/*.json`, `figuras/*.png` and the transcript.
 2. The whole video is indexed: `just video-check DIR` passes, with no gap from the first second
    to the last.
 3. The reading is ~30 minutes by gramatico's formula, whatever the video's length. A longer video
@@ -105,20 +105,29 @@ Run `just video-check DIR` and fix what it reports. It checks coverage, reading 
 figures and the mechanical style rules. A reader still has to check the rest: read the text once
 more against the transcript.
 
-## 3. Draw the figures, after the text
+## 3. Draw the figures with Archify, after the text
 
-Draw only what the text says. A figure earns its place when it shows a flow, a decision, a
-comparison or a proportion that reads worse as prose; six to twelve for a long video.
+Figures are Archify diagrams, never hand-written SVG. Hand-drawn boxes passed every check and were
+still unreadable. Read the vendored `archify` skill and look at its best examples first. Draw only
+what the text says, six to twelve for a long video.
 
-- Each is `figuras/<id>.svg`, hand-written inline SVG with a `viewBox` and no fixed size, and is
-  placed with `![fig](id)`. Do not copy frames or the speaker's slides.
-- Text in pt-BR. Colours come only from the classes in `scripts/videos.css`, so light and dark
-  both work: `bx`, `bx-a`, `bx-ok`, `bx-w`, `bx-r` for boxes; `ln`, `ln-d`, `hd` for lines and
-  arrowheads; `bar-a`, `bar-r`, `bar-ok`, `bar-g`, `bar-m` for bars; `m`, `h`, `a`, `ok`, `w`, `r`
-  for text. Red means risk, never decoration.
+- Each figure is `figuras/<id>.json`, Archify's typed source, placed with `![fig](id)`.
+  `just video-figures DIR` runs `finalize` (schema, layout, routes, real browser) and writes
+  `figuras/<id>.png`. Do not copy frames or the speaker's slides.
+- Pick the type by what the idea is. These are the ones that hold up in pt-BR at reading width:
+  - `lifecycle` for a flow with branches: at most five boxes in the main path, with
+    `meta.legend.mode` `hidden`.
+  - `tree` with `layout.direction` `right` for a comparison, a breakdown or a map.
+- Avoid the rest here. `workflow` gives cramped boxes and empty lanes at this width. `waterfall`
+  counts only in seconds. `timeline` prints invented clock times on anything not timestamped. Both
+  also print English chrome ("Legend", "Wall-clock") that this page cannot translate.
+- Short labels, in pt-BR: two or three words, and a sublabel of at most four.
 - `figuras.json` holds, per id, `title`, `alt`, `takeaway`, `read`, `missing` and `evidence`
-  (CIE-12). The `⚠` of the text appears in the figure. A calculation of yours is labelled as yours.
-- Render every figure in headless Chrome and look at it. Fix what overlaps or crosses a box.
+  (CIE-12). The `⚠` of the text appears in the figure. A calculation or grouping of yours is
+  labelled as yours, and numbers on a figure add up.
+- **Look at every PNG at 800 px wide before you accept it.** A passing `finalize` says nothing
+  about beauty. Every label must read, no line may cross another, and the frame must be filled. If
+  it fails, change the type or cut boxes, and draw it again.
 
 Text and figure in disagreement: the figure is the error.
 
@@ -134,7 +143,7 @@ If the local database is empty, run `psg fork import brain` first. Check with `p
 ## 5. Serve
 
 `just videos` builds `brain/Videos/index.html` and serves it at <http://127.0.0.1:8765/>. Every
-video and every figure is on that one page, inlined, each video in its own collapsible section.
+video and every figure is on that one page, inlined as PNG, each video in its own collapsible section.
 Add no other pages. Check it at phone width too.
 
 ## Never

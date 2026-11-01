@@ -4,10 +4,11 @@
 //
 //   videos.mjs fetch URL     brain/Videos/<date>-<slug>/: video.json and the transcript
 //   videos.mjs check DIR     coverage of the video, reading time, house style
+//   videos.mjs figures DIR   figuras/*.json through Archify into figuras/*.png
 //   videos.mjs notes DIR     leitura.markdown into psg notes, then back into brain/
 //   videos.mjs page          brain/Videos/index.html: every video on one page
 //   videos.mjs serve [PORT]  that page, on localhost
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import fs from "node:fs";
 import http from "node:http";
 import os from "node:os";
@@ -163,7 +164,7 @@ function check(dir) {
     for (const field of ["title", "alt", "takeaway", "read", "missing", "evidence"]) {
       if (!f[field]) problems.push(`figure ${id}: no ${field}`);
     }
-    if (!fs.existsSync(path.join(dir, "figuras", `${id}.svg`))) problems.push(`figure ${id}: no svg`);
+    if (!fs.existsSync(path.join(dir, "figuras", `${id}.png`))) problems.push(`figure ${id}: no png, run figures`);
   }
   for (const id of Object.keys(figures)) if (!used.has(id)) problems.push(`figure ${id} is not in the text`);
 
@@ -256,6 +257,52 @@ function sync(hub, resource) {
   fs.rmSync(tmp, { recursive: true });
 }
 
+// --- figures ------------------------------------------------------------------------------
+
+const ARCHIFY = "vendor/archify/archify/bin/archify.mjs";
+const CHROME = process.env.CHROME ?? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+// Only the drawing: no toolbar, no index, in Archify's own dark theme.
+const FRAME = `<style>
+body *{visibility:hidden!important}
+.diagram-container svg,.diagram-container svg *{visibility:visible!important}
+.diagram-container svg{position:fixed!important;left:0;top:0;width:100vw!important;height:100vh!important}
+</style>`;
+
+// Every source goes through finalize: schema, layout, routes and a real browser.
+function figures(dir) {
+  if (!dir) die("usage: videos.mjs figures DIR");
+  if (!fs.existsSync(ARCHIFY)) die("run `just figure-init` first");
+  const src = path.join(dir, "figuras");
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "figuras-"));
+  const env = { ...process.env, ARCHIFY_UPDATE_CHECK_DISABLED: "1", ARCHIFY_CHROME: CHROME };
+  let failed = 0;
+  for (const f of fs.readdirSync(src).filter((x) => x.endsWith(".json")).sort()) {
+    const id = f.replace(/\.json$/, "");
+    const type = readJson(path.join(src, f)).diagram_type;
+    const page = path.join(tmp, `${id}.html`);
+    const run = spawnSync("node", [ARCHIFY, "finalize", type, path.join(src, f), page, "--out-dir",
+      path.join(tmp, id), "--quality", "showcase", "--json"], { env, encoding: "utf8" });
+    if (run.status !== 0) {
+      failed += 1;
+      const report = JSON.parse(run.stdout || "{}");
+      const errors = (report.diagnostics ?? []).filter((d) => d.severity === "error");
+      console.log(`${id}: ${errors.map((d) => `${d.code}: ${d.message}`).join("; ") || run.stdout.slice(0, 400) || run.stderr.slice(0, 400)}`);
+      continue;
+    }
+    const html = fs.readFileSync(page, "utf8");
+    const [, w, h] = html.match(/<svg[^>]*viewBox="0 0 ([\d.]+) ([\d.]+)"/);
+    const frame = path.join(tmp, `${id}.frame.html`);
+    fs.writeFileSync(frame, html.replace("</head>", `${FRAME}</head>`));
+    execFileSync(CHROME, ["--headless", "--disable-gpu", "--hide-scrollbars", "--force-dark-mode",
+      "--force-device-scale-factor=2", `--user-data-dir=${path.join(tmp, "profile")}`,
+      `--window-size=${Math.ceil(w)},${Math.ceil(h)}`, "--virtual-time-budget=3000",
+      `--screenshot=${path.resolve(src, `${id}.png`)}`, `file://${frame}`], { stdio: "ignore" });
+    console.log(`${id}: ${type}, ${Math.ceil(w)}x${Math.ceil(h)}`);
+  }
+  fs.rmSync(tmp, { recursive: true });
+  if (failed) die(`${failed} figure(s) failed`);
+}
+
 // --- page ---------------------------------------------------------------------------------
 
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -266,9 +313,12 @@ const inline = (s) => esc(s)
 
 function figure(dir, id, figures) {
   const f = figures[id];
-  const svg = fs.readFileSync(path.join(dir, "figuras", `${id}.svg`), "utf8").trim();
+  const file = fs.readFileSync(path.join(dir, "figuras", `${id}.png`));
+  const png = file.toString("base64");
+  // Rendered at 2x. Up to a quarter over natural size, so a narrow tree does not balloon.
+  const width = Math.round((file.readUInt32BE(16) / 2) * 1.25);
   return `<figure id="fig-${esc(id)}"><figcaption class="fig-title">${inline(f.title)}</figcaption>
-<div class="svg" role="img" aria-label="${esc(f.alt).replace(/"/g, "&quot;")}">${svg}</div>
+<div class="shot"><img style="max-width:${width}px" src="data:image/png;base64,${png}" alt="${esc(f.alt).replace(/"/g, "&quot;")}"></div>
 <details><summary>Como ler esta figura</summary>
 <p><strong>Conclusão.</strong> ${inline(f.takeaway)}</p>
 <p><strong>Como ler.</strong> ${inline(f.read)}</p>
@@ -331,7 +381,12 @@ Página gerada por <code>just videos</code>.</p>
 <div class="tools"><button id="open">Abrir tudo</button><button id="close">Recolher tudo</button></div>
 ${dirs.map((d, i) => videoSection(d, i === 0)).join("\n")}
 </main>
+<dialog id="zoom"><img alt=""></dialog>
 <script>
+const zoom = document.getElementById("zoom");
+for (const img of document.querySelectorAll(".shot img"))
+  img.onclick = () => { zoom.firstChild.src = img.src; zoom.firstChild.alt = img.alt; zoom.showModal(); };
+zoom.onclick = () => zoom.close();
 for (const [id, open] of [["open", true], ["close", false]])
   document.getElementById(id).onclick = () =>
     document.querySelectorAll("details.video, details.part").forEach((d) => (d.open = open));
@@ -350,6 +405,6 @@ function serve(port = "8765") {
 }
 
 const [command, arg] = process.argv.slice(2);
-const commands = { fetch: fetchVideo, check, notes, page, serve };
-if (!commands[command]) die("usage: videos.mjs fetch URL | check DIR | notes DIR | page | serve [PORT]");
+const commands = { fetch: fetchVideo, check, figures, notes, page, serve };
+if (!commands[command]) die("usage: videos.mjs fetch URL | check DIR | figures DIR | notes DIR | page | serve [PORT]");
 commands[command](arg);
