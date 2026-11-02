@@ -2,3 +2,7 @@
 	path = vendor/archify
 	url = https://github.com/tt-a1i/archify.git
 	shallow = true
+[submodule "closed-source"]
+	path = closed-source
+	url = https://github.com/h0ffmann/closed-source.git
+	shallow = true

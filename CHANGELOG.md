@@ -8,6 +8,8 @@ What changes in Pirsig, newest first. The format follows
 
 ### Added
 
+- `closed-source` as a submodule at the root (shallow, like `vendor/archify`). A clone needs
+  `git submodule update --init --depth 1 closed-source` to fill it.
 - Videos in the brain: `just video-fetch`, `video-check`, `video-notes` and `just videos`, and the
   `video-indexer` agent. Each video becomes a timed reading made of literature notes, with its
   figures on one local page.
